@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<project default="run" name="ASHV">
+	<description>
+		ASH Viewer build file
+	</description>
+
+    <property name="main.class" value="org.ash.MainApp"/>
+    <property name="jar.name" value="${ant.project.name}.jar"/>
+    
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="bin"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="lib.dir" value="lib"/>
+
+    <path id="build.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**.jar"/>
+        </fileset>
+    </path>
+
+    <property name="build.classpath" refid="build.classpath"/>
+	
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <target name="compile" depends="clean">
+        <mkdir dir="${build.dir}"/>
+
+    	<javac srcdir="${src.dir}" 
+    		   destdir="${build.dir}" 
+    		   debug="on"
+    		   deprecation="false"
+    		   source="1.5"
+    		   target="1.5"
+	    	   classpath="${build.classpath}">
+    		<include name="org/jfree/**"/>
+    		<include name="org/ash/**"/>
+    		<include name="ext/egantt/**"/>
+    		<include name="com/egantt/**"/>
+    		<exclude name="org/jfree/chart/xml/**"/>
+    		<exclude name="org/jfree/chart/encoders/SunPNGEncoderAdapter.java" unless="ImageIO.present"/>
+    		<exclude name="org/jfree/chart/encoders/SunJPEGEncoderAdapter.java" unless="ImageIO.present"/>
+    	</javac>
+    		
+    	<!-- copy across .properties files -->
+    	<copy todir="${build.dir}/org/jfree/chart/">
+    	    <fileset dir="${src.dir}/org/jfree/chart">
+    	        <include name="*.properties" />
+    	    </fileset>
+    	</copy>
+    	<copy todir="${build.dir}/org/jfree/chart/plot">
+    	    <fileset dir="${src.dir}/org/jfree/chart/plot">
+    	        <include name="*.properties" />
+    	    </fileset>
+    	</copy>
+    	<copy todir="${build.dir}/org/jfree/chart/editor">
+    	    <fileset dir="${src.dir}/org/jfree/chart/editor">
+    	        <include name="*.properties" />
+    	    </fileset>
+    	</copy>
+    	
+    </target>
+    
+    <target name="jar" depends="compile">
+        <mkdir dir="${dist.dir}/${lib.dir}"/>
+        <copy todir="${dist.dir}/${lib.dir}">
+            <fileset dir="${lib.dir}"/>
+        </copy>	
+        	
+        <manifestclasspath property="jar.classpath" jarfile="${jar.name}">
+            <classpath refid="build.classpath"/>
+        </manifestclasspath>
+        	
+        <jar basedir="${build.dir}" destfile="${dist.dir}/${jar.name}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="${jar.classpath}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${dist.dir}/${jar.name}" fork="true"/>
+    </target>
+</project>
