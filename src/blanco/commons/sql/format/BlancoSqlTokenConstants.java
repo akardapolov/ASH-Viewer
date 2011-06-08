@@ -1,57 +1,29 @@
-/*
- * ‚±‚Ìƒ\[ƒXƒR[ƒh‚Í blanco Framework‚É‚æ‚è©“®¶¬‚³‚ê‚Ü‚µ‚½B
- */
+
 package blanco.commons.sql.format;
 
 /**
- * blancoSqlFormatter‚Ìƒg[ƒNƒ“‚Ìƒ^ƒCƒv‚ÉŠÖ‚·‚é’è”‚Å‚·B
+ * blancoSqlFormatter‚
  */
 public class BlancoSqlTokenConstants {
-    /**
-     * €–Ú”Ô†:1<br>
-     * ‹ó•¶š. TAB,CR“™‚à‚P‚Â‚Ì•¶š—ñ‚Æ‚µ‚ÄŠÜ‚ŞB
-     */
+   
     public static final int SPACE = 0;
 
-    /**
-     * €–Ú”Ô†:2<br>
-     * ‹L†. " <="‚Ì‚æ‚¤‚È‚Q‚Â‚Å‚P‚Â‚Ì‹L†‚à‚ ‚éB
-     */
+   
     public static final int SYMBOL = 1;
 
-    /**
-     * €–Ú”Ô†:3<br>
-     * ƒL[ƒ[ƒh. "SELECT", "ORDER"‚È‚Ç.
-     */
     public static final int KEYWORD = 2;
 
-    /**
-     * €–Ú”Ô†:4<br>
-     * –¼‘O. ƒe[ƒuƒ‹–¼A—ñ–¼‚È‚ÇBƒ_ƒuƒ‹ƒNƒH[ƒe[ƒVƒ‡ƒ“‚ª•t‚­ê‡‚ª‚ ‚éB
-     */
+   
     public static final int NAME = 3;
 
-    /**
-     * €–Ú”Ô†:5<br>
-     * ’l. ”’li®”AÀ”jA•¶š—ñ‚È‚ÇB
-     */
+   
     public static final int VALUE = 4;
 
-    /**
-     * €–Ú”Ô†:6<br>
-     * ƒRƒƒ“ƒg. ƒVƒ“ƒOƒ‹ƒ‰ƒCƒ“ƒRƒƒ“ƒg‚Æƒ}ƒ‹ƒ`ƒ‰ƒCƒ“ƒRƒƒ“ƒg‚ª‚ ‚éB
-     */
+  
     public static final int COMMENT = 5;
 
-    /**
-     * €–Ú”Ô†:7<br>
-     * SQL•¶‚ÌI‚í‚è.
-     */
+ 
     public static final int END = 6;
 
-    /**
-     * €–Ú”Ô†:8<br>
-     * ‰ğÍ•s‰Â”\‚Èƒg[ƒNƒ“. ’Êí‚ÌSQL‚Å‚Í‚ ‚è‚¦‚È‚¢B
-     */
     public static final int UNKNOWN = 7;
 }
