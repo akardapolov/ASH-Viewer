@@ -119,7 +119,7 @@ public void finalize() throws Throwable {
 	    
 	    long lasttime;
 	    this.m_stop = false;
-	    long m_latencyBDBCollector = 1000;
+	    long m_latencyBDBCollector = 2000;
 	    
 	    while (!this.m_stop) {
 	     
