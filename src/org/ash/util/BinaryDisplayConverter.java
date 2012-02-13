@@ -24,8 +24,8 @@ package org.ash.util;
 
 public class BinaryDisplayConverter {
 	
-	// Use Hexidecimal representation
-	 public static final int HEX = 16;
+	// Use Hexidecimal representation (r)
+	 public static final int HEX = 16;	 
 	 //Use decimal representation.
 	 public static final int DECIMAL = 10;
 	 //Use Octal representation.
