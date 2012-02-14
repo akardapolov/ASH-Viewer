@@ -292,6 +292,7 @@ public class Dictionary extends ListResourceBundle {
     {"ThumbnailMain.mnemonic","T"},
     
     {"texttoclip.text","Copy to clipboard"},
+    {"textvsession.text","Store v$session count"},
     
     {"autoRadio.text","Auto"},
     {"manualRadio.text","Manual"},

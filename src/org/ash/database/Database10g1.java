@@ -41,6 +41,7 @@ import org.ash.datamodel.AshSqlIdTypeText;
 import org.ash.datamodel.AshSqlPlanDetail;
 import org.ash.datamodel.AshSqlPlanParent;
 import org.ash.datamodel.AshWaitClass10g1;
+import org.ash.datamodel.VSession;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.explainplanmodel.ExplainPlanModel10g2;
@@ -171,7 +172,11 @@ public class Database10g1 extends ASHDatabase {
 	private void loadAshDataToLocal() {
 
 		ResultSet resultSetAsh = null;
+		ResultSet resultSetSysdate = null;
+		ResultSet resultSetVSessionCount = null;
 		PreparedStatement statement = null;
+		PreparedStatement statementSysdate = null;
+		PreparedStatement statementVSessionCount = null;
 		Connection conn = null;
 
 		// Get sequence activeSessionHistoryId
@@ -187,6 +192,41 @@ public class Database10g1 extends ASHDatabase {
 
 				conn = model.getConnectionPool().getConnection();
 
+				//###################### VSessionCount #######################//
+				if (Options.getInstance().getvSessionCount()) {
+
+					statementSysdate = conn
+							.prepareStatement("SELECT SYSDATE FROM DUAL");
+					statementVSessionCount = conn
+							.prepareStatement("SELECT COUNT(1) CNT FROM V$SESSION");
+
+					resultSetSysdate = statementSysdate.executeQuery();
+					resultSetVSessionCount = statementVSessionCount
+							.executeQuery();
+
+					while (resultSetSysdate.next()) {
+						// Sample time
+						oracle.sql.DATE oracleDateSampleTime = ((OracleResultSet) resultSetSysdate)
+								.getDATE("SYSDATE");
+						double sysdateValue = (new Long(oracleDateSampleTime
+								.timestampValue().getTime())).doubleValue();
+
+						while (resultSetVSessionCount.next()) {
+
+							double valueVSessionCount = resultSetVSessionCount
+									.getLong("CNT");
+							// Load data for sampleId (ASH)
+							try {
+								dao.ashVSession.putNoOverwrite(new VSession(
+										sysdateValue, valueVSessionCount));
+							} catch (DatabaseException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+				//###################### VSessionCount #######################//				
+				
 				if (super.getSampleId() == -1) {
 					statement = conn
 							.prepareStatement("SELECT * FROM V$ACTIVE_SESSION_HISTORY");

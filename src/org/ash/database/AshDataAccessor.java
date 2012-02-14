@@ -33,6 +33,7 @@ import org.ash.datamodel.AshSqlPlanDetail;
 import org.ash.datamodel.AshSqlPlanParent;
 import org.ash.datamodel.AshUserIdUsername;
 import org.ash.datamodel.AshWaitClass10g1;
+import org.ash.datamodel.VSession;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.EntityCursor;
@@ -88,6 +89,9 @@ public class AshDataAccessor {
     
     /** The sql plan by hash value (parent). */
     SecondaryIndex<String, Double, AshSqlPlanParent> ashSqlPlanHashValueParent;
+    
+    /** AshCalcSumByEvent10Sec Accessors */
+    PrimaryIndex<Double, VSession> ashVSession;
     
 	/** The half range for one 15 sec storage*/
 	private int rangeHalf = 7500;
@@ -165,6 +169,12 @@ public class AshDataAccessor {
     	/* Secondary key for AshSqlPlanParent. */
         ashSqlPlanHashValueParent =
         	    store.getSecondaryIndex(ashSqlPlanPKParent, String.class, "sqlId");
+        
+        /* Primary key for VSession. */
+    	ashVSession =
+    			store.getPrimaryIndex(Double.class, VSession.class);
+        
+        
     }
 
 

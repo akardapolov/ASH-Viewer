@@ -58,6 +58,7 @@ public class Settings extends JDialog {
 
 	private JPanel mainPanelCommon = new JPanel();
 	private JPanel sqlTextToClipboardPanelCommon = new JPanel();
+	private JPanel vSessionPanelCommon = new JPanel();
 	private JPanel mainPanelTopA = new JPanel();
 	private JPanel mainPanelDetail = new JPanel();
 	private JPanel buttonsPanelTopA = new JPanel();
@@ -84,6 +85,7 @@ public class Settings extends JDialog {
 	
 	/** The radio button manual */
 	private JCheckBox sqlTextToClipboardCheckbox = new JCheckBox();
+	private JCheckBox VSessionCheckbox = new JCheckBox();
 	
 	/** The radio button auto */
 	private JRadioButton autoRadioButton = new JRadioButton();
@@ -228,6 +230,10 @@ public class Settings extends JDialog {
 		this.sqlTextToClipboardCheckbox.setText(Options.getInstance().getResource("texttoclip.text"));
 		this.sqlTextToClipboardCheckbox.addItemListener(new SelectItemListenerTextToClipboard());
 		
+		this.VSessionCheckbox.setMnemonic(Options.getInstance().getResource("textvsession.text").charAt(0));
+		this.VSessionCheckbox.setText(Options.getInstance().getResource("textvsession.text"));
+		this.VSessionCheckbox.addItemListener(new SelectItemListenerVSessionCount());
+		
 		this.autoRadioButton.setMnemonic(Options.getInstance().getResource("autoRadio.mnemonic").charAt(0));
 		this.autoRadioButton.setText(Options.getInstance().getResource("autoRadio.text"));
 		this.autoRadioButton.addItemListener(new SelectItemListenerAutoManulRadioButton());
@@ -344,6 +350,13 @@ public class Settings extends JDialog {
                                TitledBorder.LEFT,
                                TitledBorder.DEFAULT_POSITION,
                                sqlTextToClipboardPanelCommon);
+        
+        vSessionPanelCommon.setLayout(gridBagLayoutCommon1);
+	    titledSelectionModeTopA = BorderFactory.createTitledBorder(loweredetched, "Sessions count");
+        addCompForTitledBorder(titledSelectionModeTopA,
+                               TitledBorder.LEFT,
+                               TitledBorder.DEFAULT_POSITION,
+                               vSessionPanelCommon);
 	    
 	    autoManualPanelTopA.setLayout(gridBagLayoutTopA2);
 	    titledSelectionModeTopA = BorderFactory.createTitledBorder(loweredetched, "Selection mode");
@@ -401,11 +414,16 @@ public class Settings extends JDialog {
 	    getContentPane().add(tabsSettings);
 	    
 	    mainPanelCommon.add(sqlTextToClipboardPanelCommon,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(5, 5, 260, 5), 0, 0));
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+	    mainPanelCommon.add(vSessionPanelCommon,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+	    mainPanelCommon.add(new JPanel(),  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 200, 70), 0, 0));	
 	    sqlTextToClipboardPanelCommon.add(sqlTextToClipboardCheckbox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
 	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-	    sqlTextToClipboardPanelCommon.add(new JPanel(),  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 70), 0, 0));	    
+	    vSessionPanelCommon.add(VSessionCheckbox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+	       
 	    
 	    mainPanelTopA.add(autoManualPanelTopA,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
@@ -528,6 +546,18 @@ public class Settings extends JDialog {
 			    Options.getInstance().setCopySqlToClibpoard(true);
 		     } else {
 		        Options.getInstance().setCopySqlToClibpoard(false);
+		     }
+		}
+	}
+	
+	class SelectItemListenerVSessionCount implements ItemListener{
+		public void itemStateChanged(ItemEvent e){
+			//checkbox select or not
+			int state = e.getStateChange();
+			if (state == ItemEvent.SELECTED) {
+			    Options.getInstance().setvSessionCount(true);
+		     } else {
+		        Options.getInstance().setvSessionCount(false);
 		     }
 		}
 	}

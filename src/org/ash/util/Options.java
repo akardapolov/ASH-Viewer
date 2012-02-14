@@ -38,6 +38,10 @@ import org.syntax.jedit.tokenmarker.PLSQLTokenMarker;
 /**
  * The Class Options.
  */
+/**
+ * @author akardapolov
+ *
+ */
 public class Options {
 
   /** The opt. */
@@ -103,10 +107,14 @@ public class Options {
   /** The database edition (EE/SE) */
   private String editionDb;
   
-  /** The database edition (EE/SE) */
+  /** The copy sql to clipboard checkbox */
   private boolean copySqlToClibpoard = false;
   
-  /** Store colors for events */
+  /** The  v$session count checkbox */
+  private boolean vSessionCount = false;
+  
+
+/** Store colors for events */
   private static EventColors eventColors;
   
   /** Is current profile uses in history interface */
@@ -581,6 +589,20 @@ public void setJtextAreaSqlTextGanttHAndDetailsH() {
 	jtextAreaSqlTextGanttDetailsH = new JEditTextArea();
 	jtextAreaSqlTextGanttDetailsH.setTokenMarker(new PLSQLTokenMarker());
 	jtextAreaSqlTextGanttDetailsH.setEditable(false);
+}
+
+/**
+ * @return
+ */
+public boolean getvSessionCount() {
+	return vSessionCount;
+}
+
+/**
+ * @param vSessionCount
+ */
+public void setvSessionCount(boolean vSessionCount) {
+	this.vSessionCount = vSessionCount;
 }
 
 
