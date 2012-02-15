@@ -58,7 +58,7 @@ public class ProgressOnStart extends Canvas {
 	        
 			window = new Window(new Frame());
 			Dimension screenDimension = getToolkit().getScreenSize();
-			Dimension thisDimension = new Dimension(320,190);
+			Dimension thisDimension = new Dimension(330,220);
 			window.setSize(thisDimension);
 			window.setLayout(new BorderLayout());
 	        window.add(panel, BorderLayout.PAGE_START);

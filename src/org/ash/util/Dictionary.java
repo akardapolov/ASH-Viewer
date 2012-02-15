@@ -326,11 +326,13 @@ public class Dictionary extends ListResourceBundle {
     {"queueningLabel.text","Queueing"},
     {"clusterLabel.text","Cluster"},
     {"otherLabel.text","Other"},
-    
+    {"AllSessionLabel.text","All sessions"},
+        
     {"tabMain.text","Top activity"},
     {"tabDetail.text","Detail"},
+    {"tabOther.text","Other"},
     {"tabHistory.text","History"},
-    
+        
     {"tabTopSQL.text","Top SQL"},
     {"tabSQLText.text","SQL text"},
     {"tabSQLPlan.text","SQL plan"},

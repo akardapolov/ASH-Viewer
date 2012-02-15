@@ -1456,6 +1456,8 @@ public class EventColors {
 		this.seriesNameColor.put(Options.getInstance().getResource("queueningLabel.text"), new Color(232,232,232));//que
 		this.seriesNameColor.put(Options.getInstance().getResource("clusterLabel.text"), new Color(117,117,117));//cluster
 		this.seriesNameColor.put(Options.getInstance().getResource("otherLabel.text"), new Color(255,87,143));
+		
+		this.seriesNameColor.put(Options.getInstance().getResource("AllSessionLabel.text"), new Color(250,250,70));
 	
 		} catch (Exception e){
      		e.printStackTrace();

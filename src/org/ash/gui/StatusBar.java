@@ -182,6 +182,13 @@ public class StatusBar extends JLabel
     }
     
     /**
+     * Update label of statusBar for Top Activity tab
+     */
+    public void updateLabelStringOther(){
+    	updateLabelStringOthers();
+    }
+    
+    /**
      * Update label of statusBar for Detail tab
      * @param event class
      */
@@ -220,6 +227,14 @@ public class StatusBar extends JLabel
     private void updateLabelStringHist()
     {
     	setStatus("History data");
+    }
+    
+    /**
+     * Update label string for Other.
+     */
+    private void updateLabelStringOthers()
+    {
+    	setStatus("Other data");
     }
     
 }

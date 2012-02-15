@@ -89,17 +89,29 @@ public class MainFrame extends JFrame implements ActionListener{
 	/** The split pane main. */
 	private JSplitPane splitPaneMain;
 	
+	/** The split pane main for Sessions. */
+	private JSplitPane splitPaneMainSessions;
+	
 	/** The database. */
 	private ASHDatabase database;
 	
 	/** The main panel. */
 	private JPanel mainPanel;
 	
+	/** The Sessions panel. */
+	private JPanel mainPanelOther;
+	
 	/** The chart chart panel. */
 	private ChartPanel chartChartPanel;
 	
+	/** The chart chart panel for sessions. */
+	private ChartPanel chartChartPanelSessions;
+	
 	/** The stacked chart main object. */
 	private StackedChart stackedChartMainObject;
+	
+	/** The stacked chart sessions object. */
+	private StackedChartSessions stackedChartMainObjectSession;
 	
 	/** The collector. Update UI and load data from DB for 10g, 
 	 * for 9i - only update UI */
@@ -186,7 +198,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		this.tabsMain = new JTabbedPane();		
 		
 		this.model = new Model();
-		this.splitPaneMain = new JSplitPane();
+		this.splitPaneMain = new JSplitPane();	
+		this.splitPaneMainSessions = new JSplitPane();	
 		this.statusBar = new StatusBar();
 		
 		this.jButtonSettings.setMnemonic(Options.getInstance().getResource("settingsMain.mnemonic").charAt(0));
@@ -220,7 +233,11 @@ public class MainFrame extends JFrame implements ActionListener{
 		this.mainPanel = new JPanel();
 		this.mainPanel.setLayout(new BorderLayout());
 		this.mainPanel.setVisible(true);
-				
+		
+		this.mainPanelOther = new JPanel();
+		this.mainPanelOther.setLayout(new BorderLayout());
+		this.mainPanelOther.setVisible(true);
+						
 		this.settingsDialog = new Settings(this);
 		this.settingsDialog.setLocation(buttonPanel.getX()+100,buttonPanel.getY()+50);
 		this.settingsDialog.setVisible(false);
@@ -255,17 +272,25 @@ public class MainFrame extends JFrame implements ActionListener{
 		this.historyJPanel.setVisible(false);
 			progressBarOnStart.setProgressValueAndTaskOutput(40,"Initialize history tab");
 
+	    /** Initialize Sessions chart panel */
+		this.stackedChartMainObjectSession = new StackedChartSessions(this.database);
+		  this.chartChartPanelSessions = this.stackedChartMainObjectSession.createChartPanel();
+			progressBarOnStart.setProgressValueAndTaskOutput(50,"Initialize Sessions tab");
+							
 		/** Initialize main Top Activity chart panel */
 		this.stackedChartMainObject = new StackedChart(this.database);
 		this.setThresholdMaxCpu();
+		
 		this.chartChartPanel = this.stackedChartMainObject.createChartPanel();
 			progressBarOnStart.setProgressValueAndTaskOutput(60,"Initialize Top Activity tab");
 			
+								
 		/** Initialize Sqls & Sessions JPanel*/
 		this.sqlsAndSessions = new Gantt(this, this.database);
 				
-		/** Add stacked area chart and gantt area to collector */
+		/** Add stacked area chart and gantt area to UI collector */
 		this.collectorUI.addListenerStart(this.stackedChartMainObject);
+		this.collectorUI.addListenerStart(this.stackedChartMainObjectSession);
 			
 		/** Set JSplitPane parameters */
 		this.splitPaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -275,12 +300,22 @@ public class MainFrame extends JFrame implements ActionListener{
 		this.splitPaneMain.setOneTouchExpandable(true);
 			progressBarOnStart.setProgressValueAndTaskOutput(80,"Initialize Top SQL and Top Sessions");
 
+		/** Set JSplitPane parameters */
+		this.splitPaneMainSessions.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		this.splitPaneMainSessions.add(this.chartChartPanelSessions, "top");
+		this.splitPaneMainSessions.add(new JPanel(), "bottom");
+		this.splitPaneMainSessions.setDividerLocation(290);
+		this.splitPaneMainSessions.setOneTouchExpandable(true);
+			progressBarOnStart.setProgressValueAndTaskOutput(80,"Initialize Sessions tab");
+	
+			
 		/** Add sqlsAndSessions and statusBar to Top Activity chart panel listener */
 		this.chartChartPanel.addListenerReleaseMouse(this.sqlsAndSessions);
 		this.chartChartPanel.addListenerReleaseMouse(this.statusBar);
 		
 		/** Add JSplitPane to mainPanel */
 		this.mainPanel.add(splitPaneMain, BorderLayout.CENTER);
+		this.mainPanelOther.add(splitPaneMainSessions, BorderLayout.CENTER);
 		this.sqlsAndSessions.repaint();		
 		
 		/** Load data to detail data sets */
@@ -294,6 +329,8 @@ public class MainFrame extends JFrame implements ActionListener{
 				Options.getInstance().getResource("tabMain.text"));
 		this.tabsMain.add(this.detailJPanel,
 				Options.getInstance().getResource("tabDetail.text"));
+		this.tabsMain.add(this.mainPanelOther,
+				Options.getInstance().getResource("tabOther.text"));
 		this.tabsMain.add(this.historyJPanel,
 				Options.getInstance().getResource("tabHistory.text"));
 			
@@ -317,6 +354,7 @@ public class MainFrame extends JFrame implements ActionListener{
 
 		/** Start collectors */
 		this.collectorStart();
+	
 	}
 
 	/**
@@ -642,6 +680,9 @@ public class MainFrame extends JFrame implements ActionListener{
 	    } else if(sourceTabbedPane.getTitleAt(index).
 	    		equalsIgnoreCase(Options.getInstance().getResource("tabDetail.text"))) {
 	    	statusBar.updateLabelStringDetail(detailJPanel.getCurrentTabName());
+	    } else if(sourceTabbedPane.getTitleAt(index).
+	    		equalsIgnoreCase(Options.getInstance().getResource("tabOther.text"))) {
+	    	statusBar.updateLabelStringOther();
 	    }
 	      else if(sourceTabbedPane.getTitleAt(index).
 	    		equalsIgnoreCase(Options.getInstance().getResource("tabHistory.text"))) {

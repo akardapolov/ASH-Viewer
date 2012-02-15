@@ -38,6 +38,7 @@ import org.ash.datamodel.ActiveSessionHistory;
 import org.ash.datamodel.ActiveSessionHistory15;
 import org.ash.datamodel.AshIdTime;
 import org.ash.datamodel.AshParamValue;
+import org.ash.datamodel.AshVSession;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.detail.StackedChartDetail;
@@ -108,6 +109,9 @@ public class ASHDatabase {
 
 	/** The dataset. */
 	private CategoryTableXYDataset dataset = null;
+	
+	/** The sessions dataset. */
+	private CategoryTableXYDataset datasetSessions = null;
 	
 	/** The half range for one 15 sec storage (details)*/
 	private int rangeHalf = 7500;
@@ -528,6 +532,43 @@ public class ASHDatabase {
 			e.printStackTrace();
 		}
 	}
+		
+	/**
+	 * Load sessions data to chart panel data set. (All)
+	 * 
+	 * @param _dataset the _datasetSessions
+	 */
+	public void loadDataToChartPanelDataSet_Sessions_All(CategoryTableXYDataset _datasetSessions){
+		
+		try {
+		int i = 0;
+		this.datasetSessions = _datasetSessions;
+		EntityCursor<AshVSession> items;
+		
+			items = dao.doRangeQuery(
+					dao.ashVSession, getSysdate() - currentWindow, true,
+					getSysdate(), true);
+
+		/* Do a filter on Ash by SampleTime. */
+		Iterator<AshVSession> deptIter = items.iterator();
+
+		while (deptIter.hasNext()) {
+
+			AshVSession ashSumMain = deptIter.next();
+			double tempSampleTime = ashSumMain.getsampleTimeId();
+
+			updateDatasetSessionsAll(ashSumMain, tempSampleTime);
+			//firstKeyForUpdate = tempSampleTime;
+			i++;
+			
+		}
+		items.close();
+		
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * Save reference to StackedXYAreaChartDetail for wait classes or cpu used
@@ -695,9 +736,34 @@ public class ASHDatabase {
 			iCountValues++;
 		}
 		ashSumCursor.close();
+		
+		//###########################################
+		// Filter AshVSession for update dataset
+		EntityCursor<AshVSession> ashSumCursorAll =
+            dao.doRangeQuery(dao.ashVSession, 
+            			firstKeyForUpdate, false, 
+            			getSysdate(), true);
+		
+		/* Do a filter on Ash by SampleTime. */
+		Iterator<AshVSession> deptIterAll = ashSumCursorAll.iterator();
+				
+		while (deptIterAll.hasNext()) {
+
+			AshVSession ashSumMain = deptIterAll.next();
+			double tempSampleTime = ashSumMain.getsampleTimeId();
+			
+			updateDatasetSessionsAll(ashSumMain, tempSampleTime);
+			
+			//firstKeyForUpdate = tempSampleTime;
+			//iCountValues++;
+		}
+		ashSumCursorAll.close();
+		//###############################################
+		
 
 		// Delete old values from main dataset
 		this.deleteValuesFromDataset();
+		this.deleteValuesFromDatasetSessions();
 		
 		// Update and delete from detail dataset
 		this.loadDataToChartPanelDataSetDetail();
@@ -785,6 +851,34 @@ public class ASHDatabase {
 				}
 			  }
 		}
+	
+	/**
+	 * Delete values from dataset sessions.
+	 * 
+	 */
+	private void deleteValuesFromDatasetSessions(){
+		
+			for (int i=0;i<50;i++) {
+				
+				Double xValue;
+				try {
+					xValue = (Double)datasetSessions.getX(0, i);
+					if(xValue>getSysdate()-currentWindow){
+						break;
+					}
+
+					try {
+						datasetSessions.removeRow(xValue);
+					} catch (Exception e){
+						e.printStackTrace();
+					}
+					
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			  }
+		}
+	
 	
 	
 	/**
@@ -936,8 +1030,29 @@ public class ASHDatabase {
 		dataset.add(tempSampleTime, ashSumMain.getOther0(), 
 				Options.getInstance().getResource("otherLabel.text"));
 
+		//##############################################
+		if (!Options.getInstance().getvSessionCount()) {
+			datasetSessions.add(tempSampleTime, 0.0, 
+					Options.getInstance().getResource("AllSessionLabel.text"));
+		}
+		//##############################################
+		
+		
 	}
+	
+	/**
+	 * Update sessions dataset (All)
+	 * 
+	 * @param ashSumMain the ash sum main
+	 * @param tempSampleTime the temp sample time
+	 */
+	private void updateDatasetSessionsAll(AshVSession ashSumMain,
+			double tempSampleTime) {
 
+		datasetSessions.add(tempSampleTime, ashSumMain.getcountSession(), 
+				Options.getInstance().getResource("AllSessionLabel.text"));
+	}
+	
 	/**
 	 * Gets the BDB store.
 	 * 
