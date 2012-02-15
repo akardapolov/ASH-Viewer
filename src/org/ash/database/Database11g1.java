@@ -41,7 +41,7 @@ import org.ash.datamodel.AshIdTime;
 import org.ash.datamodel.AshSqlIdTypeText;
 import org.ash.datamodel.AshSqlPlanDetail;
 import org.ash.datamodel.AshSqlPlanParent;
-import org.ash.datamodel.VSession;
+import org.ash.datamodel.AshVSession;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.explainplanmodel.ExplainPlanModel10g2;
@@ -223,7 +223,7 @@ public class Database11g1 extends ASHDatabase {
 									.getLong("CNT");
 							// Load data for sampleId (ASH)
 							try {
-								dao.ashVSession.putNoOverwrite(new VSession(
+								dao.ashVSession.putNoOverwrite(new AshVSession(
 										sysdateValue, valueVSessionCount));
 							} catch (DatabaseException e) {
 								e.printStackTrace();
