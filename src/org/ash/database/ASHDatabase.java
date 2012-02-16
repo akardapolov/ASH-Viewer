@@ -770,7 +770,6 @@ public class ASHDatabase {
 		this.deleteValuesFromDatasetDetail();
 		
 		} catch (DatabaseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -1029,14 +1028,14 @@ public class ASHDatabase {
 				Options.getInstance().getResource("clusterLabel.text"));//cluster
 		dataset.add(tempSampleTime, ashSumMain.getOther0(), 
 				Options.getInstance().getResource("otherLabel.text"));
-
+/*
 		//##############################################
 		if (!Options.getInstance().getvSessionCount()) {
 			datasetSessions.add(tempSampleTime, 0.0, 
 					Options.getInstance().getResource("AllSessionLabel.text"));
 		}
 		//##############################################
-		
+*/		
 		
 	}
 	

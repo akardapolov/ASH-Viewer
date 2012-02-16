@@ -34,6 +34,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.ash.history.detail.DetailsPanelH;
+import org.ash.history.detail.DetailsPanelHSession;
 import org.ash.util.Options;
 import org.ash.util.ProgressBarUtil;
 import org.jfree.chart.ChartPanel;
@@ -175,12 +176,16 @@ public class TopActivityDetail extends JPanel{
 		DetailsPanelH detailJPanelH = 
 			new DetailsPanelH(this.databaseHistory,begin,end,getMaxCPUValue(databaseHistory));
 		
+		DetailsPanelHSession otherJPanelH = 
+			new DetailsPanelHSession(this.databaseHistory,begin,end,getMaxCPUValue(databaseHistory));
+		
 		this.tabsMain.add(this.mainPanelHistory,
 				Options.getInstance().getResource("tabMain.text"));
 		this.tabsMain.add(detailJPanelH,
 				Options.getInstance().getResource("tabDetail.text"));
+		this.tabsMain.add(otherJPanelH,
+				Options.getInstance().getResource("otherLabel.text"));
 		
-
 		this.mainPanel.removeAll();
 		this.mainPanel.add(this.tabsMain);
 		this.validate();

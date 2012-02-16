@@ -91,7 +91,7 @@ public class AshDataAccessor {
     SecondaryIndex<String, Double, AshSqlPlanParent> ashSqlPlanHashValueParent;
     
     /** AshCalcSumByEvent10Sec Accessors */
-    PrimaryIndex<Double, AshVSession> ashVSession;
+    public PrimaryIndex<Double, AshVSession> ashVSession;
     
 	/** The half range for one 15 sec storage*/
 	private int rangeHalf = 7500;

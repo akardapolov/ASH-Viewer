@@ -39,6 +39,7 @@ import org.ash.datamodel.AshParamValue;
 import org.ash.datamodel.AshSqlIdTypeText;
 import org.ash.datamodel.AshSqlPlanDetail;
 import org.ash.datamodel.AshSqlPlanParent;
+import org.ash.datamodel.AshVSession;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.explainplanmodel.ExplainPlanModel10g2;
@@ -744,6 +745,42 @@ public class ASHDatabaseH {
 	
 	
 	/**
+	 * Load sessions data to chart panel data set. (All, history)
+	 * 
+	 * @param _dataset the _datasetSessions
+	 */
+	public void loadDataToChartPanelDataSet_Sessions_All(CategoryTableXYDataset _datasetSessions, Double beginTime, Double endTime){
+		
+		try {
+		int i = 0;
+		EntityCursor<AshVSession> items;
+		
+			items = dao.doRangeQuery(
+					dao.ashVSession, beginTime, true,
+					endTime, true);
+
+		/* Do a filter on Ash by SampleTime. */
+		Iterator<AshVSession> deptIter = items.iterator();
+
+		while (deptIter.hasNext()) {
+
+			AshVSession ashSumMain = deptIter.next();
+			double tempSampleTime = ashSumMain.getsampleTimeId();
+
+			_datasetSessions.add(tempSampleTime, ashSumMain.getcountSession(), 
+					Options.getInstance().getResource("AllSessionLabel.text"));
+			
+			i++;
+			
+		}
+		items.close();
+		
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Load data to chart panel dataset (detail charts).
 	 * 
 	 * @param dataset
@@ -875,7 +912,7 @@ public class ASHDatabaseH {
 			e.printStackTrace();
 		}
 	}
-		
+	
 	/**
 	 * Initialize series paint, renderer, dataset for stacked charts.
 	 * 

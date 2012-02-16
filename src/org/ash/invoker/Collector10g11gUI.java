@@ -31,6 +31,7 @@ import org.ash.database.ASHDatabase;
 import org.ash.detail.DetailPanels;
 import org.ash.gui.Gantt;
 import org.ash.gui.StackedChart;
+import org.ash.gui.StackedChartSessions;
 import org.ash.gui.StatusBar;
 
 /**
@@ -266,6 +267,14 @@ public void finalize() throws Throwable {
     		  		tempObj.setThresholdBeginTimeAutoSelection(beginTime,rangeWindow/k);
     		  	}
     	  }
+    	  
+    	  if (currListeners instanceof StackedChartSessions){
+    		  StackedChartSessions 
+    		  	tempObj = (StackedChartSessions) currListeners;
+    		  	tempObj.updatexAxisLabel(
+    		  			new Long(new Date().getTime()).doubleValue());
+    	  }
+    	  
     	  if (currListeners instanceof DetailPanels){
     		  DetailPanels 
   		  			tempObj = (DetailPanels) currListeners;
