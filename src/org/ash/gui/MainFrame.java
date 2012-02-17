@@ -276,7 +276,8 @@ public class MainFrame extends JFrame implements ActionListener{
 		this.stackedChartMainObjectSession = new StackedChartSessions(this.database);
 		  this.chartChartPanelSessions = this.stackedChartMainObjectSession.createChartPanel();
 			progressBarOnStart.setProgressValueAndTaskOutput(50,"Initialize Sessions tab");
-							
+			 	this.database.saveStackedChartSessions(stackedChartMainObjectSession,"sessions");			
+			
 		/** Initialize main Top Activity chart panel */
 		this.stackedChartMainObject = new StackedChart(this.database);
 		this.setThresholdMaxCpu();

@@ -96,6 +96,9 @@ public class StackedChartSessions {
 	/** The flag threshold begin time auto selection. */
    	private boolean flagThresholdBeginTimeAutoSelection = false;
    	
+   	/** The renderer end. */
+   	private StackedXYAreaRenderer3 renderer;
+   	
 	/**
 	 * Instantiates a new stacked xy area chart.
 	 * 
@@ -260,7 +263,7 @@ public class StackedChartSessions {
         );
         
         plot = (XYPlot) chart.getPlot();
-        StackedXYAreaRenderer3 renderer = new StackedXYAreaRenderer3(); 
+        renderer = new StackedXYAreaRenderer3(); 
         renderer.setRoundXCoordinates(true);
         renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator
         		("{0} ({1}, {2})",
@@ -309,6 +312,31 @@ public class StackedChartSessions {
         return chart;
     }
 
+    /**
+	 * Delete values from dataset (details)
+	 * 
+	 */
+	public void deleteValuesFromDatasetDetail(Double beginRange){
+		
+		// Clear values from dataset when it's not empty
+		if (this.renderer.getLegendItems().getItemCount()!=0){
+			for (int i=0;i<50;i++) {
+				
+				Double xValue = (Double)dataset.getX(0, i);
+				
+				if(xValue>beginRange){
+					break;
+				}
+				
+				try {
+					dataset.removeRow(xValue);
+				} catch (Exception e){
+					e.printStackTrace();
+				}
+			  }
+			}
+		}
+    
     /**
      * Creates the dataset.
      * 

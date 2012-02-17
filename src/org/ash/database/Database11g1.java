@@ -183,6 +183,7 @@ public class Database11g1 extends ASHDatabase {
 		PreparedStatement statementSysdate = null;
 		PreparedStatement statementVSessionCount = null;
 		Connection conn = null;
+		Connection connSes = null;
 
 		// Get sequence activeSessionHistoryId
 		try {
@@ -197,37 +198,42 @@ public class Database11g1 extends ASHDatabase {
 
 				conn = this.model.getConnectionPool().getConnection();
 
-				
 				//###################### VSessionCount #######################//
 				if (Options.getInstance().getvSessionCount()) {
 
-					statementSysdate = conn
+					connSes = 
+						this.model.getConnectionPool().getConnection();
+					
+					statementSysdate = connSes
 							.prepareStatement("SELECT SYSDATE FROM DUAL");
-					statementVSessionCount = conn
+										
+					statementVSessionCount = connSes
 							.prepareStatement("SELECT COUNT(1) CNT FROM V$SESSION");
 
 					resultSetSysdate = statementSysdate.executeQuery();
 					resultSetVSessionCount = statementVSessionCount
 							.executeQuery();
 
+					double sysdateValue = 0;
+					
 					while (resultSetSysdate.next()) {
 						// Sample time
 						oracle.sql.DATE oracleDateSampleTime = ((OracleResultSet) resultSetSysdate)
 								.getDATE("SYSDATE");
-						double sysdateValue = (new Long(oracleDateSampleTime
+						sysdateValue = (new Long(oracleDateSampleTime
 								.timestampValue().getTime())).doubleValue();
+					}
+					
+					while (resultSetVSessionCount.next()) {
 
-						while (resultSetVSessionCount.next()) {
-
-							double valueVSessionCount = resultSetVSessionCount
-									.getLong("CNT");
-							// Load data for sampleId (ASH)
-							try {
-								dao.ashVSession.putNoOverwrite(new AshVSession(
-										sysdateValue, valueVSessionCount));
-							} catch (DatabaseException e) {
-								e.printStackTrace();
-							}
+						double valueVSessionCount = resultSetVSessionCount
+								.getLong("CNT");
+						// Load data for sampleId (ASH)
+						try {
+							dao.ashVSession.putNoOverwrite(new AshVSession(
+									sysdateValue, valueVSessionCount));
+						} catch (DatabaseException e) {
+							e.printStackTrace();
 						}
 					}
 				}
@@ -390,6 +396,9 @@ public class Database11g1 extends ASHDatabase {
 				if (conn != null) {
 					model.getConnectionPool().free(conn);
 				}
+				if (connSes != null) {
+					model.getConnectionPool().free(connSes);
+				}
 			} else {
 				// Connect is lost
 				setReconnect(true);
@@ -408,9 +417,37 @@ public class Database11g1 extends ASHDatabase {
 					e.printStackTrace();
 				}
 			}
+			if (resultSetSysdate != null) {
+				try {
+					resultSetSysdate.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if (resultSetVSessionCount != null) {
+				try {
+					resultSetVSessionCount.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			if (statement != null) {
 				try {
 					statement.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if (statementSysdate  != null) {
+				try {
+					statementSysdate.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			if (statementVSessionCount  != null) {
+				try {
+					statementVSessionCount.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

@@ -42,6 +42,7 @@ import org.ash.datamodel.AshVSession;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.detail.StackedChartDetail;
+import org.ash.gui.StackedChartSessions;
 import org.ash.util.Options;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jfree.data.xy.CategoryTableXYDataset;
@@ -123,6 +124,9 @@ public class ASHDatabase {
 	private	HashMap<String, StackedChartDetail> storeStackedXYAreaChartDetail;
 	
 	/** The store of event Class and corresponding StackedXYAreaChartDetail object*/
+	private	HashMap<String, StackedChartSessions> storeStackedXYAreaChartSession;
+	
+	/** The store of event Class and corresponding StackedXYAreaChartDetail object*/
 	private	HashMap<String, Boolean> storeEventAndIsAddPointsToLeftSideFlag;
 		
 	/**
@@ -155,6 +159,7 @@ public class ASHDatabase {
 		this.sessionsTempDetail = new SessionsTemp(this.store, this.dao);
 		
 		this.storeStackedXYAreaChartDetail = new HashMap<String, StackedChartDetail>();
+		this.storeStackedXYAreaChartSession = new HashMap<String, StackedChartSessions>();
 		this.storeEventAndIsAddPointsToLeftSideFlag = new HashMap<String, Boolean>();
 	}
 	
@@ -583,6 +588,17 @@ public class ASHDatabase {
 	}
 	
 	/**
+	 * Save reference to StackedChartSessions for wait classes or cpu used
+	 * 
+	 * @param detailValue StackedChartSessions object
+	 * @param Classkey
+	 */
+	public void saveStackedChartSessions(StackedChartSessions detailValue,
+											 	String Classkey){
+		this.storeStackedXYAreaChartSession.put(Classkey, detailValue);
+	}
+	
+	/**
 	 * Load data to chart panel dataset (detail charts).
 	 * 
 	 */
@@ -760,11 +776,10 @@ public class ASHDatabase {
 		ashSumCursorAll.close();
 		//###############################################
 		
-
 		// Delete old values from main dataset
 		this.deleteValuesFromDataset();
 		this.deleteValuesFromDatasetSessions();
-		
+				
 		// Update and delete from detail dataset
 		this.loadDataToChartPanelDataSetDetail();
 		this.deleteValuesFromDatasetDetail();
@@ -855,30 +870,17 @@ public class ASHDatabase {
 	 * Delete values from dataset sessions.
 	 * 
 	 */
-	private void deleteValuesFromDatasetSessions(){
+	private void deleteValuesFromDatasetSessions(){		
 		
-			for (int i=0;i<50;i++) {
-				
-				Double xValue;
-				try {
-					xValue = (Double)datasetSessions.getX(0, i);
-					if(xValue>getSysdate()-currentWindow){
-						break;
-					}
-
-					try {
-						datasetSessions.removeRow(xValue);
-					} catch (Exception e){
-						e.printStackTrace();
-					}
-					
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			  }
+	    	Set entriesSum = this.storeStackedXYAreaChartSession.entrySet();
+	    	Iterator iterSum = entriesSum.iterator();
+	    	while (iterSum.hasNext()) {
+	    		Map.Entry entry = (Map.Entry) iterSum.next();
+	    		String keyClass = (String)entry.getKey();
+	    		StackedChartSessions valueChart = (StackedChartSessions)entry.getValue();
+	    		valueChart.deleteValuesFromDatasetDetail(getSysdate()-currentWindow);
+	    	  }
 		}
-	
-	
 	
 	/**
 	 * Delete values from dataset (detail)
@@ -1028,14 +1030,13 @@ public class ASHDatabase {
 				Options.getInstance().getResource("clusterLabel.text"));//cluster
 		dataset.add(tempSampleTime, ashSumMain.getOther0(), 
 				Options.getInstance().getResource("otherLabel.text"));
-/*
+		
 		//##############################################
 		if (!Options.getInstance().getvSessionCount()) {
 			datasetSessions.add(tempSampleTime, 0.0, 
 					Options.getInstance().getResource("AllSessionLabel.text"));
 		}
-		//##############################################
-*/		
+		//##############################################	
 		
 	}
 	

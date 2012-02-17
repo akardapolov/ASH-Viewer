@@ -749,34 +749,59 @@ public class ASHDatabaseH {
 	 * 
 	 * @param _dataset the _datasetSessions
 	 */
-	public void loadDataToChartPanelDataSet_Sessions_All(CategoryTableXYDataset _datasetSessions, Double beginTime, Double endTime){
+	public void loadDataToChartPanelDataSet_Sessions_All(
+			CategoryTableXYDataset _datasetSessions, 
+			Double beginTime, Double endTime){
 		
-		try {
-		int i = 0;
-		EntityCursor<AshVSession> items;
-		
-			items = dao.doRangeQuery(
-					dao.ashVSession, beginTime, true,
-					endTime, true);
+		int k = 0;
 
-		/* Do a filter on Ash by SampleTime. */
-		Iterator<AshVSession> deptIter = items.iterator();
+		Double firstKey = beginTime - rangeHalf;
+		Double lastKey = endTime + rangeHalf;
 
-		while (deptIter.hasNext()) {
+		double deltaKey = lastKey - firstKey;
 
-			AshVSession ashSumMain = deptIter.next();
-			double tempSampleTime = ashSumMain.getsampleTimeId();
-
-			_datasetSessions.add(tempSampleTime, ashSumMain.getcountSession(), 
-					Options.getInstance().getResource("AllSessionLabel.text"));
-			
-			i++;
-			
+		if (currentWindow > deltaKey || deltaKey < currentWindow * 1.5) {
+			k = 1;
+		} else {
+			k = (int) (Math.ceil(deltaKey / currentWindow));
 		}
-		items.close();
-		
-		} catch (DatabaseException e) {
-			e.printStackTrace();
+
+		for (double dd = firstKey; 
+				dd < lastKey; 
+				dd += rangeHalf * k * 2) {
+
+			try {
+				int i = 0;
+				EntityCursor<AshVSession> items;
+
+				items = dao.doRangeQuery(dao.ashVSession, dd, true, dd
+						+ rangeHalf * k * 2, true);
+
+				/* Do a filter on Ash by SampleTime. */
+				Iterator<AshVSession> deptIter = items.iterator();
+
+				while (deptIter.hasNext()) {
+
+					AshVSession ashSumMain = deptIter.next();
+					double tempSampleTime = ashSumMain.getsampleTimeId();
+
+					_datasetSessions.add(tempSampleTime, ashSumMain
+							.getcountSession(), Options.getInstance()
+							.getResource("AllSessionLabel.text"));
+
+					i++;
+
+				}
+				items.close();
+				
+				if (i==0){
+					_datasetSessions.add(dd, 0, Options.getInstance()
+							.getResource("AllSessionLabel.text"));
+				}
+
+			} catch (DatabaseException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
