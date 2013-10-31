@@ -66,7 +66,7 @@ import org.syntax.jedit.JEditTextArea;
 import com.egantt.model.drawing.ContextResources;
 import com.egantt.model.drawing.DrawingState;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import com.egantt.swing.cell.CellState;
 import com.egantt.swing.component.ComponentResources;
 import com.egantt.swing.component.context.BasicComponentContext;

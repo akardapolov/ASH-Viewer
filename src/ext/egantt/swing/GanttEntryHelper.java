@@ -5,7 +5,7 @@
 package ext.egantt.swing;
 
 import com.egantt.model.drawing.DrawingState;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import ext.egantt.drawing.state.CalendarDrawingState;
 import java.util.Date;
 import java.util.List;

@@ -9,7 +9,7 @@ import com.egantt.model.component.ComponentList;
 import com.egantt.model.drawing.*;
 import com.egantt.model.drawing.axis.interval.LongInterval;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import com.egantt.swing.scroll.ScrollManager;
 import com.egantt.swing.table.list.BasicJTableList;
 import com.egantt.swing.table.model.column.ColumnManager;

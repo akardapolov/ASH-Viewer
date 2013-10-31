@@ -35,7 +35,7 @@ import org.ash.util.Utils;
 
 import com.egantt.model.drawing.DrawingState;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 
 import ext.egantt.drawing.module.BasicPainterModule;
 import ext.egantt.swing.GanttDrawingPartHelper;
