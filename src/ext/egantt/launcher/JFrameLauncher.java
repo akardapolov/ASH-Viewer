@@ -31,7 +31,7 @@ import javax.swing.event.ChangeListener;
 
 import com.egantt.model.drawing.DrawingState;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import com.egantt.swing.scroll.ScrollManager;
 
 public class JFrameLauncher extends JFrame

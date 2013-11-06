@@ -6,7 +6,7 @@ package ext.egantt.drawing.state;
 
 import com.egantt.model.drawing.axis.AxisInterval;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 
 public class DrawingStateHelper
 {

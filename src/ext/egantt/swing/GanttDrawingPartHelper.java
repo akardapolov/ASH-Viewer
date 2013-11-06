@@ -10,7 +10,7 @@ import com.egantt.model.drawing.axis.AxisInterval;
 import com.egantt.model.drawing.axis.interval.DrawingStateInterval;
 import com.egantt.model.drawing.axis.interval.LongInterval;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import com.egantt.model.drawing.state.BasicDrawingState;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import ext.egantt.drawing.module.*;
 import java.util.*;
 

@@ -9,7 +9,7 @@ import com.egantt.drawing.component.DrawingComponent2D;
 import com.egantt.drawing.component.painter.state.BasicStatePainter;
 import com.egantt.model.component.ComponentManager;
 import com.egantt.model.drawing.DrawingContext;
-import com.egantt.model.drawing.state.*;
+import ext.egantt.model.drawing.state.*;
 import com.egantt.swing.cell.CellEditor;
 import com.egantt.swing.cell.editor.adapter.JTableEditorAdapter;
 import com.egantt.swing.cell.editor.state.ManagedStateEditor;
@@ -53,7 +53,7 @@ public class DefaultFieldManager
         ManagedStateEditor editor = new ManagedStateEditor(renderer, stateManager, context);
         JTableEditorAdapter editorAdapter = new JTableEditorAdapter(editor);
         table.setDefaultEditor(com.egantt.model.drawing.state.SingletonDrawingState.class, editorAdapter);
-        table.setDefaultEditor(com.egantt.model.drawing.state.BasicDrawingState.class, editorAdapter);
+        table.setDefaultEditor(ext.egantt.model.drawing.state.BasicDrawingState.class, editorAdapter);
         table.setDefaultEditor(com.egantt.model.drawing.state.AbstractDrawingState.class, editorAdapter);
     }
 
