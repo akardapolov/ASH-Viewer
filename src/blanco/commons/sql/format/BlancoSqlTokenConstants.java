@@ -2,7 +2,7 @@
 package blanco.commons.sql.format;
 
 /**
- * blancoSqlFormatter‚
+ * blancoSqlFormatter
  */
 public class BlancoSqlTokenConstants {
    

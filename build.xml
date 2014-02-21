@@ -34,7 +34,8 @@
     		   deprecation="false"
     		   source="1.5"
     		   target="1.5"
-	    	   classpath="${build.classpath}">
+	    	   classpath="${build.classpath}"
+               includeantruntime="false">
     		<include name="org/jfree/**"/>
     		<include name="org/ash/**"/>
     		<include name="ext/egantt/**"/>
@@ -62,7 +63,7 @@
     	</copy>
     	
     </target>
-    
+
     <target name="jar" depends="compile">
         <mkdir dir="${dist.dir}/${lib.dir}"/>
         <copy todir="${dist.dir}/${lib.dir}">
