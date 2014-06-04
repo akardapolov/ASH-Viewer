@@ -185,7 +185,7 @@ public class ConnectionDialog extends JDialog {
       if (mode!=INSERT)
         init();
       pack();
-      setSize(320,300);
+      setSize(300,280);
       Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
       Dimension frameSize = this.getSize();
       if (frameSize.height > screenSize.height) {
@@ -306,7 +306,7 @@ public class ConnectionDialog extends JDialog {
     buttonsPanel.add(cancelButton, null);
     mainPanel.add(typePanel, BorderLayout.NORTH);
     
-     connPanel.add("DEFAULT",defaultPanel);
+    connPanel.add("DEFAULT",defaultPanel);
     
     defaultPanel.add(usernameLabel,    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
@@ -316,6 +316,8 @@ public class ConnectionDialog extends JDialog {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     defaultPanel.add(passwdTF,    new GridBagConstraints(1, 2, 3, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+
+    /*
     defaultPanel.add(SIDLabel,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     defaultPanel.add(SIDTF,    new GridBagConstraints(1, 3, 3, 1, 1.0, 0.0
@@ -327,7 +329,14 @@ public class ConnectionDialog extends JDialog {
     defaultPanel.add(portLabel,    new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     defaultPanel.add(portTF,      new GridBagConstraints(1, 5, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));    
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+    */
+
+    defaultPanel.add(urlLabel,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+              ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+    defaultPanel.add(urlTF,      new GridBagConstraints(1, 3, 3, 1, 0.0, 0.0
+              ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+
     editionPanelRB.add(editionEERB,       new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
     editionPanelRB.add(editionSERB,        new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
@@ -335,7 +344,9 @@ public class ConnectionDialog extends JDialog {
     defaultPanel.add(editionLabel,    new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     defaultPanel.add(editionPanelRB,      new GridBagConstraints(1, 6, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));        
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+
+
     defaultPanel.add(nameLabel,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     defaultPanel.add(nameTF,    new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0
@@ -377,13 +388,15 @@ public class ConnectionDialog extends JDialog {
       c.setUsername(usernameTF.getText());
       c.setPassword(passwdTF.getText());
       c.setEdition(editionString);
-    
+
+      /*
       c.setUrl(c.getUrl(
           hostTF.getText(),
           portTF.getText(),
           SIDTF.getText())
       );
-	  
+      */
+      c.setUrl(urlTF.getText());
   
     try {
       parent.updateList(c, mode == EDIT);

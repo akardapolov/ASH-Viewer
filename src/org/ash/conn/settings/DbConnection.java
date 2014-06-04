@@ -99,7 +99,8 @@ public class DbConnection {
    * @return the host
    */
   public String getHost() {
-	  return url.substring(18,url.indexOf(":",18));
+      //String host = url.substring(18,url.indexOf(":",18));
+	  return "";//url.substring(18,url.indexOf(":",18));
   }
 
   /**
@@ -108,8 +109,8 @@ public class DbConnection {
    * @return the port
    */
   public String getPort() {
-    int index = url.indexOf(":",18);
-      return url.substring(index+1,url.indexOf(":",index+1));
+      //int index = url.indexOf(":",18);
+      return "";//url.substring(index+1,url.indexOf(":",index+1));
   }
 
   /**
@@ -118,9 +119,9 @@ public class DbConnection {
    * @return the Server ID
    */
   public String getSID() {
-      int index = url.indexOf(":",18);
-      index = url.indexOf(":",index+1);
-      return url.substring(index+1);
+      //int index = url.indexOf(":",18);
+      //index = url.indexOf(":",index+1);
+      return url;//url.substring(index+1);
   }
 
   /**

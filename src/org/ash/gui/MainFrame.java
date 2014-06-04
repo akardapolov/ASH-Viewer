@@ -487,10 +487,8 @@ public class MainFrame extends JFrame implements ActionListener{
 	private void initializeConnectionPool() {
 
 		/** init connection parameter */
-		String connParam = "jdbc:oracle:thin:@//"
-				+ dbConnUtil.getDbConnection().getHost() + ":"
-				+ dbConnUtil.getDbConnection().getPort() + "/"
-				+ dbConnUtil.getDbConnection().getSID();
+		String connParam = "jdbc:oracle:thin:@"
+				+ dbConnUtil.getDbConnection().getUrl();
 
 		/** init connection pool */
 		model.connectionPoolInit("oracle.jdbc.pool.OracleDataSource",

@@ -14,4 +14,4 @@ export JAVA_HOME=/usr/bin/java
 
 export JAVA_EXE=$JAVA_HOME/bin/java
 
-$JAVA_EXE -Xmx128m -jar ASHV.jar
+$JAVA_EXE -Xmx128m -Doracle.net.tns_admin=<<path to tnsnames.ora>> -jar ASHV.jar
