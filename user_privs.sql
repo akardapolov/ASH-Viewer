@@ -13,13 +13,6 @@ grant select on v_$instance to monitor;
 
 grant select_catalog_role to monitor;
 
-grant select on DBA_HIST_BASELINE monitor;
-grant select on DBA_HIST_SQLTEXT to monitor;
-grant select on DBA_HIST_SQLSTAT to monitor;
-grant select on DBA_HIST_SQLBIND to monitor;
-grant select on DBA_HIST_OPTIMIZER_ENV to monitor;
-grant select on DBA_HIST_SNAPSHOT to monitor;
-
 grant execute on DBMS_APPLICATION_INFO to monitor;
 grant execute on DBMS_WORKLOAD_REPOSITORY to monitor;
 grant execute on DBMS_XPLAN to monitor;
