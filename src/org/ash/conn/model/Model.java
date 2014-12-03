@@ -196,10 +196,12 @@ public class Model {
 					setVersionDB("10g2");
 				}
 			}
-			else if (tmpVersion.substring(16,18).equalsIgnoreCase("11")){
-				if (tmpVersion.substring(28,32).equalsIgnoreCase("11.1"))
-					setVersionDB("11g");
-			}
+            else if(tmpVersion.substring(16, 18).equalsIgnoreCase("11")) {
+                setVersionDB("11g");
+            }
+            else if(tmpVersion.substring(16, 18).equalsIgnoreCase("12")) {
+                setVersionDB("11g");
+            }
 		}
 
 	/**

@@ -44,12 +44,14 @@
 
   2) A directory called "ashv-<<version>>-bin" will be created.
 
-  3) Download JDBC driver ojdbc14.jar from http://otn.oracle.com and put it to ashv-<<version>>-bin/lib directory.
+  3) Download JDBC driver ojdbc6.jar from http://otn.oracle.com and put it to ashv-<<version>>-bin/lib directory.
 
   4) Make sure JAVA_HOME is set to the location of your JDK, 
   	  see run.cmd/run.sh (on Windows/Unix platform).
 
-  5) Run run.cmd/run.sh (on Window/Unix).
+  5) Create monitor user in Oracle DB and grant select and execute priviliges using user_privs.sql file.
+
+  6) Run run.cmd/run.sh (on Window/Unix).
 
    Known issues
   --------------
