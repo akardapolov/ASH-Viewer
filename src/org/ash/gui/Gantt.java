@@ -816,7 +816,7 @@ public class Gantt extends JPanel {
 
 		state.addDrawingPart(part);
 		state.addDrawingPart(textLayer);
-		state.setTextValue("SQLID: " + key);
+		state.setTextValue(key);
 		return state;
 
 	}
