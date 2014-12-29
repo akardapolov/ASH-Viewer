@@ -286,6 +286,10 @@ public class Gantt extends JPanel {
 			leftPane.setVerticalScrollBar(leftPane.getVerticalScrollBar());
 			rightPane.setVerticalScrollBar(rightPane.getVerticalScrollBar());
 
+			/** Cell selection enabled for copying values */
+			tableGanttSql.getJTable().setCellSelectionEnabled(true);
+			tableGanttSessions.getJTable().setCellSelectionEnabled(true);
+
 			/** Add component to left tabs*/
 			tabsTopSQLText.add(leftPane, Options.getInstance().getResource(
 					"tabTopSQL.text"));
@@ -812,7 +816,7 @@ public class Gantt extends JPanel {
 
 		state.addDrawingPart(part);
 		state.addDrawingPart(textLayer);
-		state.setTextValue("SQLID: " + key);
+		state.setTextValue(key);
 		return state;
 
 	}
