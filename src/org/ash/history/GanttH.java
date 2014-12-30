@@ -174,9 +174,7 @@ public class GanttH extends JPanel{
 	
 	/**
 	 * Constructor Gantt JPanel
-	 * 
-	 * @param rootFrame0 the root frame0
-	 * @param model0 the model0
+	 *
 	 * @param database0 the database0
 	 */
 	public GanttH(JFrame mainFrame, ASHDatabaseH database0){
@@ -622,8 +620,7 @@ public class GanttH extends JPanel{
 	
 	/**
 	 * Creates the drawing state for Sqls and Sessions.
-	 * 
-	 * @param obj the obj
+	 *
 	 * @param helper the helper
 	 * @param me the me
 	 * @param countOfSqls the sum of range
@@ -812,6 +809,7 @@ public class GanttH extends JPanel{
 
 		state.addDrawingPart(part);
 		state.addDrawingPart(textLayer);
+        state.setTextValue(key);
 
 		return state;
 

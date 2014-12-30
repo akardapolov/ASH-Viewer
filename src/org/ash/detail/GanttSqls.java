@@ -78,8 +78,7 @@ public class GanttSqls {
 	
 	/**
 	 * Constructor Gantt for sqls
-	 * 
-	 * @param rootFrame0 the root frame0
+	 *
 	 * @param database0 the database0
 	 */
 	public GanttSqls(ASHDatabase database0){
@@ -186,8 +185,7 @@ public class GanttSqls {
 	
 	/**
 	 * Creates the drawing state for Sqls and Sessions.
-	 * 
-	 * @param obj the obj
+	 *
 	 * @param helper the helper
 	 * @param me the me
 	 * @param countOfSqls the sum of range
@@ -336,8 +334,6 @@ public class GanttSqls {
 		 * Creates the drawing state for SqlId.
 		 * 
 		 * @param helper  the helper
-		 * @param me  the me
-		 * @param arraySqlIdText50
 		 * @return the drawing state
 		 */
 		private DrawingState createDrawingStateSqlId(GanttDrawingPartHelper helper,
@@ -369,7 +365,7 @@ public class GanttSqls {
 
 			state.addDrawingPart(part);
 			state.addDrawingPart(textLayer);
-
+            state.setTextValue(key);
 			return state;
 
 		}
