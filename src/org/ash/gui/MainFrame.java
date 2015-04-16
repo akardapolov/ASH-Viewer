@@ -619,7 +619,15 @@ public class MainFrame extends JFrame implements ActionListener{
    public void switchToAuto(){
 	   new switchToAuto().start();
    }
-   
+
+    /**
+     * Switch to minimalistic main chart panel
+     *
+     */
+    public void setMinimalistic(){
+        new MinimalisticThread().start();
+    }
+
    /**
     * Switch to manual mode (top activity)
     * 
@@ -649,6 +657,12 @@ public class MainFrame extends JFrame implements ActionListener{
 	    }
 	  }
 }
+    class MinimalisticThread extends  Thread {
+
+        public void run(){
+            stackedChartMainObject.setMinimalistic(Options.getInstance().isMinimalistic());
+        }
+    }
 
 	/**
 	 * Switch UI to Auto mode selection

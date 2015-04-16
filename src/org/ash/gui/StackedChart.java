@@ -217,7 +217,23 @@ public class StackedChart {
     public boolean isMouseDragged(){
     	return chartPanel.isMouseDragged();
     }
-    
+
+    /**
+     *
+     */
+    public void setMinimalistic(boolean flag){
+        if (flag){
+            xAxis.setVisible(false);
+            chart.setTitle("");
+            plot.getRangeAxis().setVisible(false);
+
+        } else {
+            xAxis.setVisible(true);
+            chart.setTitle("Top activity");
+            plot.getRangeAxis().setVisible(true);
+        }
+    }
+
     /**
      * Set upper bound of range axis
      * 
@@ -245,7 +261,7 @@ public class StackedChart {
         
         currentDate = new Date();	
     	updatexAxisLabel(new Long(currentDate.getTime()).doubleValue());
-            	
+
         chart = ChartFactory.createStackedXYAreaChart(
             "Top activity",  				 // chart title
             "X Value",                       // domain axis label
@@ -329,6 +345,8 @@ public class StackedChart {
         
         return chart;
     }
+
+
 
     /**
      * Creates the dataset.

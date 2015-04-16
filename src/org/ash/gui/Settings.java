@@ -37,7 +37,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
@@ -58,6 +57,7 @@ public class Settings extends JDialog {
 
 	private JPanel mainPanelCommon = new JPanel();
 	private JPanel sqlTextToClipboardPanelCommon = new JPanel();
+    private JPanel setMinimalistic = new JPanel();
 	private JPanel mainPanelTopA = new JPanel();
 	private JPanel mainPanelDetail = new JPanel();
 	private JPanel buttonsPanelTopA = new JPanel();
@@ -72,6 +72,7 @@ public class Settings extends JDialog {
 	private JButton okButtonTopA = new JButton();
 	private JButton okButtonDetail = new JButton();
 	private GridBagLayout gridBagLayoutCommon1 = new GridBagLayout();
+    private GridBagLayout gridBagLayoutCommon2 = new GridBagLayout();
 	private GridBagLayout gridBagLayoutTopA1 = new GridBagLayout();
 	private GridBagLayout gridBagLayoutTopA2 = new GridBagLayout();
 	private GridBagLayout gridBagLayoutDetail1 = new GridBagLayout();
@@ -84,6 +85,8 @@ public class Settings extends JDialog {
 	
 	/** The radio button manual */
 	private JCheckBox sqlTextToClipboardCheckbox = new JCheckBox();
+
+    private JCheckBox sqlMinimalistcCheckbox = new JCheckBox();
 	
 	/** The radio button auto */
 	private JRadioButton autoRadioButton = new JRadioButton();
@@ -227,6 +230,10 @@ public class Settings extends JDialog {
 		this.sqlTextToClipboardCheckbox.setMnemonic(Options.getInstance().getResource("texttoclip.mnemonic").charAt(0));
 		this.sqlTextToClipboardCheckbox.setText(Options.getInstance().getResource("texttoclip.text"));
 		this.sqlTextToClipboardCheckbox.addItemListener(new SelectItemListenerTextToClipboard());
+
+        this.sqlMinimalistcCheckbox.setMnemonic(Options.getInstance().getResource("texttoclip.mnemonic").charAt(0));
+        this.sqlMinimalistcCheckbox.setText(Options.getInstance().getResource("minimalistic.text"));
+        this.sqlMinimalistcCheckbox.addItemListener(new SelectItemListenerMinimalistic());
 		
 		this.autoRadioButton.setMnemonic(Options.getInstance().getResource("autoRadio.mnemonic").charAt(0));
 		this.autoRadioButton.setText(Options.getInstance().getResource("autoRadio.text"));
@@ -339,7 +346,7 @@ public class Settings extends JDialog {
 	    loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 	    
 	    sqlTextToClipboardPanelCommon.setLayout(gridBagLayoutCommon1);
-	    titledSelectionModeTopA = BorderFactory.createTitledBorder(loweredetched, "SQL_ID and SQL_TEXT");
+	    titledSelectionModeTopA = BorderFactory.createTitledBorder(loweredetched, "Other");
         addCompForTitledBorder(titledSelectionModeTopA,
                                TitledBorder.LEFT,
                                TitledBorder.DEFAULT_POSITION,
@@ -401,11 +408,15 @@ public class Settings extends JDialog {
 	    getContentPane().add(tabsSettings);
 	    
 	    mainPanelCommon.add(sqlTextToClipboardPanelCommon,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, new Insets(5, 5, 260, 5), 0, 0));
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 260, 5), 0, 0));
 	    sqlTextToClipboardPanelCommon.add(sqlTextToClipboardCheckbox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
+        sqlTextToClipboardPanelCommon.add(sqlMinimalistcCheckbox,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
 	    sqlTextToClipboardPanelCommon.add(new JPanel(),  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-	            ,GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 70), 0, 0));	    
+	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 	    
 	    mainPanelTopA.add(autoManualPanelTopA,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
 	            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
@@ -531,6 +542,19 @@ public class Settings extends JDialog {
 		     }
 		}
 	}
+
+    class SelectItemListenerMinimalistic  implements ItemListener{
+        public void itemStateChanged(ItemEvent e){
+            //checkbox select or not
+            int state = e.getStateChange();
+            if (state == ItemEvent.SELECTED) {
+                Options.getInstance().setMinimalistic(true);
+            } else {
+                Options.getInstance().setMinimalistic(false);
+            }
+            mainFrame.setMinimalistic();
+        }
+    }
 	
 	/**
 	 * Item listener for sql plan (TA)

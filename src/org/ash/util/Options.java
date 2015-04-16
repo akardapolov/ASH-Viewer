@@ -105,6 +105,8 @@ public class Options {
   
   /** The database edition (EE/SE) */
   private boolean copySqlToClibpoard = false;
+
+  private boolean minimalistic = false;
   
   /** Store colors for events */
   private static EventColors eventColors;
@@ -555,6 +557,23 @@ public boolean isCopySqlToClibpoard() {
 public void setCopySqlToClibpoard(boolean copySqlToClibpoard) {
 	this.copySqlToClibpoard = copySqlToClibpoard;
 }
+
+    /**
+     * Return minimalistic flag
+     * @return
+     */
+public boolean isMinimalistic() {
+        return minimalistic;
+    }
+
+    /**
+     * Set minimalistic design of main chart panel
+     * @param minimalistic
+     */
+public void setMinimalistic(boolean minimalistic) {
+        this.minimalistic = minimalistic;
+    }
+
 
 /**
  * @return the jtextAreaSqlTextGanttH

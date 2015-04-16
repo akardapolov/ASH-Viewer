@@ -291,7 +291,8 @@ public class Dictionary extends ListResourceBundle {
     {"ThumbnailMain.text","Thumbnail detail"},
     {"ThumbnailMain.mnemonic","T"},
     
-    {"texttoclip.text","Copy to clipboard"},
+    {"texttoclip.text","Copy to clipboard SQL"},
+    {"minimalistic.text","Minimalistic design of TA"},
     
     {"autoRadio.text","Auto"},
     {"manualRadio.text","Manual"},
