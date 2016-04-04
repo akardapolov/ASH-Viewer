@@ -245,8 +245,8 @@ public class Database10g11gSE extends ASHDatabase {
 					Long eventHash = resultSetAsh.getLong("EVENT#");
 					Long seqHash = resultSetAsh.getLong("SEQ#");
 					double p1 = resultSetAsh.getDouble("P1");
-					double p2 = resultSetAsh.getDouble("P1");
-					double p3 = resultSetAsh.getDouble("P1");
+					double p2 = resultSetAsh.getDouble("P2");
+					double p3 = resultSetAsh.getDouble("P3");
 					String waitClass = resultSetAsh.getString("WAIT_CLASS");
 					Double waitClassId = resultSetAsh
 							.getDouble("WAIT_CLASS_ID");

@@ -57,6 +57,8 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.StoreConfig;
 
+import javax.swing.table.DefaultTableModel;
+
 /**
  * The Class ASHDatabaseH (history).
  */
@@ -442,10 +444,79 @@ public class ASHDatabaseH {
 	 		// TODO Auto-generated catch block
 			e.printStackTrace();
 	  }
-   }	
-	
-	
-	
+   }
+
+
+
+	public DefaultTableModel getASHRawData(double begin, double end) throws DatabaseException {
+
+		DefaultTableModel model = new DefaultTableModel(new String[] {
+				"SessionId:",
+				"SessionSerial:",
+				"Program:",
+				"ClientId:",
+				"Action",
+				"Event",
+				"P1",
+				"P1Text",
+				"P2",
+				"P2Text",
+				"P3",
+				"P3Text"
+		}, 0);
+
+		try {
+
+			/* Do a filter on AshIdTime by SampleTime. (detail) */
+			EntityCursor<AshIdTime> ashIdTimeCursor =
+					dao.doRangeQuery(dao.getAshBySampleTime(),
+							begin, true, end, false);
+
+			Iterator<AshIdTime> ashIdTimeIter = ashIdTimeCursor.iterator();
+
+			// Iterate over AshIdTime (detail)
+			while (ashIdTimeIter.hasNext()) {
+				AshIdTime ashIdTimeMain = ashIdTimeIter.next();
+
+            	/* Do a filter on ActiveSessionHistory by SampleID (detail). */
+				EntityCursor<ActiveSessionHistory> ActiveSessionHistoryCursor =
+						dao.getActiveSessionHistoryByAshId().subIndex(ashIdTimeMain.getsampleId()).entities();
+				Iterator<ActiveSessionHistory> ActiveSessionHistoryIter =
+						ActiveSessionHistoryCursor.iterator();
+
+				// Iterate over ActiveSessionHistory (detail)
+				while (ActiveSessionHistoryIter.hasNext()) {
+					ActiveSessionHistory ASH = ActiveSessionHistoryIter.next();
+
+					//System.out.println(ASH.getAction()+ASH.getEvent()+ASH.getP1());
+
+					model.addRow(new Object[] {
+							ASH.getSessionId(),
+							(long)ASH.getSessionSerial(),
+							ASH.getProgram(),
+							ASH.getClientId(),
+							ASH.getAction(),
+							ASH.getEvent(),
+							(long)ASH.getP1(),
+							ASH.getP1Text(),
+							(long)ASH.getP2(),
+							ASH.getP2Text(),
+							(long)ASH.getP3(),
+							ASH.getP3Text()
+					});
+				}
+				ActiveSessionHistoryCursor.close();
+			}
+			ashIdTimeCursor.close();
+
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+
+		return  model;
+	}
+
+
 	/**
 	 * Gets the parameter value from local BDB.
 	 * 

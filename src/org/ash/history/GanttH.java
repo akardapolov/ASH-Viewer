@@ -57,6 +57,7 @@ import org.ash.database.Database10g2;
 import org.ash.database.Database11g1;
 import org.ash.database.Database11g2;
 import org.ash.gui.ASHReport;
+import org.ash.gui.ASHrawdata;
 import org.ash.gui.GanttSplitPane;
 import org.ash.gui.SqlPlan;
 import org.ash.util.Options;
@@ -307,9 +308,9 @@ public class GanttH extends JPanel{
 			splitPane.setRightComponent(rightPane);
 			splitPane.setDividerLocation(this.getWidth()/2);
 			splitPane.setOneTouchExpandable(true);
-			
-			this.main.removeAll();
-			
+
+            this.main.removeAll();
+
 			if (Options.getInstance().isCurrentProfile() &&
 					Options.getInstance().getEditionDb().equalsIgnoreCase("EE") &&
 					   !Options.getInstance().getVersionDb().equalsIgnoreCase("9i") && 
@@ -321,11 +322,20 @@ public class GanttH extends JPanel{
 				JTabbedPane tabPane = new JTabbedPane();
 				tabPane.add("Top sql & sessions",splitPane);
 				tabPane.add("ASH Report",new ASHReport(mainFrame, databaseCurrent, beginTime, endTime));
-				
+                tabPane.add("ASH raw data",new ASHrawdata(mainFrame, this.database, beginTime, endTime));
+
 				this.main.add(tabPane);
 				this.validate();
 			} else {
-				this.main.add(splitPane);
+				//this.main.add(splitPane);
+                //ASHDatabase databaseCurrent = Options.getInstance().getASHDatabase();
+
+                JTabbedPane tabPane = new JTabbedPane();
+                tabPane.add("Top sql & sessions",splitPane);
+                //tabPane.add("ASH Report",new ASHReport(mainFrame, databaseCurrent, beginTime, endTime));
+                tabPane.add("ASH raw data",new ASHrawdata(mainFrame, this.database, beginTime, endTime));
+
+                this.main.add(tabPane);
 				this.validate();
 			}
 		    
