@@ -32,13 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ash.database.AshDataAccessor;
-import org.ash.datamodel.ActiveSessionHistory;
-import org.ash.datamodel.ActiveSessionHistory15;
-import org.ash.datamodel.AshIdTime;
-import org.ash.datamodel.AshParamValue;
-import org.ash.datamodel.AshSqlIdTypeText;
-import org.ash.datamodel.AshSqlPlanDetail;
-import org.ash.datamodel.AshSqlPlanParent;
+import org.ash.datamodel.*;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.explainplanmodel.ExplainPlanModel10g2;
@@ -66,55 +60,55 @@ public class ASHDatabaseH {
 
 	/** The BDB environment. */
 	private  Environment env = null;
-	
+
 	/** The BDB store. */
 	private  EntityStore store = null;
-	
+
 	/** The dao. */
 	private  AshDataAccessor dao = null;
-	
+
 	/** The BDB env config. */
 	private EnvironmentConfig envConfig;
-	
+
 	/** The BDB store config. */
 	private StoreConfig storeConfig;
-	
+
 	/** The dataset. */
 	private CategoryTableXYDataset dataset = null;
-	
+
 	/** The current window. */
 	private Double currentWindow = 3900000.0;
-	
+
 	/** The half range for one 15 sec storage*/
 	private int rangeHalf = 7500;
-	
+
 	/** Temporary first key */
 	private double tempFirstKey = 0.0;
-	
+
 	/** The sqls temp. */
 	private SqlsTemp sqlsTemp;
-	
+
 	/** The sessions temp. */
 	private SessionsTemp sessionsTemp;
-	
+
 	/** The sqls temp (detail). */
 	private SqlsTemp sqlsTempDetail;
-	
+
 	/** The sessions temp (detail). */
 	private SessionsTemp sessionsTempDetail;
-	
+
 	/** The store of event Class and corresponding StackedXYAreaChartDetail object*/
 	private	HashMap<String, StackedChartDetail> storeStackedXYAreaChartDetail;
-			
+
 	/**
 	 * Instantiates a new BDB database.
 	 */
 	public ASHDatabaseH() {
 	}
-	
+
 	/**
 	 * Initialize.
-	 * 
+	 *
 	 * @throws DatabaseException the database exception
 	 * @throws SQLException the SQL exception
 	 * @throws IOException Signals that an I/O exception has occurred.
@@ -128,7 +122,7 @@ public class ASHDatabaseH {
 		envConfig.setTransactional(false);
 		envConfig.setCachePercent(10); // Set BDB cache size for history = 10%
 		//envConfig.setConfigParam("je.log.fileMax", Long.toString(50 * 1024 * 1024));
-		
+
 		/*
 		final EnvironmentConfig environmentConfig = new EnvironmentConfig();
 		environmentConfig.setAllowCreate(true);
@@ -141,32 +135,32 @@ public class ASHDatabaseH {
 		environmentConfig.setConfigParam("je.cleaner.maxBatchFiles", "20");
 		environmentConfig.setConfigParam("je.cleaner.minUtilization", "20");
 		*/
-		
+
 		env = new Environment(new File(evnDir), envConfig);
-		
+
 		/* Open a transactional entity store. */
 		storeConfig = new StoreConfig();
 		storeConfig.setAllowCreate(true);
 		storeConfig.setTransactional(false);
 		storeConfig.setDeferredWrite(true);
 		store = new EntityStore(env, "ash.db", storeConfig);
-				
+
 		/* Initialize the data access object. */
 		dao = new AshDataAccessor(store);
-		
+
 		this.sqlsTemp = new SqlsTemp();
 		this.sessionsTemp = new SessionsTemp(this.store, this.dao);
-		
+
 		this.sqlsTempDetail = new SqlsTemp();
 		this.sessionsTempDetail = new SessionsTemp(this.store, this.dao);
-		
+
 		this.storeStackedXYAreaChartDetail = new HashMap<String, StackedChartDetail>();
-		
+
 	}
-	
+
 	/**
 	 * Gets the BDB store.
-	 * 
+	 *
 	 * @return the store
 	 */
 	public EntityStore getStore() {
@@ -175,13 +169,13 @@ public class ASHDatabaseH {
 
 	/**
 	 * Gets the BDB dao object.
-	 * 
+	 *
 	 * @return the BDB dao object
 	 */
 	public AshDataAccessor getDao() {
 		return dao;
 	}
-	
+
 	/**
 	 * Close BDB.
 	 */
@@ -204,257 +198,260 @@ public class ASHDatabaseH {
 			}
 		}
 	}
-	
+
 	/**
 	 * Load data to chart panel data set (preview history).
-	 * 
+	 *
 	 * @param _dataset the _dataset
 	 */
 	public void loadDataToChartPanelDataSetPreview(CategoryTableXYDataset _dataset){
-		
-	try {
-		int k = 0;
-		this.dataset = _dataset;
-		EntityCursor<ActiveSessionHistory15> items;
-		
-		Double firstKey = 0.0;
-		Double lastKey = 0.0;
-		
-		// Get max and min value of AshCalcSumByEventById115Sec
+
 		try {
-		  firstKey = dao.getAshBySampleTime().sortedMap().firstKey();
-		  lastKey = dao.getAshBySampleTime().sortedMap().lastKey();
-		} catch (Exception e){
-			firstKey = 0.0;
-			lastKey = 0.0;
-		}
-		if (lastKey == null || firstKey == null){
-			firstKey = 0.0;
-			lastKey = 0.0;
-		} else {
-			if (this.tempFirstKey != 0.0){
-				if (getParameter("ASH.version").equalsIgnoreCase("9i")||
-						getParameter("ASH.version").equalsIgnoreCase("8i")){
-					firstKey = firstKey-30000;
-				} else {
-					firstKey = tempFirstKey - 30000;
-				}
-			  
-			} else {
-				firstKey = firstKey - 30000;
+			int k = 0;
+			this.dataset = _dataset;
+			EntityCursor<ActiveSessionHistory15> items;
+
+			Double firstKey = 0.0;
+			Double lastKey = 0.0;
+
+			// Get max and min value of AshCalcSumByEventById115Sec
+			try {
+				firstKey = dao.getAshBySampleTime().sortedMap().firstKey();
+				lastKey = dao.getAshBySampleTime().sortedMap().lastKey();
+			} catch (Exception e){
+				firstKey = 0.0;
+				lastKey = 0.0;
 			}
-			lastKey = lastKey + 30000;
-		}
-		
-		double deltaKey = lastKey - firstKey;
-		
-		if (currentWindow > deltaKey || deltaKey < currentWindow*1.5){
-			k = 1;
-		} else {
-			k = (int) (Math.ceil(deltaKey/currentWindow));
-		}
-		
-	 for (double ii=firstKey;ii<lastKey;ii+=rangeHalf*k*2){
-		
+			if (lastKey == null || firstKey == null){
+				firstKey = 0.0;
+				lastKey = 0.0;
+			} else {
+				if (this.tempFirstKey != 0.0){
+					if (getParameter("ASH.version").equalsIgnoreCase("9i")||
+							getParameter("ASH.version").equalsIgnoreCase("8i")){
+						firstKey = firstKey-30000;
+					} else {
+						firstKey = tempFirstKey - 30000;
+					}
+
+				} else {
+					firstKey = firstKey - 30000;
+				}
+				lastKey = lastKey + 30000;
+			}
+
+			double deltaKey = lastKey - firstKey;
+
+			if (currentWindow > deltaKey || deltaKey < currentWindow*1.5){
+				k = 1;
+			} else {
+				k = (int) (Math.ceil(deltaKey/currentWindow));
+			}
+
+			for (double ii=firstKey;ii<lastKey;ii+=rangeHalf*k*2){
+
 		/* Init temporary variables */
-        double other0 = 0;
-        double application1 = 0;
-        double configuration2 = 0;
-        double administrative3 = 0;
-        double concurrency4 = 0;
-        double commit5 = 0;
-        double network7 = 0;
-        double userIO8 = 0;
-        double systemIO9 = 0;
-        double scheduler10 = 0;
-        double cluster11 = 0;
-        double queueing12 = 0;
-        double cpu = 0;
-        int kk = 1;
-			
-		  items = dao.doRangeQuery(
-					dao.getAshCalcSumByEventById115Sec(), 
-					ii, true,
-					ii+rangeHalf*k*2, false);
+				double other0 = 0;
+				double application1 = 0;
+				double configuration2 = 0;
+				double administrative3 = 0;
+				double concurrency4 = 0;
+				double commit5 = 0;
+				double network7 = 0;
+				double userIO8 = 0;
+				double systemIO9 = 0;
+				double scheduler10 = 0;
+				double cluster11 = 0;
+				double queueing12 = 0;
+				double cpu = 0;
+				int kk = 1;
+
+				items = dao.doRangeQuery(
+						dao.getAshCalcSumByEventById115Sec(),
+						ii, true,
+						ii+rangeHalf*k*2, false);
 
 			/* Do a filter on Ash by SampleTime. */
-			Iterator<ActiveSessionHistory15> deptIter = items.iterator();
+				Iterator<ActiveSessionHistory15> deptIter = items.iterator();
 
-			while (deptIter.hasNext()) {
+				while (deptIter.hasNext()) {
 
-				ActiveSessionHistory15 ashSumMain = deptIter.next();
+					ActiveSessionHistory15 ashSumMain = deptIter.next();
 
-				   other0 = other0+ashSumMain.getOther0();
-			       application1 = application1+ashSumMain.getApplication1();
-			       configuration2 = configuration2+ashSumMain.getConfiguration2();
-			       administrative3 = administrative3+ashSumMain.getAdministrative3();
-			       concurrency4 = concurrency4+ashSumMain.getConcurrency4();
-			       commit5 = commit5+ashSumMain.getCommit5();
-			       network7 = network7+ashSumMain.getNetwork7();
-			       userIO8 = userIO8+ashSumMain.getUserIO8();
-			       systemIO9 = systemIO9+ashSumMain.getSystemIO9();
-			       scheduler10 = scheduler10+ashSumMain.getScheduler10();
-			       cluster11 = cluster11+ashSumMain.getCluster11();
-			       queueing12 = queueing12+ashSumMain.getQueueing12();
-			       cpu = cpu+ashSumMain.getCpu();
-			       kk++;
+					other0 = other0+ashSumMain.getOther0();
+					application1 = application1+ashSumMain.getApplication1();
+					configuration2 = configuration2+ashSumMain.getConfiguration2();
+					administrative3 = administrative3+ashSumMain.getAdministrative3();
+					concurrency4 = concurrency4+ashSumMain.getConcurrency4();
+					commit5 = commit5+ashSumMain.getCommit5();
+					network7 = network7+ashSumMain.getNetwork7();
+					userIO8 = userIO8+ashSumMain.getUserIO8();
+					systemIO9 = systemIO9+ashSumMain.getSystemIO9();
+					scheduler10 = scheduler10+ashSumMain.getScheduler10();
+					cluster11 = cluster11+ashSumMain.getCluster11();
+					queueing12 = queueing12+ashSumMain.getQueueing12();
+					cpu = cpu+ashSumMain.getCpu();
+					kk++;
+				}
+				items.close();
+
+				double tempSampleTime = ii+rangeHalf*k;
+
+				dataset.add(tempSampleTime, cpu/kk,
+						Options.getInstance().getResource("cpuLabel.text"));
+				dataset.add(tempSampleTime, scheduler10/kk,
+						Options.getInstance().getResource("schedulerLabel.text"));
+				dataset.add(tempSampleTime, userIO8/kk,
+						Options.getInstance().getResource("userIOLabel.text"));
+				dataset.add(tempSampleTime, systemIO9/kk,
+						Options.getInstance().getResource("systemIOLabel.text"));
+				dataset.add(tempSampleTime, concurrency4/kk,
+						Options.getInstance().getResource("concurrencyLabel.text"));
+				dataset.add(tempSampleTime, application1/kk,
+						Options.getInstance().getResource("applicationsLabel.text"));
+				dataset.add(tempSampleTime, commit5/kk,
+						Options.getInstance().getResource("commitLabel.text"));
+				dataset.add(tempSampleTime, configuration2/kk,
+						Options.getInstance().getResource("configurationLabel.text"));
+				dataset.add(tempSampleTime, administrative3/kk,
+						Options.getInstance().getResource("administrativeLabel.text"));
+				dataset.add(tempSampleTime, network7/kk,
+						Options.getInstance().getResource("networkLabel.text"));
+				dataset.add(tempSampleTime, queueing12/kk,
+						Options.getInstance().getResource("queueningLabel.text"));//que
+				dataset.add(tempSampleTime, cluster11/kk,
+						Options.getInstance().getResource("clusterLabel.text"));//cluster
+				dataset.add(tempSampleTime, other0/kk,
+						Options.getInstance().getResource("otherLabel.text"));
+
 			}
-		  items.close();
-       	
-       	double tempSampleTime = ii+rangeHalf*k;
-       	
-       	dataset.add(tempSampleTime, cpu/kk, 
-				Options.getInstance().getResource("cpuLabel.text"));
-		dataset.add(tempSampleTime, scheduler10/kk, 
-				Options.getInstance().getResource("schedulerLabel.text"));
-		dataset.add(tempSampleTime, userIO8/kk, 
-				Options.getInstance().getResource("userIOLabel.text"));
-		dataset.add(tempSampleTime, systemIO9/kk, 
-				Options.getInstance().getResource("systemIOLabel.text"));
-		dataset.add(tempSampleTime, concurrency4/kk, 
-				Options.getInstance().getResource("concurrencyLabel.text"));
-		dataset.add(tempSampleTime, application1/kk,
-				Options.getInstance().getResource("applicationsLabel.text"));
-		dataset.add(tempSampleTime, commit5/kk, 
-				Options.getInstance().getResource("commitLabel.text"));
-		dataset.add(tempSampleTime, configuration2/kk,	
-				Options.getInstance().getResource("configurationLabel.text"));
-		dataset.add(tempSampleTime, administrative3/kk, 
-				Options.getInstance().getResource("administrativeLabel.text"));
-		dataset.add(tempSampleTime, network7/kk, 
-				Options.getInstance().getResource("networkLabel.text"));
-		dataset.add(tempSampleTime, queueing12/kk, 
-				Options.getInstance().getResource("queueningLabel.text"));//que
-		dataset.add(tempSampleTime, cluster11/kk, 
-				Options.getInstance().getResource("clusterLabel.text"));//cluster
-		dataset.add(tempSampleTime, other0/kk, 
-				Options.getInstance().getResource("otherLabel.text"));
-		
-		} 
-		
-	  } catch (DatabaseException e) {
-	 		// TODO Auto-generated catch block
+
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-	  }
-   }	
-	
-	
+		}
+	}
+
+
 	/**
 	 * Load data to chart panel data set (preview history).
-	 * 
+	 *
 	 * @param _dataset the _dataset
 	 */
 	public void loadDataToChartPanelDataSetTA(CategoryTableXYDataset _dataset, double begin, double end){
-		
-	try {
-		int k = 0;
-		this.dataset = _dataset;
-		EntityCursor<ActiveSessionHistory15> items;
-		
-		// Get max and min value of AshCalcSumByEventById115Sec
-		Double firstKey = begin-rangeHalf;
-		Double lastKey = end+rangeHalf;
-		
-		double deltaKey = lastKey - firstKey;
-		
-		if (currentWindow > deltaKey || deltaKey < currentWindow*1.5){
-			k = 1;
-		} else {
-			k = (int) (Math.ceil(deltaKey/currentWindow));
-		}
-		
-		for (double ii=firstKey;ii<lastKey;ii+=rangeHalf*k*2){
-		
+
+		try {
+			int k = 0;
+			this.dataset = _dataset;
+			EntityCursor<ActiveSessionHistory15> items;
+
+			// Get max and min value of AshCalcSumByEventById115Sec
+			Double firstKey = begin-rangeHalf;
+			Double lastKey = end+rangeHalf;
+
+			double deltaKey = lastKey - firstKey;
+
+			if (currentWindow > deltaKey || deltaKey < currentWindow*1.5){
+				k = 1;
+			} else {
+				k = (int) (Math.ceil(deltaKey/currentWindow));
+			}
+
+			for (double ii=firstKey;ii<lastKey;ii+=rangeHalf*k*2){
+
 		/* Init temporary variables */
-        double other0 = 0;
-        double application1 = 0;
-        double configuration2 = 0;
-        double administrative3 = 0;
-        double concurrency4 = 0;
-        double commit5 = 0;
-        double network7 = 0;
-        double userIO8 = 0;
-        double systemIO9 = 0;
-        double scheduler10 = 0;
-        double cluster11 = 0;
-        double queueing12 = 0;
-        double cpu = 0;
-			
-		  items = dao.doRangeQuery(
-					dao.getAshCalcSumByEventById115Sec(), 
-					ii, true,
-					ii+rangeHalf*k*2, false);
+				double other0 = 0;
+				double application1 = 0;
+				double configuration2 = 0;
+				double administrative3 = 0;
+				double concurrency4 = 0;
+				double commit5 = 0;
+				double network7 = 0;
+				double userIO8 = 0;
+				double systemIO9 = 0;
+				double scheduler10 = 0;
+				double cluster11 = 0;
+				double queueing12 = 0;
+				double cpu = 0;
+
+				items = dao.doRangeQuery(
+						dao.getAshCalcSumByEventById115Sec(),
+						ii, true,
+						ii+rangeHalf*k*2, false);
 
 			/* Do a filter on Ash by SampleTime. */
-			Iterator<ActiveSessionHistory15> deptIter = items.iterator();
+				Iterator<ActiveSessionHistory15> deptIter = items.iterator();
 
-			while (deptIter.hasNext()) {
+				while (deptIter.hasNext()) {
 
-				ActiveSessionHistory15 ashSumMain = deptIter.next();
+					ActiveSessionHistory15 ashSumMain = deptIter.next();
 
-				   other0 = other0+ashSumMain.getOther0();
-			       application1 = application1+ashSumMain.getApplication1();
-			       configuration2 = configuration2+ashSumMain.getConfiguration2();
-			       administrative3 = administrative3+ashSumMain.getAdministrative3();
-			       concurrency4 = concurrency4+ashSumMain.getConcurrency4();
-			       commit5 = commit5+ashSumMain.getCommit5();
-			       network7 = network7+ashSumMain.getNetwork7();
-			       userIO8 = userIO8+ashSumMain.getUserIO8();
-			       systemIO9 = systemIO9+ashSumMain.getSystemIO9();
-			       scheduler10 = scheduler10+ashSumMain.getScheduler10();
-			       cluster11 = cluster11+ashSumMain.getCluster11();
-			       queueing12 = queueing12+ashSumMain.getQueueing12();
-			       cpu = cpu+ashSumMain.getCpu();
-				
+					other0 = other0+ashSumMain.getOther0();
+					application1 = application1+ashSumMain.getApplication1();
+					configuration2 = configuration2+ashSumMain.getConfiguration2();
+					administrative3 = administrative3+ashSumMain.getAdministrative3();
+					concurrency4 = concurrency4+ashSumMain.getConcurrency4();
+					commit5 = commit5+ashSumMain.getCommit5();
+					network7 = network7+ashSumMain.getNetwork7();
+					userIO8 = userIO8+ashSumMain.getUserIO8();
+					systemIO9 = systemIO9+ashSumMain.getSystemIO9();
+					scheduler10 = scheduler10+ashSumMain.getScheduler10();
+					cluster11 = cluster11+ashSumMain.getCluster11();
+					queueing12 = queueing12+ashSumMain.getQueueing12();
+					cpu = cpu+ashSumMain.getCpu();
+
+				}
+				items.close();
+
+				double tempSampleTime = ii+rangeHalf*2*k;
+
+				dataset.add(tempSampleTime, cpu/k,
+						Options.getInstance().getResource("cpuLabel.text"));
+				dataset.add(tempSampleTime, scheduler10/k,
+						Options.getInstance().getResource("schedulerLabel.text"));
+				dataset.add(tempSampleTime, userIO8/k,
+						Options.getInstance().getResource("userIOLabel.text"));
+				dataset.add(tempSampleTime, systemIO9/k,
+						Options.getInstance().getResource("systemIOLabel.text"));
+				dataset.add(tempSampleTime, concurrency4/k,
+						Options.getInstance().getResource("concurrencyLabel.text"));
+				dataset.add(tempSampleTime, application1/k,
+						Options.getInstance().getResource("applicationsLabel.text"));
+				dataset.add(tempSampleTime, commit5/k,
+						Options.getInstance().getResource("commitLabel.text"));
+				dataset.add(tempSampleTime, configuration2/k,
+						Options.getInstance().getResource("configurationLabel.text"));
+				dataset.add(tempSampleTime, administrative3/k,
+						Options.getInstance().getResource("administrativeLabel.text"));
+				dataset.add(tempSampleTime, network7/k,
+						Options.getInstance().getResource("networkLabel.text"));
+				dataset.add(tempSampleTime, queueing12/k,
+						Options.getInstance().getResource("queueningLabel.text"));//que
+				dataset.add(tempSampleTime, cluster11/k,
+						Options.getInstance().getResource("clusterLabel.text"));//cluster
+				dataset.add(tempSampleTime, other0/k,
+						Options.getInstance().getResource("otherLabel.text"));
+
 			}
-		  items.close();
-		  		  
-       	double tempSampleTime = ii+rangeHalf*2*k;
-       	
-       	dataset.add(tempSampleTime, cpu/k, 
-				Options.getInstance().getResource("cpuLabel.text"));
-		dataset.add(tempSampleTime, scheduler10/k, 
-				Options.getInstance().getResource("schedulerLabel.text"));
-		dataset.add(tempSampleTime, userIO8/k, 
-				Options.getInstance().getResource("userIOLabel.text"));
-		dataset.add(tempSampleTime, systemIO9/k, 
-				Options.getInstance().getResource("systemIOLabel.text"));
-		dataset.add(tempSampleTime, concurrency4/k, 
-				Options.getInstance().getResource("concurrencyLabel.text"));
-		dataset.add(tempSampleTime, application1/k,
-				Options.getInstance().getResource("applicationsLabel.text"));
-		dataset.add(tempSampleTime, commit5/k, 
-				Options.getInstance().getResource("commitLabel.text"));
-		dataset.add(tempSampleTime, configuration2/k,	
-				Options.getInstance().getResource("configurationLabel.text"));
-		dataset.add(tempSampleTime, administrative3/k, 
-				Options.getInstance().getResource("administrativeLabel.text"));
-		dataset.add(tempSampleTime, network7/k, 
-				Options.getInstance().getResource("networkLabel.text"));
-		dataset.add(tempSampleTime, queueing12/k, 
-				Options.getInstance().getResource("queueningLabel.text"));//que
-		dataset.add(tempSampleTime, cluster11/k, 
-				Options.getInstance().getResource("clusterLabel.text"));//cluster
-		dataset.add(tempSampleTime, other0/k, 
-				Options.getInstance().getResource("otherLabel.text"));
-		
-		}
-		
-	  } catch (DatabaseException e) {
-	 		// TODO Auto-generated catch block
+
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-	  }
-   }
+		}
+	}
 
 
 
 	public DefaultTableModel getASHRawData(double begin, double end) throws DatabaseException {
 
 		DefaultTableModel model = new DefaultTableModel(new String[] {
-				"SessionId:",
-				"SessionSerial:",
-				"Program:",
-				"ClientId:",
+				"SampleID",
+				"SessionID",
+				"SessionSerial",
+				"Username",
+				"Program",
+				"Module",
+				"ClientID",
 				"Action",
 				"Event",
 				"P1",
@@ -462,7 +459,35 @@ public class ASHDatabaseH {
 				"P2",
 				"P2Text",
 				"P3",
-				"P3Text"
+				"P3Text",
+				"Wait Class",
+				"Wait Class id",
+				"Wait time",
+				"Session state",
+				"Time waited",
+				"Blocking session (BS)",
+				"BS status",
+				"BS serial#",
+				"Current obj#",
+				"Current file",
+				"Current block",
+				"Current row",
+				"Consumer group id",
+				"Xid",
+				"Remote instance",
+				"In connection mgmt",
+				"In parse",
+				"In hard parse",
+				"In sql execution",
+				"In pl/sql execution",
+				"In pl/sql rpc",
+				"In pl/sql compilation",
+				"In java execution",
+				"In bind",
+				"In cursor close",
+				"Service hash",
+				"Client id",
+				"UserID"
 		}, 0);
 
 		try {
@@ -488,12 +513,16 @@ public class ASHDatabaseH {
 				while (ActiveSessionHistoryIter.hasNext()) {
 					ActiveSessionHistory ASH = ActiveSessionHistoryIter.next();
 
-					//System.out.println(ASH.getAction()+ASH.getEvent()+ASH.getP1());
+                    /* Get username */
+					String username = this.getUsername(ASH.getUserId());
 
 					model.addRow(new Object[] {
+							ASH.getSampleId(),
 							ASH.getSessionId(),
 							(long)ASH.getSessionSerial(),
+							username,
 							ASH.getProgram(),
+							ASH.getModule(),
 							ASH.getClientId(),
 							ASH.getAction(),
 							ASH.getEvent(),
@@ -502,7 +531,36 @@ public class ASHDatabaseH {
 							(long)ASH.getP2(),
 							ASH.getP2Text(),
 							(long)ASH.getP3(),
-							ASH.getP3Text()
+							ASH.getP3Text(),
+							ASH.getWaitClass(),
+							(long)ASH.getWaitClassId(),
+							(long)ASH.getWaitTime(),
+							ASH.getSessionState(),
+							(long)ASH.getTimeWaited(),
+							(long)ASH.getBlockingSession(),
+							ASH.getBlockingSessionStatus(),
+							(long)ASH.getBlockingSessionSerialHash(),
+							(long)ASH.getCurrentObjHash(),
+							(long)ASH.getCurrentFileHash(),
+							(long)ASH.getCurrentBlockHash(),
+							(long)ASH.getCurrentRowHash(),
+							(long)ASH.getConsumerGroupId(),
+							ASH.getXid(),
+							(long)ASH.getRemoteInstance(),
+							ASH.getInConnectionMgmt(),
+							ASH.getInParse(),
+							ASH.getInHardParse(),
+							ASH.getInSqlExecution(),
+							ASH.getInPlSqlExecution(),
+							ASH.getInPlSqlRpc(),
+							ASH.getInPlSqlCompilation(),
+							ASH.getInJavaExecution(),
+							ASH.getInBind(),
+							ASH.getInCursorClose(),
+							(long)ASH.getServiceHash(),
+							ASH.getClientId(),
+							ASH.getUserId()
+
 					});
 				}
 				ActiveSessionHistoryCursor.close();
@@ -519,12 +577,12 @@ public class ASHDatabaseH {
 
 	/**
 	 * Gets the parameter value from local BDB.
-	 * 
+	 *
 	 * @param parameter parameter id
 	 * @return the value
 	 */
 	public String getParameter(String parameter){
-		
+
 		String value = null;
 		try {
 			AshParamValue ashParamValue = dao.getAshParamValue().get(parameter);
@@ -540,106 +598,106 @@ public class ASHDatabaseH {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * @param tempFirstKey the tempFirstKey to set
 	 */
 	public void setTempFirstKey(double tempFirstKey) {
 		this.tempFirstKey = tempFirstKey;
 	}
-	
+
 	/**
 	 * Calculate sqls, sessions data.
-	 * 
+	 *
 	 * @param beginTime the begin time
 	 * @param endTime the end time
 	 * @param eventFlag All for main top activity, event class - for detail
 	 */
-	public void calculateSqlsSessionsData(double beginTime, double endTime, 
-											String eventFlag){
-		
+	public void calculateSqlsSessionsData(double beginTime, double endTime,
+										  String eventFlag){
+
 		try {
-			
+
 			SqlsTemp tmpSqlsTemp = null;
 			SessionsTemp tmpSessionsTemp = null;
-			
+
 			if(eventFlag.equalsIgnoreCase("All")){
-				 tmpSqlsTemp = getSqlsTemp();
-				 tmpSessionsTemp = getSessionsTemp();
+				tmpSqlsTemp = getSqlsTemp();
+				tmpSessionsTemp = getSessionsTemp();
 			} else {
-				 tmpSqlsTemp = getSqlsTempDetail();
-				 tmpSessionsTemp = getSessionsTempDetail();
+				tmpSqlsTemp = getSqlsTempDetail();
+				tmpSessionsTemp = getSessionsTempDetail();
 			}
-			
+
 			// get sample id's for beginTime and endTime
 			EntityCursor<AshIdTime> ashSampleIds;
-			ashSampleIds = dao.doRangeQuery(dao.getAshBySampleTime(), 
-						beginTime-rangeHalf, true, 
-						endTime+rangeHalf, true);
+			ashSampleIds = dao.doRangeQuery(dao.getAshBySampleTime(),
+					beginTime-rangeHalf, true,
+					endTime+rangeHalf, true);
 			/* Iterate on Ash by SampleTime. */
 			Iterator<AshIdTime> ashIter = ashSampleIds.iterator();
-			
+
 			while (ashIter.hasNext()) {
 
 				AshIdTime ashSumMain = ashIter.next();
-				
-				// get rows from ActiveSessionHistory for samplId 
+
+				// get rows from ActiveSessionHistory for samplId
 				EntityCursor<ActiveSessionHistory> 	ActiveSessionHistoryCursor;
-				ActiveSessionHistoryCursor = 
-					dao.doRangeQuery(dao.getActiveSessionHistoryByAshId(), 
-									ashSumMain.getsampleId(), true, 
-									ashSumMain.getsampleId(), true);
-				Iterator<ActiveSessionHistory> ActiveSessionHistoryIter  = 
+				ActiveSessionHistoryCursor =
+						dao.doRangeQuery(dao.getActiveSessionHistoryByAshId(),
+								ashSumMain.getsampleId(), true,
+								ashSumMain.getsampleId(), true);
+				Iterator<ActiveSessionHistory> ActiveSessionHistoryIter  =
 						ActiveSessionHistoryCursor.iterator();
-				
+
 				while (ActiveSessionHistoryIter.hasNext()) {
-					ActiveSessionHistory ASH = 
-						ActiveSessionHistoryIter.next();
-				
-				 // sql data	
-				 String sqlId = ASH.getSqlId();
-				 double timeWaited = ASH.getTimeWaited();
-				 double waitTime = ASH.getWaitTime();
-				 double waitClassId = ASH.getWaitClassId();
-				 // session data
-				 Long sessionId = ASH.getSessionId();
-				 String sessionidS = sessionId.toString().trim();
-				 Double sessionSerial = ASH.getSessionSerial();
-				 String sessioniSerialS = sessionSerial.toString().trim();
-				 Long useridL = ASH.getUserId();
-				 String useridS = useridL.toString().trim();
-				 String programSess = ASH.getProgram();	
-				 
-				 Double sqlPlanHashValue = (Double) ASH.getSqlPlanHashValue();
-				 
-				 String waitClass = ASH.getWaitClass();
-				 String eventName = ASH.getEvent();
-				 
-				// Exit when current eventClas != eventFlag
-				if (!eventFlag.equalsIgnoreCase("All")){
-					if (eventFlag.equalsIgnoreCase("CPU used")){
-						if (waitTime!=0.0){
-							this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
-									sqlId, 0.0/*timeWaited*/, waitTime, 0.0/*waitClassId*/, sessionId, sessionidS, 
-									sessionSerial, sessioniSerialS, useridL, useridS, programSess, 
-									true, eventFlag, sqlPlanHashValue);
-						}
-					} else {
-						if (waitClass != null && waitClass.equalsIgnoreCase(eventFlag)){
-							this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
-									sqlId, timeWaited, 0.0/*waittime*/, waitClassId, sessionId, sessionidS, 
-									sessionSerial, sessioniSerialS, useridL, useridS, programSess, 
-									true, eventName, sqlPlanHashValue);
+					ActiveSessionHistory ASH =
+							ActiveSessionHistoryIter.next();
+
+					// sql data
+					String sqlId = ASH.getSqlId();
+					double timeWaited = ASH.getTimeWaited();
+					double waitTime = ASH.getWaitTime();
+					double waitClassId = ASH.getWaitClassId();
+					// session data
+					Long sessionId = ASH.getSessionId();
+					String sessionidS = sessionId.toString().trim();
+					Double sessionSerial = ASH.getSessionSerial();
+					String sessioniSerialS = sessionSerial.toString().trim();
+					Long useridL = ASH.getUserId();
+					String useridS = useridL.toString().trim();
+					String programSess = ASH.getProgram();
+
+					Double sqlPlanHashValue = (Double) ASH.getSqlPlanHashValue();
+
+					String waitClass = ASH.getWaitClass();
+					String eventName = ASH.getEvent();
+
+					// Exit when current eventClas != eventFlag
+					if (!eventFlag.equalsIgnoreCase("All")){
+						if (eventFlag.equalsIgnoreCase("CPU used")){
+							if (waitTime!=0.0){
+								this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
+										sqlId, 0.0/*timeWaited*/, waitTime, 0.0/*waitClassId*/, sessionId, sessionidS,
+										sessionSerial, sessioniSerialS, useridL, useridS, programSess,
+										true, eventFlag, sqlPlanHashValue);
+							}
+						} else {
+							if (waitClass != null && waitClass.equalsIgnoreCase(eventFlag)){
+								this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
+										sqlId, timeWaited, 0.0/*waittime*/, waitClassId, sessionId, sessionidS,
+										sessionSerial, sessioniSerialS, useridL, useridS, programSess,
+										true, eventName, sqlPlanHashValue);
 							}
 						}
-				} else {
-					
-				   this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
-							sqlId, timeWaited, waitTime, waitClassId, sessionId, sessionidS, 
-							sessionSerial, sessioniSerialS, useridL, useridS, programSess, 
-							false, eventFlag, sqlPlanHashValue);
-				
-				  }
+					} else {
+
+						this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
+								sqlId, timeWaited, waitTime, waitClassId, sessionId, sessionidS,
+								sessionSerial, sessioniSerialS, useridL, useridS, programSess,
+								false, eventFlag, sqlPlanHashValue);
+
+					}
 				}
 				// Close cursor!!
 				ActiveSessionHistoryCursor.close();
@@ -648,16 +706,16 @@ public class ASHDatabaseH {
 			tmpSessionsTemp.set_sum();
 			// Close cursor!!
 			ashSampleIds.close();
-			
-			} catch (DatabaseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-		    }
+
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Get sql_type for sql_id
-	 * 
+	 *
 	 * @param sqlId
 	 * @return sqlType
 	 */
@@ -677,10 +735,10 @@ public class ASHDatabaseH {
 		}
 		return sqlType;
 	}
-	
+
 	/**
 	 * Get sql_text for sql_id
-	 * 
+	 *
 	 * @param sqlId
 	 * @return sqlType
 	 */
@@ -693,7 +751,7 @@ public class ASHDatabaseH {
 			} else {
 				sqlText = "";
 			}
-			
+
 		} catch (DatabaseException e) {
 			// TODO Auto-generated catch block
 			sqlText = "";
@@ -701,10 +759,10 @@ public class ASHDatabaseH {
 		}
 		return sqlText;
 	}
-	
+
 	/**
 	 * Load data to temporary sql and sessions (gantt data)
-	 * 
+	 *
 	 * @param tmpSqlsTemp
 	 * @param tmpSessionsTemp
 	 * @param sqlId
@@ -719,109 +777,107 @@ public class ASHDatabaseH {
 	 * @param useridS
 	 * @param programSess
 	 * @param isDetail
-	 */	
+	 */
 	private void loadDataToTempSqlSession(SqlsTemp tmpSqlsTemp, SessionsTemp tmpSessionsTemp,
-			String sqlId, double timeWaited, double waitTime, 
-			double waitClassId, Long sessionId, String sessionidS, Double sessionSerial,
-			String sessioniSerialS, Long useridL, String useridS, String programSess,
-			boolean isDetail, String eventDetail, double sqlPlanHashValue){
-		
+										  String sqlId, double timeWaited, double waitTime,
+										  double waitClassId, Long sessionId, String sessionidS, Double sessionSerial,
+										  String sessioniSerialS, Long useridL, String useridS, String programSess,
+										  boolean isDetail, String eventDetail, double sqlPlanHashValue){
+
 		int count = 1;
-		
-		/** Save data for sql row */	
-		 if (sqlId!=null && !sqlId.equalsIgnoreCase("0")){	
+
+		/** Save data for sql row */
+		if (sqlId!=null && !sqlId.equalsIgnoreCase("0")){
 			// Save SQL_ID and init
-			 tmpSqlsTemp.setSqlId(sqlId);
-			 
+			tmpSqlsTemp.setSqlId(sqlId);
+
 			// Save SqlPlanHashValue
 			tmpSqlsTemp.saveSqlPlanHashValue(sqlId, sqlPlanHashValue);
-			 
+
 			// Save group event
-			 tmpSqlsTemp.setTimeOfGroupEvent(
+			tmpSqlsTemp.setTimeOfGroupEvent(
 					sqlId,
 					timeWaited,
 					waitTime,
 					waitClassId,
 					count);
-		    
-		   }
-		 
-		 /** Save data for session row */	
-		 tmpSessionsTemp.
-		   setSessionId(sessionidS,
-				 	    sessioniSerialS,
-				 	    programSess,
-				 	    useridS,
-				 	    tmpSessionsTemp.getUsername(useridL));
-		
-		 tmpSessionsTemp.
-		   setTimeOfGroupEvent(sessionidS+"_"+sessioniSerialS, 
-				 	  timeWaited,
-					  waitTime,
-					  waitClassId,
-					  count);
-		 
-		 /** Save event detail data for sql and sessions row */
-		 if (isDetail){
-			 if (sqlId!=null && !sqlId.equalsIgnoreCase("0")){
-				 tmpSqlsTemp.setTimeOfEventName(
-						 sqlId,
-						 timeWaited,
-						 waitTime,
-						 waitClassId,
-						 eventDetail,
-						 count);
-			 }
-			 tmpSessionsTemp.setTimeOfEventName(
-					 sessionidS+"_"+sessioniSerialS,
-					 timeWaited,
-					 waitTime,
-					 waitClassId,
-					 eventDetail,
-					 count);
-		 }
+
+		}
+
+		/** Save data for session row */
+		tmpSessionsTemp.
+				setSessionId(sessionidS,
+						sessioniSerialS,
+						programSess,
+						useridS,
+						tmpSessionsTemp.getUsername(useridL));
+
+		tmpSessionsTemp.
+				setTimeOfGroupEvent(sessionidS+"_"+sessioniSerialS,
+						timeWaited,
+						waitTime,
+						waitClassId,
+						count);
+
+		/** Save event detail data for sql and sessions row */
+		if (isDetail){
+			if (sqlId!=null && !sqlId.equalsIgnoreCase("0")){
+				tmpSqlsTemp.setTimeOfEventName(
+						sqlId,
+						timeWaited,
+						waitTime,
+						waitClassId,
+						eventDetail,
+						count);
+			}
+			tmpSessionsTemp.setTimeOfEventName(
+					sessionidS+"_"+sessioniSerialS,
+					timeWaited,
+					waitTime,
+					waitClassId,
+					eventDetail,
+					count);
+		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * Save reference to StackedXYAreaChartDetail for wait classes or cpu used
-	 * 
+	 *
 	 * @param detailValue StackedChartDetail object
-	 * @param waitClasskey 
+	 * @param waitClasskey
 	 */
 	public void saveStackedXYAreaChartDetail(StackedChartDetail detailValue,
 											 String waitClasskey){
 		this.storeStackedXYAreaChartDetail.put(waitClasskey, detailValue);
 	}
-	
+
 	/**
 	 * Clear reference to StackedXYAreaChartDetail for wait classes or cpu used
-	 * 
+	 *
 	 */
 	public void clearStackedXYAreaChartDetail(){
 		this.storeStackedXYAreaChartDetail.clear();
 	}
-	
-	
+
+
 	/**
 	 * Load data to chart panel dataset (detail charts).
-	 * 
+	 *
 	 */
 	public void initialLoadingDataToChartPanelDataSetDetail
-					(String waitClass, double beginTime, double endTime){
+	(String waitClass, double beginTime, double endTime){
 		this.loadDataToChartPanelDataSetDetail(waitClass, beginTime, endTime);
 	}
-	
-	
+
+
 	/**
 	 * Load data to chart panel dataset (detail charts).
-	 * 
-	 * @param dataset
-	 *            dataset for detail chart
+	 *
 	 */
 	private void loadDataToChartPanelDataSetDetail(String waitClass,
-			double begin, double end) {
+												   double begin, double end) {
 
 		try {
 
@@ -848,7 +904,7 @@ public class ASHDatabaseH {
 
 				/* Do a filter on AshIdTime by SampleTime. (detail) */
 				EntityCursor<AshIdTime> ashIdTimeCursor = dao.doRangeQuery(dao
-						.getAshBySampleTime(), dd, true, dd + rangeHalf * k * 2,
+								.getAshBySampleTime(), dd, true, dd + rangeHalf * k * 2,
 						false);
 
 				Iterator<AshIdTime> ashIdTimeIter = ashIdTimeCursor.iterator();
@@ -887,13 +943,13 @@ public class ASHDatabaseH {
 
 							String eventName = ASH.getEvent();
 							String waitClassEvent = ASH.getWaitClass();
-							StackedChartDetail tmpStackedObj = 
-								this.storeStackedXYAreaChartDetail.get(waitClassEvent);
-							
-							// Exit 
+							StackedChartDetail tmpStackedObj =
+									this.storeStackedXYAreaChartDetail.get(waitClassEvent);
+
+							// Exit
 							if (tmpStackedObj == null)
 								continue;
-							
+
 							// Checking and loading data
 							if (tmpStackedObj.isSeriesContainName(eventName)) {
 								double tmp = tmpStackedObj
@@ -908,7 +964,7 @@ public class ASHDatabaseH {
 									tmpStackedObj.setSeriesIdName(nextNumber,eventName);
 									tmpStackedObj.setSeriesNameSum(eventName,1.0);
 									tmpStackedObj.setSeriesPaint(nextNumber,eventName,"loadDataToChartPanelDataSetDetail");
-									
+
 								} else {
 									tmpStackedObj.setSeriesIdName(0,eventName);
 									tmpStackedObj.setSeriesNameSum(eventName, 1.0);
@@ -931,13 +987,13 @@ public class ASHDatabaseH {
 					StackedChartDetail valueChart = (StackedChartDetail) entry
 							.getValue();
 					valueChart.calcSaveAndClear(rangeHalf*k, dd);
-					
+
 					// Add points to left side
 					if (isAddPointsToLeftSide){
 						valueChart.addPointsToLeft(begin, dd, rangeHalf*k);
 						isAddPointsToLeftSide = false;
 					}
-					
+
 				}
 			}
 
@@ -946,19 +1002,19 @@ public class ASHDatabaseH {
 			e.printStackTrace();
 		}
 	}
-		
+
 	/**
 	 * Initialize series paint, renderer, dataset for stacked charts.
-	 * 
+	 *
 	 */
 	private void initSeriesPaint(){
-		
+
 		String cpuUsed = Options.getInstance().getResource("cpuLabel.text");
 		Set entries = this.storeStackedXYAreaChartDetail.entrySet();
 		Iterator iter = entries.iterator();
 
 		while (iter.hasNext()) {
-			
+
 			Map.Entry entry = (Map.Entry) iter.next();
 			String keyClass = (String) entry.getKey();
 
@@ -969,13 +1025,13 @@ public class ASHDatabaseH {
 				valueChart.setSeriesIdName(0, cpuUsed);
 				valueChart.setSeriesNameSum(cpuUsed, 0.0);
 				valueChart.setSeriesPaint(0, cpuUsed,"initSeriesPaint");
-			} 
+			}
 		}
 	}
-		
+
 	/**
 	 * Gets the max/min value of time period BDB.
-	 * 
+	 *
 	 * @param maxMin 1 - begin of time period, 0 - end of time period
 	 * @return the value
 	 */
@@ -986,25 +1042,47 @@ public class ASHDatabaseH {
 		} else { // End
 			value =  dao.getAshCalcSumByEventById115Sec().sortedMap().lastKey();
 		}
-		
+
 		return value;
 	}
-	
+
+	/**
+	 * Gets the username from local BDB.
+	 *
+	 * @param userId the user id
+	 * @return the username
+	 */
+	public String getUsername(Long userId){
+
+		String userName = null;
+		try {
+			AshUserIdUsername userIdU = dao.getUserIdUsernameById().get(userId);
+			if (userIdU != null){
+				userName = userIdU.getUsername();
+			} else {
+				userName = "";
+			}
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			userName = "";
+			e.printStackTrace();
+		}
+		return userName;
+	}
+
 	/**
 	 * Delete data from database.
-	 * 
+	 *
 	 * @param start
 	 * @param end
 	 */
 	public void deleteData(long start, long end) {
 		dao.deleteData(start, end);
 	}
-	
+
 	/**
 	 * Delete all data from database.
-	 * 
-	 * @param start
-	 * @param end
+	 *
 	 */
 	public void deleteAllData() {
 		//env.removeDatabase(txn, databaseName)
@@ -1017,7 +1095,7 @@ public class ASHDatabaseH {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * DB env log cleaning.
 	 */
@@ -1042,42 +1120,42 @@ public class ASHDatabaseH {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get sql plan hash values by sqlid from local BDB (for 9i, 10g>SE database)
 	 * @param sqlId
 	 * @return
 	 */
 	public List<Double> getSqlPlanHashValueBySqlId(String sqlId){
-		
+
 		List<Double> res = new ArrayList<Double>();
-		
+
 		EntityCursor<AshSqlPlanParent> ashSqlPlan = null;
 		try {
 			ashSqlPlan = dao.doRangeQuery(dao.getAshSqlPlanHashValueParent(),
-						sqlId, true, sqlId, true);
+					sqlId, true, sqlId, true);
 			Iterator<AshSqlPlanParent> ashSqlPlanIter = ashSqlPlan
 					.iterator();
-			
+
 			while (ashSqlPlanIter.hasNext()) {
 				AshSqlPlanParent ashSqlPlanMain = ashSqlPlanIter.next();
 				Double planHashValue = ashSqlPlanMain.getPlanHashValue();
 				res.add(planHashValue);
-			}		
-			
+			}
+
 		} catch (DatabaseException e) {
 			return res;
 		} finally {
 			try {
-			ashSqlPlan.close();
+				ashSqlPlan.close();
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return res;
 	}
-	
+
 	/**
 	 * Get sql plan from BDB for Oracle 9i
 	 * @param sqlPlanHashValue
@@ -1096,13 +1174,13 @@ public class ASHDatabaseH {
 		boolean isChildNumberSaved = false;
 		long childNumberBySql = 0;
 		long ii = 0;
-		
+
 		while (!exitFromCycle) {
 			exitFromCycle = true;
 
 			try {
 				ashSqlPlan = dao.doRangeQuery(dao
-						.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
+								.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
 						true, sqlPlanHashValue, true);
 				Iterator<AshSqlPlanDetail> ashSqlPlanIter = ashSqlPlan
 						.iterator();
@@ -1112,7 +1190,7 @@ public class ASHDatabaseH {
 					AshSqlPlanDetail ashSqlPlanMain = ashSqlPlanIter.next();
 					String sqlIdTmp = ashSqlPlanMain.getSqlId();
 					long childNumberTmp = ashSqlPlanMain.getChildNumber();
-					
+
 					if (!isChildNumberSaved && sqlId.equalsIgnoreCase(sqlIdTmp)){
 						childNumberBySql = childNumberTmp;
 						isChildNumberSaved = true;
@@ -1141,7 +1219,7 @@ public class ASHDatabaseH {
 						//String objectAlias = ashSqlPlanMain.getObjectAlias();
 						//String objectType = ashSqlPlanMain.getObjectType();
 						String optimizer = ashSqlPlanMain.getOptimizer();
-						Long Id = ashSqlPlanMain.getId(); 
+						Long Id = ashSqlPlanMain.getId();
 						Long parentId = ashSqlPlanMain.getParentId();
 			   /*Depth*/Long level = ashSqlPlanMain.getDepth() + 1;
 						Long position  = ashSqlPlanMain.getPosition();
@@ -1164,7 +1242,7 @@ public class ASHDatabaseH {
 						//Double time  = ashSqlPlanMain.getTime();
 						//String qblockName  = ashSqlPlanMain.getQblockName();
 						//String remarks  = ashSqlPlanMain.getRemarks();
-						
+
 						ExplainPlanModel9i.ExplainRow parent = null;
 
 						if (level == 1) {
@@ -1180,12 +1258,12 @@ public class ASHDatabaseH {
 							ExplainPlanModel9i.ExplainRow row = new ExplainPlanModel9i.ExplainRow(
 									rowRoot,  address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
 									childAddress,  childNumber, operation, options,
-									objectNode, object, objectOwner, objectName, 
+									objectNode, object, objectOwner, objectName,
 									optimizer, Id, parentId, /*Depth*/level, position,
 									searchColumns, cost, cardinality, bytes, otherTag,
 									partitionStart, partitionStop, partitionId, other, distribution,
 									cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates
-									);
+							);
 
 							rowRoot.addChild(row);
 							lastRow = row;
@@ -1214,18 +1292,18 @@ public class ASHDatabaseH {
 						}
 
 						ExplainPlanModel9i.ExplainRow row = new ExplainPlanModel9i.ExplainRow(
-									parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
-								 	childAddress,  childNumber, operation, options,
-									objectNode, object, objectOwner, objectName, 
-									optimizer, Id, parentId, /*Depth*/level, position,
-									searchColumns, cost, cardinality, bytes, otherTag,
-									partitionStart, partitionStop, partitionId, other, distribution,
-									cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates
-									);
+								parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
+								childAddress,  childNumber, operation, options,
+								objectNode, object, objectOwner, objectName,
+								optimizer, Id, parentId, /*Depth*/level, position,
+								searchColumns, cost, cardinality, bytes, otherTag,
+								partitionStart, partitionStop, partitionId, other, distribution,
+								cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates
+						);
 						parent.addChild(row);
 						lastRow = row;
 						previousLevel = level;
-						
+
 						break;
 					}
 				}
@@ -1304,13 +1382,13 @@ public class ASHDatabaseH {
 		boolean isChildNumberSaved = false;
 		long childNumberBySql = 0;
 		long ii = 0;
-		
+
 		while (!exitFromCycle) {
 			exitFromCycle = true;
 
 			try {
 				ashSqlPlan = dao.doRangeQuery(dao
-						.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
+								.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
 						true, sqlPlanHashValue, true);
 				Iterator<AshSqlPlanDetail> ashSqlPlanIter = ashSqlPlan
 						.iterator();
@@ -1320,7 +1398,7 @@ public class ASHDatabaseH {
 					AshSqlPlanDetail ashSqlPlanMain = ashSqlPlanIter.next();
 					String sqlIdTmp = ashSqlPlanMain.getSqlId();
 					long childNumberTmp = ashSqlPlanMain.getChildNumber();
-					
+
 					if (!isChildNumberSaved && sqlId.equalsIgnoreCase(sqlIdTmp)){
 						childNumberBySql = childNumberTmp;
 						isChildNumberSaved = true;
@@ -1333,7 +1411,7 @@ public class ASHDatabaseH {
 
 					if (id == ii && childNumberBySql == childNumberTmp) {
 						exitFromCycle = false;
-						
+
 						String address = ashSqlPlanMain.getAddress();
 						Double hashValue = ashSqlPlanMain.getHashValue();
 						//String sqlId = ashSqlPlanMain.getSqlId();
@@ -1349,7 +1427,7 @@ public class ASHDatabaseH {
 						//String objectAlias = ashSqlPlanMain.getObjectAlias();
 						//String objectType = ashSqlPlanMain.getObjectType();
 						String optimizer = ashSqlPlanMain.getOptimizer();
-						Long Id = ashSqlPlanMain.getId(); 
+						Long Id = ashSqlPlanMain.getId();
 						Long parentId = ashSqlPlanMain.getParentId();
 			   /*Depth*/Long level = idLevel.get(id);// ashSqlPlanMain.getDepth()+1;
 						Long position  = ashSqlPlanMain.getPosition();
@@ -1372,68 +1450,68 @@ public class ASHDatabaseH {
 						//Double time  = ashSqlPlanMain.getTime();
 						//String qblockName  = ashSqlPlanMain.getQblockName();
 						//String remarks  = ashSqlPlanMain.getRemarks();	
-						
-					ExplainPlanModel9i.ExplainRow parent = null;
 
-					if (level == 1) {
-						long tmp = 0;
-						ExplainPlanModel9i.ExplainRow rowRoot = new ExplainPlanModel9i.ExplainRow(
-								parent , null, null, null, null, null, null,
-								null, null, null, null, null, null, null,
-								null, null, tmp, null, null, null,
-								null, null, null, null, null, null, null,
-								null, null, null, null, null, null);
-						model = new ExplainPlanModel9i(rowRoot);
+						ExplainPlanModel9i.ExplainRow parent = null;
+
+						if (level == 1) {
+							long tmp = 0;
+							ExplainPlanModel9i.ExplainRow rowRoot = new ExplainPlanModel9i.ExplainRow(
+									parent , null, null, null, null, null, null,
+									null, null, null, null, null, null, null,
+									null, null, tmp, null, null, null,
+									null, null, null, null, null, null, null,
+									null, null, null, null, null, null);
+							model = new ExplainPlanModel9i(rowRoot);
+
+							ExplainPlanModel9i.ExplainRow row = new ExplainPlanModel9i.ExplainRow(
+									rowRoot, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
+									childAddress,  childNumber, operation, options,
+									objectNode, object, objectOwner, objectName,
+									optimizer, Id, parentId, /*Depth*/level, position,
+									searchColumns, cost, cardinality, bytes, otherTag,
+									partitionStart, partitionStop, partitionId, other, distribution,
+									cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates
+							);
+
+							rowRoot.addChild(row);
+							lastRow = row;
+							previousLevel = level;
+							continue;
+						} else if (previousLevel == level) {
+							parent = ((ExplainPlanModel9i.ExplainRow) lastRow
+									.getParent().getParent()).findChild(parentId
+									.intValue());
+						} else if (level > previousLevel) {
+							parent = ((ExplainPlanModel9i.ExplainRow) lastRow
+									.getParent()).findChild(parentId.intValue());
+						} else if (level < previousLevel) {
+							parent = (ExplainPlanModel9i.ExplainRow) lastRow
+									.getParent();
+							for (long i = previousLevel - level; i >= 0; i--) {
+								parent = (ExplainPlanModel9i.ExplainRow) parent
+										.getParent();
+							}
+							parent = parent.findChild(parentId.intValue());
+						}
+						if (parent == null)
+							break;
 
 						ExplainPlanModel9i.ExplainRow row = new ExplainPlanModel9i.ExplainRow(
-								rowRoot, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
-							 	childAddress,  childNumber, operation, options,
-								objectNode, object, objectOwner, objectName, 
+								parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
+								childAddress,  childNumber, operation, options,
+								objectNode, object, objectOwner, objectName,
 								optimizer, Id, parentId, /*Depth*/level, position,
 								searchColumns, cost, cardinality, bytes, otherTag,
 								partitionStart, partitionStop, partitionId, other, distribution,
 								cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates
-								);
-
-						rowRoot.addChild(row);
+						);
+						parent.addChild(row);
 						lastRow = row;
 						previousLevel = level;
-						continue;
-					} else if (previousLevel == level) {
-						parent = ((ExplainPlanModel9i.ExplainRow) lastRow
-								.getParent().getParent()).findChild(parentId
-								.intValue());
-					} else if (level > previousLevel) {
-						parent = ((ExplainPlanModel9i.ExplainRow) lastRow
-								.getParent()).findChild(parentId.intValue());
-					} else if (level < previousLevel) {
-						parent = (ExplainPlanModel9i.ExplainRow) lastRow
-								.getParent();
-						for (long i = previousLevel - level; i >= 0; i--) {
-							parent = (ExplainPlanModel9i.ExplainRow) parent
-									.getParent();
-						}
-						parent = parent.findChild(parentId.intValue());
-					}
-					if (parent == null)
-						break;
 
-					ExplainPlanModel9i.ExplainRow row = new ExplainPlanModel9i.ExplainRow(
-							parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
-						 	childAddress,  childNumber, operation, options,
-							objectNode, object, objectOwner, objectName,
-							optimizer, Id, parentId, /*Depth*/level, position,
-							searchColumns, cost, cardinality, bytes, otherTag,
-							partitionStart, partitionStop, partitionId, other, distribution,
-							cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates
-							);
-					parent.addChild(row);
-					lastRow = row;
-					previousLevel = level;
-					
-					break;
-				}	
-			  }
+						break;
+					}
+				}
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			} finally {
@@ -1442,8 +1520,8 @@ public class ASHDatabaseH {
 				} catch (DatabaseException e) {
 					e.printStackTrace();
 				}
-			ii++;
-		  }
+				ii++;
+			}
 		}
 
 		return model;
@@ -1468,13 +1546,13 @@ public class ASHDatabaseH {
 		boolean isChildNumberSaved = false;
 		long childNumberBySql = 0;
 		long ii = 0;
-		
+
 		while (!exitFromCycle) {
 			exitFromCycle = true;
 
 			try {
 				ashSqlPlan = dao.doRangeQuery(dao
-						.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
+								.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
 						true, sqlPlanHashValue, true);
 				Iterator<AshSqlPlanDetail> ashSqlPlanIter = ashSqlPlan
 						.iterator();
@@ -1484,7 +1562,7 @@ public class ASHDatabaseH {
 					AshSqlPlanDetail ashSqlPlanMain = ashSqlPlanIter.next();
 					String sqlIdTmp = ashSqlPlanMain.getSqlId();
 					long childNumberTmp = ashSqlPlanMain.getChildNumber();
-					
+
 					if (!isChildNumberSaved && sqlId.equalsIgnoreCase(sqlIdTmp)){
 						childNumberBySql = childNumberTmp;
 						isChildNumberSaved = true;
@@ -1513,7 +1591,7 @@ public class ASHDatabaseH {
 						String objectAlias = ashSqlPlanMain.getObjectAlias();
 						String objectType = ashSqlPlanMain.getObjectType();
 						String optimizer = ashSqlPlanMain.getOptimizer();
-						Long Id = ashSqlPlanMain.getId(); 
+						Long Id = ashSqlPlanMain.getId();
 						Long parentId = ashSqlPlanMain.getParentId();
 			   /*Depth*/Long level = ashSqlPlanMain.getDepth() + 1;
 						Long position  = ashSqlPlanMain.getPosition();
@@ -1536,7 +1614,7 @@ public class ASHDatabaseH {
 						Double time  = ashSqlPlanMain.getTime();
 						String qblockName  = ashSqlPlanMain.getQblockName();
 						String remarks  = ashSqlPlanMain.getRemarks();
-						
+
 						ExplainPlanModel10g2.ExplainRow parent = null;
 
 						if (level == 1) {
@@ -1587,18 +1665,18 @@ public class ASHDatabaseH {
 						}
 
 						ExplainPlanModel10g2.ExplainRow row = new ExplainPlanModel10g2.ExplainRow(
-									parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
-								 	childAddress,  childNumber, operation, options,
-									objectNode, object, objectOwner, objectName, objectAlias,
-									objectType, optimizer, Id, parentId, /*Depth*/level, position,
-									searchColumns, cost, cardinality, bytes, otherTag,
-									partitionStart, partitionStop, partitionId, other, distribution,
-									cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates,
-									projection, time, qblockName, remarks);
+								parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
+								childAddress,  childNumber, operation, options,
+								objectNode, object, objectOwner, objectName, objectAlias,
+								objectType, optimizer, Id, parentId, /*Depth*/level, position,
+								searchColumns, cost, cardinality, bytes, otherTag,
+								partitionStart, partitionStop, partitionId, other, distribution,
+								cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates,
+								projection, time, qblockName, remarks);
 						parent.addChild(row);
 						lastRow = row;
 						previousLevel = level;
-						
+
 						break;
 					}
 				}
@@ -1677,13 +1755,13 @@ public class ASHDatabaseH {
 		boolean isChildNumberSaved = false;
 		long childNumberBySql = 0;
 		long ii = 0;
-		
+
 		while (!exitFromCycle) {
 			exitFromCycle = true;
 
 			try {
 				ashSqlPlan = dao.doRangeQuery(dao
-						.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
+								.getAshSqlPlanHashValueDetail(), sqlPlanHashValue,
 						true, sqlPlanHashValue, true);
 				Iterator<AshSqlPlanDetail> ashSqlPlanIter = ashSqlPlan
 						.iterator();
@@ -1693,7 +1771,7 @@ public class ASHDatabaseH {
 					AshSqlPlanDetail ashSqlPlanMain = ashSqlPlanIter.next();
 					String sqlIdTmp = ashSqlPlanMain.getSqlId();
 					long childNumberTmp = ashSqlPlanMain.getChildNumber();
-					
+
 					if (!isChildNumberSaved && sqlId.equalsIgnoreCase(sqlIdTmp)){
 						childNumberBySql = childNumberTmp;
 						isChildNumberSaved = true;
@@ -1706,7 +1784,7 @@ public class ASHDatabaseH {
 
 					if (id == ii && childNumberBySql == childNumberTmp) {
 						exitFromCycle = false;
-						
+
 						String address = ashSqlPlanMain.getAddress();
 						Double hashValue = ashSqlPlanMain.getHashValue();
 						//String sqlId = ashSqlPlanMain.getSqlId();
@@ -1722,7 +1800,7 @@ public class ASHDatabaseH {
 						String objectAlias = ashSqlPlanMain.getObjectAlias();
 						String objectType = ashSqlPlanMain.getObjectType();
 						String optimizer = ashSqlPlanMain.getOptimizer();
-						Long Id = ashSqlPlanMain.getId(); 
+						Long Id = ashSqlPlanMain.getId();
 						Long parentId = ashSqlPlanMain.getParentId();
 			   /*Depth*/Long level = idLevel.get(id);// ashSqlPlanMain.getDepth()+1;
 						Long position  = ashSqlPlanMain.getPosition();
@@ -1744,70 +1822,70 @@ public class ASHDatabaseH {
 						String projection  = ashSqlPlanMain.getProjection();
 						Double time  = ashSqlPlanMain.getTime();
 						String qblockName  = ashSqlPlanMain.getQblockName();
-						String remarks  = ashSqlPlanMain.getRemarks();	
-						
-					ExplainPlanModel10g2.ExplainRow parent = null;
+						String remarks  = ashSqlPlanMain.getRemarks();
 
-					if (level == 1) {
-						long tmp = 0;
-						ExplainPlanModel10g2.ExplainRow rowRoot = new ExplainPlanModel10g2.ExplainRow(
-								parent , null, null, null, null, null, null,
-								null, null, null, null, null, null, null,
-								null, null, tmp, null, null, null,
-								null, null, null, null, null, null, null,
-								null, null, null, null, null, null, null,
-								null, null, null, null, null);
-						model = new ExplainPlanModel10g2(rowRoot);
+						ExplainPlanModel10g2.ExplainRow parent = null;
+
+						if (level == 1) {
+							long tmp = 0;
+							ExplainPlanModel10g2.ExplainRow rowRoot = new ExplainPlanModel10g2.ExplainRow(
+									parent , null, null, null, null, null, null,
+									null, null, null, null, null, null, null,
+									null, null, tmp, null, null, null,
+									null, null, null, null, null, null, null,
+									null, null, null, null, null, null, null,
+									null, null, null, null, null);
+							model = new ExplainPlanModel10g2(rowRoot);
+
+							ExplainPlanModel10g2.ExplainRow row = new ExplainPlanModel10g2.ExplainRow(
+									rowRoot, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
+									childAddress,  childNumber, operation, options,
+									objectNode, object, objectOwner, objectName, objectAlias,
+									objectType, optimizer, Id, parentId, /*Depth*/level, position,
+									searchColumns, cost, cardinality, bytes, otherTag,
+									partitionStart, partitionStop, partitionId, other, distribution,
+									cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates,
+									projection, time, qblockName, remarks);
+
+							rowRoot.addChild(row);
+							lastRow = row;
+							previousLevel = level;
+							continue;
+						} else if (previousLevel == level) {
+							parent = ((ExplainPlanModel10g2.ExplainRow) lastRow
+									.getParent().getParent()).findChild(parentId
+									.intValue());
+						} else if (level > previousLevel) {
+							parent = ((ExplainPlanModel10g2.ExplainRow) lastRow
+									.getParent()).findChild(parentId.intValue());
+						} else if (level < previousLevel) {
+							parent = (ExplainPlanModel10g2.ExplainRow) lastRow
+									.getParent();
+							for (long i = previousLevel - level; i >= 0; i--) {
+								parent = (ExplainPlanModel10g2.ExplainRow) parent
+										.getParent();
+							}
+							parent = parent.findChild(parentId.intValue());
+						}
+						if (parent == null)
+							break;
 
 						ExplainPlanModel10g2.ExplainRow row = new ExplainPlanModel10g2.ExplainRow(
-								rowRoot, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
-							 	childAddress,  childNumber, operation, options,
+								parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
+								childAddress,  childNumber, operation, options,
 								objectNode, object, objectOwner, objectName, objectAlias,
 								objectType, optimizer, Id, parentId, /*Depth*/level, position,
 								searchColumns, cost, cardinality, bytes, otherTag,
 								partitionStart, partitionStop, partitionId, other, distribution,
 								cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates,
 								projection, time, qblockName, remarks);
-
-						rowRoot.addChild(row);
+						parent.addChild(row);
 						lastRow = row;
 						previousLevel = level;
-						continue;
-					} else if (previousLevel == level) {
-						parent = ((ExplainPlanModel10g2.ExplainRow) lastRow
-								.getParent().getParent()).findChild(parentId
-								.intValue());
-					} else if (level > previousLevel) {
-						parent = ((ExplainPlanModel10g2.ExplainRow) lastRow
-								.getParent()).findChild(parentId.intValue());
-					} else if (level < previousLevel) {
-						parent = (ExplainPlanModel10g2.ExplainRow) lastRow
-								.getParent();
-						for (long i = previousLevel - level; i >= 0; i--) {
-							parent = (ExplainPlanModel10g2.ExplainRow) parent
-									.getParent();
-						}
-						parent = parent.findChild(parentId.intValue());
-					}
-					if (parent == null)
-						break;
 
-					ExplainPlanModel10g2.ExplainRow row = new ExplainPlanModel10g2.ExplainRow(
-							parent, address,  hashValue,  sqlIdTmp, sqlPlanHashValue,
-						 	childAddress,  childNumber, operation, options,
-							objectNode, object, objectOwner, objectName, objectAlias,
-							objectType, optimizer, Id, parentId, /*Depth*/level, position,
-							searchColumns, cost, cardinality, bytes, otherTag,
-							partitionStart, partitionStop, partitionId, other, distribution,
-							cpuCost, ioCost, tempSpace, accessPredicates, filterPredicates,
-							projection, time, qblockName, remarks);
-					parent.addChild(row);
-					lastRow = row;
-					previousLevel = level;
-					
-					break;
-				}	
-			  }
+						break;
+					}
+				}
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			} finally {
@@ -1816,17 +1894,17 @@ public class ASHDatabaseH {
 				} catch (DatabaseException e) {
 					e.printStackTrace();
 				}
-			ii++;
-		  }
+				ii++;
+			}
 		}
 
 		return model;
 	}
-	
-	
+
+
 	/**
 	 * Gets the sqls temp.
-	 * 
+	 *
 	 * @return the sqls temp
 	 */
 	public SqlsTemp getSqlsTemp() {
@@ -1835,16 +1913,16 @@ public class ASHDatabaseH {
 
 	/**
 	 * Gets the sessions temp.
-	 * 
+	 *
 	 * @return the sessions temp
 	 */
 	public SessionsTemp getSessionsTemp() {
 		return sessionsTemp;
 	}
-	
+
 	/**
 	 * Gets the sqls temp.
-	 * 
+	 *
 	 * @return the sqls temp
 	 */
 	public SqlsTemp getSqlsTempDetail() {
@@ -1853,7 +1931,7 @@ public class ASHDatabaseH {
 
 	/**
 	 * Gets the sessions temp.
-	 * 
+	 *
 	 * @return the sessions temp
 	 */
 	public SessionsTemp getSessionsTempDetail() {
@@ -1866,5 +1944,5 @@ public class ASHDatabaseH {
 	public double getTempFirstKey() {
 		return tempFirstKey;
 	}
-		
+
 }

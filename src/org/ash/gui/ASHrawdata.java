@@ -25,6 +25,7 @@ import com.sleepycat.je.DatabaseException;
 import org.ash.database.ASHDatabase;
 import org.ash.history.ASHDatabaseH;
 import org.ash.util.ProgressBarUtil;
+import org.jdesktop.swingx.JXTable;
 import org.jfree.ui.NumberCellRenderer;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -52,8 +53,8 @@ public class ASHrawdata extends JPanel {
 	/** The database. */
 	private ASHDatabaseH database;
 
-	 /** The date format. */
-    private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+	/** The date format. */
+	private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
 	/**
 	 * Constructor.
@@ -71,54 +72,54 @@ public class ASHrawdata extends JPanel {
 
 		this.main = new JPanel();
 		this.main.setLayout(new BorderLayout());
-		
+
 		this.add(this.main);
-		
+
 		// Create empty panel
 		JPanel ashReport = new JPanel();
 		ashReport.setLayout(new GridLayout(1, 1, 3, 3));
-		
+
 		// The button panel
 		JToolBar buttonPanel;
 		buttonPanel = new JToolBar("PanelButton");
 		buttonPanel.setFloatable(false);
 		buttonPanel.setBorder(new EtchedBorder());
-		
+
 		// get ASH Report button
 		JButton getASHReportButton = new JButton();
 		getASHReportButton.setText("Get ASH raw data in table");
 		getASHReportButton.setPreferredSize(new Dimension(100, 30));
 		getASHReportButton.setActionCommand("ASHrawdata");
-		
+
 		ButtonPlanActionListener buttonListener = new ButtonPlanActionListener(
 				ashReport, getASHReportButton, database, begin, end);
-	
+
 		getASHReportButton.addActionListener(buttonListener);
-		
+
 		// Layout of buttons
 		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPanel.add(getASHReportButton);
 		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPanel.add(new JLabel(dateFormat.format(begin)+
-									 " <<" + getPeriod(begin,end) + ">> "+
-								   dateFormat.format(end)
-								   )
-						);
-				
+						" <<" + getPeriod(begin,end) + ">> "+
+						dateFormat.format(end)
+				)
+		);
+
 		// Add buttonPanel, main
 		this.main.add(buttonPanel, BorderLayout.NORTH);
 		this.main.add(ashReport, BorderLayout.CENTER);
 	}
 
-    private class ButtonPlanActionListener implements ActionListener {
+	private class ButtonPlanActionListener implements ActionListener {
 		JPanel panelASHReport;
 		JButton getASHReportButton;
 		ASHDatabaseH database;
 		double begin;
 		double end;
 
-		public ButtonPlanActionListener(final JPanel tabsSQLPlan, final JButton getASHReportButton, 
-				final ASHDatabaseH database, final double begin, final double end) {
+		public ButtonPlanActionListener(final JPanel tabsSQLPlan, final JButton getASHReportButton,
+										final ASHDatabaseH database, final double begin, final double end) {
 			super();
 			this.panelASHReport = tabsSQLPlan;
 			this.getASHReportButton = getASHReportButton;
@@ -133,79 +134,77 @@ public class ASHrawdata extends JPanel {
 
 			if (str.equalsIgnoreCase("ASHrawdata")) {
 				getASHReport();
-			} 
+			}
 		}
 
 		private void getASHReport() {
-			
-				//Disable getASHReportButton
-				//getASHReportButton.setEnabled(false);
-			
-				// Clear tabbedpane
-				JPanel panelLoading = createProgressBar("Loading, please wait...");
-				panelASHReport.removeAll();
-				panelASHReport.add(panelLoading);
-				
-				Thread t = new Thread() {
-					@Override
-					public void run() {
-						// delay
-						try {
-							Thread.sleep(5L);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+
+			//Disable getASHReportButton
+			//getASHReportButton.setEnabled(false);
+
+			// Clear tabbedpane
+			JPanel panelLoading = createProgressBar("Loading, please wait...");
+			panelASHReport.removeAll();
+			panelASHReport.add(panelLoading);
+
+			Thread t = new Thread() {
+				@Override
+				public void run() {
+					// delay
+					try {
+						Thread.sleep(5L);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					root.repaint();
+
+						/*----------------------*/
+					JXTable table;
+					DefaultTableModel model;
+					try {
+						model = database.getASHRawData(begin, end);
+
+						table = new JXTable(model);
+
+						table.setColumnControlVisible(true);
+						table.setHorizontalScrollEnabled(true);
+
+						JPanel p = new JPanel(new BorderLayout());
+
+						JScrollPane tableRawDataPane = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+								ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+						tableRawDataPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
+
+						tableRawDataPane.setViewportView(table);
+						tableRawDataPane.setVerticalScrollBar(tableRawDataPane.getVerticalScrollBar());
+
+						p.add(tableRawDataPane);
+						p.setBorder(BorderFactory.createCompoundBorder(new TitledBorder(
+								"Selected Items: "), new EmptyBorder(4, 4, 4, 4)));
+
+						/*----------------------*/
+
+						panelASHReport.removeAll();
+						panelASHReport.add(p);
+
 						root.repaint();
 
-						/*----------------------*/
-						JTable table;
-						DefaultTableModel model;
-                        try {
-                            model = database.getASHRawData(begin, end);
-
-                            table = new JTable(model);
-
-                            TableColumnModel tcm = table.getColumnModel();
-                            //tcm.getColumn(3).setCellRenderer(new NumberCellRenderer());
-                            JPanel p = new JPanel(new BorderLayout());
-                            //JScrollPane scroller = new JScrollPane(table);
-
-                            JScrollPane tableRawDataPane = new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                    ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-                            tableRawDataPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
-
-                            tableRawDataPane.setViewportView(table);
-                            tableRawDataPane.setVerticalScrollBar(tableRawDataPane.getVerticalScrollBar());
-
-                            //(JTable)componentList.get(0)
-
-                            p.add(tableRawDataPane);
-                            p.setBorder(BorderFactory.createCompoundBorder(new TitledBorder(
-                                    "Selected Items: "), new EmptyBorder(4, 4, 4, 4)));
-
-						/*----------------------*/
-
-                            panelASHReport.removeAll();
-                            panelASHReport.add(p);
-
-                            root.repaint();
-
-                        } catch (DatabaseException e) {
-                            e.printStackTrace();
-                        }
-
-						
+					} catch (DatabaseException e) {
+						e.printStackTrace();
 					}
-				};
-				t.start();
-			} 
+
+
+				}
+			};
+			t.start();
+		}
 	}
-	
+
 	/**
 	 * Creates the progress bar.
-	 * 
+	 *
 	 * @param msg the msg
-	 * 
+	 *
 	 * @return the j panel
 	 */
 	private JPanel createProgressBar(String msg) {
@@ -215,7 +214,7 @@ public class ASHrawdata extends JPanel {
 		panel.add(progress);
 		return panel;
 	}
-	
+
 	/**
 	 * Get period in mm, dd, hh, ss
 	 * @param begind
@@ -228,9 +227,9 @@ public class ASHrawdata extends JPanel {
 		Double endD = endd;
 		DateTime start = new DateTime(beginD.longValue());
 		DateTime end = new DateTime(endD.longValue());
-		
+
 		Period period = new Period(start, end);
-		
+
 		if (period.getMonths() > 0)
 			out = period.getMonths()+" m. ";
 		if (period.getDays() > 0)
@@ -241,7 +240,7 @@ public class ASHrawdata extends JPanel {
 			out = out + period.getMinutes()+" min. ";
 		if (period.getSeconds() > 0)
 			out = out + period.getSeconds()+" sec. ";
-		
+
 		return out;
 	}
 
