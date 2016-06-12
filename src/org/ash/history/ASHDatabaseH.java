@@ -21,16 +21,13 @@
  */
 package org.ash.history;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.sleepycat.je.CheckpointConfig;
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Environment;
+import com.sleepycat.je.EnvironmentConfig;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.StoreConfig;
 import org.ash.database.AshDataAccessor;
 import org.ash.datamodel.*;
 import org.ash.datatemp.SessionsTemp;
@@ -43,15 +40,11 @@ import org.ash.util.Utils;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jfree.data.xy.CategoryTableXYDataset;
 
-import com.sleepycat.je.CheckpointConfig;
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.StoreConfig;
-
 import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * The Class ASHDatabaseH (history).
@@ -453,6 +446,8 @@ public class ASHDatabaseH {
 				"Module",
 				"ClientID",
 				"Action",
+				"SQL ID",
+				"Plan hash value",
 				"Event",
 				"P1",
 				"P1Text",
@@ -525,6 +520,8 @@ public class ASHDatabaseH {
 							ASH.getModule(),
 							ASH.getClientId(),
 							ASH.getAction(),
+							ASH.getSqlId(),
+							(long)ASH.getSqlPlanHashValue(),
 							ASH.getEvent(),
 							(long)ASH.getP1(),
 							ASH.getP1Text(),
