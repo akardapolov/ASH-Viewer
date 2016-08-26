@@ -44,6 +44,8 @@ import javax.swing.table.DefaultTableModel;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -439,6 +441,7 @@ public class ASHDatabaseH {
 
 		DefaultTableModel model = new DefaultTableModel(new String[] {
 				"SampleID",
+				"SampleTime",
 				"SessionID",
 				"SessionSerial",
 				"Username",
@@ -498,6 +501,11 @@ public class ASHDatabaseH {
 			while (ashIdTimeIter.hasNext()) {
 				AshIdTime ashIdTimeMain = ashIdTimeIter.next();
 
+				Long sampleTimeLong = (long) ashIdTimeMain.getsampleTime();
+				Date td = new Date(sampleTimeLong.longValue());
+				DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss");
+				String reportDateStr = df.format(td);
+
             	/* Do a filter on ActiveSessionHistory by SampleID (detail). */
 				EntityCursor<ActiveSessionHistory> ActiveSessionHistoryCursor =
 						dao.getActiveSessionHistoryByAshId().subIndex(ashIdTimeMain.getsampleId()).entities();
@@ -513,6 +521,7 @@ public class ASHDatabaseH {
 
 					model.addRow(new Object[] {
 							ASH.getSampleId(),
+							reportDateStr,
 							ASH.getSessionId(),
 							(long)ASH.getSessionSerial(),
 							username,
