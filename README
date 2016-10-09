@@ -37,6 +37,14 @@
   Operating System:
     No minimum requirement.
 
+  Building ASH Viewer
+  ----------------
+  1) Download JDBC driver ojdbc6.jar from http://otn.oracle.com and put it to ashv-<<version>>-bin/lib directory.
+
+  2) Run ./gradlew assembleDist (gradlew.bat for Windows)
+
+  3) Binary archive will be created in build/distributions directory
+
   Running ASH Viewer
   ----------------
   1) Unpack the archive, eg:
@@ -51,7 +59,7 @@
 
   5) Create monitor user in Oracle DB and grant select and execute priviliges using user_privs.sql file.
 
-  6) Run run.cmd/run.sh (on Window/Unix).
+  6) Run bin/ASH-Viewer.bat or bin/ASH-Viewer (on Window/Unix).
 
    Known issues
   --------------
