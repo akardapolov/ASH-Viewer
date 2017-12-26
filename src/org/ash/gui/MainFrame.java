@@ -21,43 +21,11 @@
  */
 package org.ash.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Frame;
-import java.awt.Point;
-
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.util.Locale;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import com.sleepycat.je.DatabaseException;
 import org.ash.conn.gui.ConnectionFrame;
 import org.ash.conn.model.Model;
 import org.ash.conn.settings.DbConnectionUtil;
-import org.ash.database.Database10g1;
-import org.ash.database.Database10g11gSE;
-import org.ash.database.Database10g2;
-import org.ash.database.Database11g1;
-import org.ash.database.Database8i;
-import org.ash.database.Database9i;
-import org.ash.database.ASHDatabase;
+import org.ash.database.*;
 import org.ash.detail.DetailPanels;
 import org.ash.history.MainPanel;
 import org.ash.invoker.Collector;
@@ -67,7 +35,15 @@ import org.ash.invoker.Collector9iAndSEUI;
 import org.ash.util.Options;
 import org.jfree.chart.ChartPanel;
 
-import com.sleepycat.je.DatabaseException;
+import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.util.Locale;
 
 /**
  * The Class MainFrame.
@@ -487,10 +463,21 @@ public class MainFrame extends JFrame implements ActionListener{
 	private void initializeConnectionPool() {
 
 		/** init connection parameter */
-		String connParam = "jdbc:oracle:thin:@//"
+		/*String connParam = "jdbc:oracle:thin:@//"
 				+ dbConnUtil.getDbConnection().getHost() + ":"
 				+ dbConnUtil.getDbConnection().getPort() + "/"
-				+ dbConnUtil.getDbConnection().getSID();
+				+ dbConnUtil.getDbConnection().getSID();*/
+
+		String connParam = "jdbc:oracle:thin:"
+				+ "@(description=(address=(host=" + dbConnUtil.getDbConnection().getHost()
+				+ ")(protocol=tcp)(port=" + dbConnUtil.getDbConnection().getPort()
+				+ "))(connect_data=(service_name=" + dbConnUtil.getDbConnection().getSID()
+				+ ")(server=DEDICATED)))";
+				/*+ dbConnUtil.getDbConnection().getHost() + ":"
+				+ dbConnUtil.getDbConnection().getPort() + "/"
+				+ dbConnUtil.getDbConnection().getSID();*/
+
+		//jdbc:oracle:thin:@(description=(address=(host=HOSTNAME)(protocol=tcp)(port=PORT))(connect_data=(service_name=SERVICENAME)(server=SHARED)))
 
 		/** init connection pool */
 		model.connectionPoolInit("oracle.jdbc.pool.OracleDataSource",

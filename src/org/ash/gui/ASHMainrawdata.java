@@ -22,7 +22,7 @@
 package org.ash.gui;
 
 import com.sleepycat.je.DatabaseException;
-import org.ash.history.ASHDatabaseH;
+import org.ash.database.ASHDatabase;
 import org.ash.searchable.DecoratorFactory;
 import org.ash.searchable.MatchingTextHighlighter;
 import org.ash.searchable.XMatchingTextHighlighter;
@@ -47,36 +47,23 @@ import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class ASHrawdata extends JPanel {
+public class ASHMainrawdata extends JPanel {
 
-	/** The main. */
 	private JPanel main;
-
-	/** The root. */
 	private JFrame root;
-
-	/** The database. */
-	private ASHDatabaseH database;
-
-	/** The date format. */
+	private ASHDatabase database;
 	private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-
 	private JXTable table;
+	private String detail = "";
 
-
-	/**
-	 * Constructor.
-	 *
-	 * @param rootFrame0
-	 * @param database0
-	 */
-	public ASHrawdata(JFrame rootFrame0, ASHDatabaseH database0, double begin, double end) {
+	public ASHMainrawdata(JFrame rootFrame, ASHDatabase database, double begin, double end, String detail) {
 
 		super();
 		setLayout(new GridLayout(1, 1, 3, 3));
 
-		this.database = database0;
-		this.root = rootFrame0;
+		this.database = database;
+		this.root = rootFrame;
+		this.detail = detail;
 
 		this.main = new JPanel();
 		this.main.setLayout(new BorderLayout());
@@ -100,7 +87,7 @@ public class ASHrawdata extends JPanel {
 		getASHReportButton.setActionCommand("ASHrawdata");
 
 		ButtonPlanActionListener buttonListener = new ButtonPlanActionListener(
-				ashReport, getASHReportButton, database, begin, end);
+				ashReport, getASHReportButton, this.database, begin, end);
 
 		getASHReportButton.addActionListener(buttonListener);
 
@@ -122,14 +109,14 @@ public class ASHrawdata extends JPanel {
 	private class ButtonPlanActionListener implements ActionListener {
 		JPanel panelASHReport;
 		JButton getASHReportButton;
-		ASHDatabaseH database;
+		ASHDatabase database;
 		double begin;
 		double end;
 
 		private JXFindBar findBar;
 
 		public ButtonPlanActionListener(final JPanel tabsSQLPlan, final JButton getASHReportButton,
-										final ASHDatabaseH database, final double begin, final double end) {
+										final ASHDatabase database, final double begin, final double end) {
 			super();
 			this.panelASHReport = tabsSQLPlan;
 			this.getASHReportButton = getASHReportButton;
@@ -143,14 +130,11 @@ public class ASHrawdata extends JPanel {
 			final String str = e.getActionCommand();
 
 			if (str.equalsIgnoreCase("ASHrawdata")) {
-				getASHReport();
+				getASHRawData();
 			}
 		}
 
-		private void getASHReport() {
-
-			//Disable getASHReportButton
-			//getASHReportButton.setEnabled(false);
+		private void getASHRawData() {
 
 			// Clear tabbedpane
 			JPanel panelLoading = createProgressBar("Loading, please wait...");
@@ -171,8 +155,7 @@ public class ASHrawdata extends JPanel {
 					/*----------------------*/
 					DefaultTableModel model;
 					try {
-						model = database.getASHRawData(begin, end);
-
+						model = database.getASHRawData(begin, end, detail);
 						table = new JXTable(model);
 
 						final JXCollapsiblePane collapsible = connectCollapsibleFindBarWithTable();
@@ -198,8 +181,9 @@ public class ASHrawdata extends JPanel {
 						p.add(tableRawDataPane);
 						p.setBorder(BorderFactory.createCompoundBorder(new TitledBorder(
 								"Selected Items: "), new EmptyBorder(4, 4, 4, 4)));
-
 						/*----------------------*/
+
+						table.removeAll();
 						panelASHReport.removeAll();
 						panelASHReport.add(p);
 

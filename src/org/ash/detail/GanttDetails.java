@@ -21,28 +21,17 @@
  */
 package org.ash.detail;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
+import com.egantt.model.drawing.ContextResources;
+import com.egantt.model.drawing.DrawingState;
+import com.egantt.swing.cell.CellState;
+import com.egantt.swing.component.ComponentResources;
+import com.egantt.swing.component.context.BasicComponentContext;
+import com.egantt.swing.component.tooltip.ToolTipState;
+import com.egantt.swing.table.list.BasicJTableList;
+import ext.egantt.drawing.painter.context.BasicPainterContext;
+import ext.egantt.swing.GanttTable;
 import org.ash.database.ASHDatabase;
+import org.ash.gui.ASHMainrawdata;
 import org.ash.gui.GanttSplitPane;
 import org.ash.gui.SqlPlan;
 import org.ash.util.Options;
@@ -51,16 +40,14 @@ import org.ash.util.Utils;
 import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.tokenmarker.PLSQLTokenMarker;
 
-import com.egantt.model.drawing.ContextResources;
-import com.egantt.model.drawing.DrawingState;
-import com.egantt.swing.cell.CellState;
-import com.egantt.swing.component.ComponentResources;
-import com.egantt.swing.component.context.BasicComponentContext;
-import com.egantt.swing.component.tooltip.ToolTipState;
-import com.egantt.swing.table.list.BasicJTableList;
-
-import ext.egantt.drawing.painter.context.BasicPainterContext;
-import ext.egantt.swing.GanttTable;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class SqlsAndSessionsGantt.
@@ -225,6 +212,9 @@ public class GanttDetails extends JPanel{
 			
 			/** Left tabbed pane (Top SQL + SQL text)*/
 			JTabbedPane tabsTopSQLText = new JTabbedPane();
+
+			/** Left tabbed pane (Top SQL + SQL text)*/
+			JTabbedPane tabsRoot = new JTabbedPane();
 			
 			SqlPlan sqlPlan = new SqlPlan(root, database);
 			
@@ -268,9 +258,13 @@ public class GanttDetails extends JPanel{
 			splitPane.setRightComponent(rightPane);
 			splitPane.setDividerLocation(this.getWidth()/2);
 			splitPane.setOneTouchExpandable(true);
-			
+
+			tabsRoot.add(splitPane,"Top sql & sessions");
+
+			tabsRoot.add(new ASHMainrawdata(root,database,beginTime,endTime,waitClass),"ASH raw data");
+
 			this.main.removeAll();
-			this.main.add(splitPane);
+			this.main.add(tabsRoot);
 	        this.validate();
 		    
 		} catch (Exception e) {

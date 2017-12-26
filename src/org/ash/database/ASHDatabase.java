@@ -21,30 +21,6 @@
  */
 package org.ash.database;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.ash.conn.model.Model;
-import org.ash.datamodel.ActiveSessionHistory;
-import org.ash.datamodel.ActiveSessionHistory15;
-import org.ash.datamodel.AshIdTime;
-import org.ash.datamodel.AshParamValue;
-import org.ash.datatemp.SessionsTemp;
-import org.ash.datatemp.SqlsTemp;
-import org.ash.detail.StackedChartDetail;
-import org.ash.util.Options;
-import org.jdesktop.swingx.treetable.TreeTableModel;
-import org.jfree.data.xy.CategoryTableXYDataset;
-
 import com.sleepycat.je.CheckpointConfig;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
@@ -52,6 +28,25 @@ import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.StoreConfig;
+import org.ash.conn.model.Model;
+import org.ash.datamodel.*;
+import org.ash.datatemp.SessionsTemp;
+import org.ash.datatemp.SqlsTemp;
+import org.ash.detail.StackedChartDetail;
+import org.ash.util.Options;
+import org.jdesktop.swingx.treetable.TreeTableModel;
+import org.jfree.data.xy.CategoryTableXYDataset;
+
+import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * The Class DatabaseMain.
@@ -125,8 +120,6 @@ public class ASHDatabase {
 	 * Instantiates a new main database object.
 	 * 
 	 * @param model0 the model0
-	 * @param store0 the store0
-	 * @param dao0 the dao0
 	 */
 	public ASHDatabase(Model model0) {
 		
@@ -197,8 +190,6 @@ public class ASHDatabase {
 	
 	/**
 	 * Load command type, sql_text from v$sql
-	 * @param arraySqlIdType50
-	 * @param arraySqlIdText50
 	 */
 	public void loadSqlTextCommandTypeFromDB(List<String>  arraySqlId){
 	}
@@ -233,8 +224,6 @@ public class ASHDatabase {
 	
 	/**
 	 * Is sql text loaded to local storage.
-	 * @param sqlPlanHashValue
-	 * @return
 	 */
 	public boolean isSqlTextExist(String sqlId){
 		return true;
@@ -551,8 +540,7 @@ public class ASHDatabase {
 		
 	/**
 	 * Load data to chart panel dataset (detail charts).
-	 * 
-	 * @param dataset dataset for detail chart
+	 *
 	 */
 	private void loadDataToChartPanelDataSetDetail(){
 		
@@ -708,7 +696,183 @@ public class ASHDatabase {
 			e.printStackTrace();
 		}
 	
-   }	
+   }
+
+
+	public DefaultTableModel getASHRawData(double begin, double end, String detail) throws DatabaseException {
+
+		DefaultTableModel model = new DefaultTableModel(new String[] {
+				"SampleID",
+				"SampleTime",
+				"SessionID",
+				"SessionSerial",
+				"Username",
+				"Program",
+				"Module",
+				"ClientID",
+				"Action",
+				"Sql type",
+				"SQL ID",
+				"Plan hash value",
+				"Event",
+				"P1",
+				"P1Text",
+				"P2",
+				"P2Text",
+				"P3",
+				"P3Text",
+				"Wait Class",
+				"Wait Class id",
+				"Wait time",
+				"Session state",
+				"Time waited",
+				"Blocking session (BS)",
+				"BS status",
+				"BS serial#",
+				"Current obj#",
+				"Current file",
+				"Current block",
+				"Current row",
+				"Consumer group id",
+				"Xid",
+				"Remote instance",
+				"In connection mgmt",
+				"In parse",
+				"In hard parse",
+				"In sql execution",
+				"In pl/sql execution",
+				"In pl/sql rpc",
+				"In pl/sql compilation",
+				"In java execution",
+				"In bind",
+				"In cursor close",
+				"Service hash",
+				"Client id",
+				"UserID"
+		}, 0);
+
+		try {
+
+			/* Do a filter on AshIdTime by SampleTime. (detail) */
+			EntityCursor<AshIdTime> ashIdTimeCursor =
+					dao.doRangeQuery(dao.getAshBySampleTime(),
+							begin, true, end, false);
+
+			Iterator<AshIdTime> ashIdTimeIter = ashIdTimeCursor.iterator();
+
+			// Iterate over AshIdTime (detail)
+			while (ashIdTimeIter.hasNext()) {
+				AshIdTime ashIdTimeMain = ashIdTimeIter.next();
+
+				Long sampleTimeLong = (long) ashIdTimeMain.getsampleTime();
+				Date td = new Date(sampleTimeLong.longValue());
+				DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss");
+				String reportDateStr = df.format(td);
+
+            	/* Do a filter on ActiveSessionHistory by SampleID (detail). */
+				EntityCursor<ActiveSessionHistory> ActiveSessionHistoryCursor =
+						dao.getActiveSessionHistoryByAshId().subIndex(ashIdTimeMain.getsampleId()).entities();
+				Iterator<ActiveSessionHistory> ActiveSessionHistoryIter =
+						ActiveSessionHistoryCursor.iterator();
+
+				// Iterate over ActiveSessionHistory (detail)
+				while (ActiveSessionHistoryIter.hasNext()) {
+					ActiveSessionHistory ASH = ActiveSessionHistoryIter.next();
+
+					if (detail.length()!=0){
+						if (detail.contains(Options.getInstance().getResource("cpuLabel.text"))){
+							if (ASH.getWaitClassId()!=0D){
+								continue;
+							}
+						} else {
+							if (ASH.getWaitClassId()==0D || !detail.contains(ASH.getWaitClass())){
+								continue;
+							}
+						}
+					}
+
+                    /* Get username */
+					String username = this.getUsername(ASH.getUserId());
+
+					model.addRow(new Object[] {
+							ASH.getSampleId(),
+							reportDateStr,
+							ASH.getSessionId(),
+							(long)ASH.getSessionSerial(),
+							username,
+							ASH.getProgram(),
+							ASH.getModule(),
+							ASH.getClientId(),
+							ASH.getAction(),
+							Options.getInstance().getResource(String.valueOf((int) ASH.getSqlOPCode())),
+							ASH.getSqlId(),
+							(long)ASH.getSqlPlanHashValue(),
+							ASH.getEvent(),
+							(long)ASH.getP1(),
+							ASH.getP1Text(),
+							(long)ASH.getP2(),
+							ASH.getP2Text(),
+							(long)ASH.getP3(),
+							ASH.getP3Text(),
+							ASH.getWaitClass(),
+							(long)ASH.getWaitClassId(),
+							(long)ASH.getWaitTime(),
+							ASH.getSessionState(),
+							(long)ASH.getTimeWaited(),
+							(long)ASH.getBlockingSession(),
+							ASH.getBlockingSessionStatus(),
+							(long)ASH.getBlockingSessionSerialHash(),
+							(long)ASH.getCurrentObjHash(),
+							(long)ASH.getCurrentFileHash(),
+							(long)ASH.getCurrentBlockHash(),
+							(long)ASH.getCurrentRowHash(),
+							(long)ASH.getConsumerGroupId(),
+							ASH.getXid(),
+							(long)ASH.getRemoteInstance(),
+							ASH.getInConnectionMgmt(),
+							ASH.getInParse(),
+							ASH.getInHardParse(),
+							ASH.getInSqlExecution(),
+							ASH.getInPlSqlExecution(),
+							ASH.getInPlSqlRpc(),
+							ASH.getInPlSqlCompilation(),
+							ASH.getInJavaExecution(),
+							ASH.getInBind(),
+							ASH.getInCursorClose(),
+							(long)ASH.getServiceHash(),
+							ASH.getClientId(),
+							ASH.getUserId()
+
+					});
+				}
+				ActiveSessionHistoryCursor.close();
+			}
+			ashIdTimeCursor.close();
+
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+
+		return  model;
+	}
+
+	public String getUsername(Long userId){
+
+		String userName = null;
+		try {
+			AshUserIdUsername userIdU = dao.getUserIdUsernameById().get(userId);
+			if (userIdU != null){
+				userName = userIdU.getUsername();
+			} else {
+				userName = "";
+			}
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			userName = "";
+			e.printStackTrace();
+		}
+		return userName;
+	}
 
 	/**
 	 * Delete data from database.

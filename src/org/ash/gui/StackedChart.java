@@ -22,13 +22,7 @@
 
 package org.ash.gui;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.sleepycat.je.DatabaseException;
 import org.ash.database.ASHDatabase;
 import org.ash.util.Options;
 import org.jfree.chart.ChartFactory;
@@ -46,13 +40,13 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StackedXYAreaRenderer3;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.xy.CategoryTableXYDataset;
-import org.jfree.ui.HorizontalAlignment;
-import org.jfree.ui.LengthAdjustmentType;
-import org.jfree.ui.RectangleAnchor;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
+import org.jfree.ui.*;
 
-import com.sleepycat.je.DatabaseException;
+import java.awt.*;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * The Class StackedXYAreaChart.
@@ -95,6 +89,8 @@ public class StackedChart {
 	
 	/** The flag threshold begin time auto selection. */
    	private boolean flagThresholdBeginTimeAutoSelection = false;
+
+    private boolean isMinimalistic = false;
    	
 	/**
 	 * Instantiates a new stacked xy area chart.
@@ -125,10 +121,12 @@ public class StackedChart {
 	  * 
 	  * @param time the time
 	  */
-    public void updatexAxisLabel(double time){  	
-      if (!xAxis.getLabel().equalsIgnoreCase(dateFormat.format(time))){
-    	  xAxis.setLabel(dateFormat.format(time));
-      }      
+    public void updatexAxisLabel(double time) {
+        if (!isMinimalistic) {
+            if (!xAxis.getLabel().equalsIgnoreCase(dateFormat.format(time))) {
+                xAxis.setLabel(dateFormat.format(time));
+            }
+        }
     }
     
     /**
@@ -222,8 +220,9 @@ public class StackedChart {
      *
      */
     public void setMinimalistic(boolean flag){
-        if (flag){
-            xAxis.setVisible(false);
+        this.isMinimalistic = flag;
+        if (isMinimalistic){
+            xAxis.setLabel("");
             chart.setTitle("");
             plot.getRangeAxis().setVisible(false);
 
@@ -231,6 +230,7 @@ public class StackedChart {
             xAxis.setVisible(true);
             chart.setTitle("Top activity");
             plot.getRangeAxis().setVisible(true);
+            updatexAxisLabel(new Long(currentDate.getTime()).doubleValue());
         }
     }
 

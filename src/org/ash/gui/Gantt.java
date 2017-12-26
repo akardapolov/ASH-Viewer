@@ -322,7 +322,7 @@ public class Gantt extends JPanel {
 				JTabbedPane tabPane = new JTabbedPane();
 				tabPane.add("Top sql & sessions",splitPane);
 				tabPane.add("ASH Report",new ASHReport(root,database,beginTime,endTime));
-				
+				tabPane.add("ASH raw data",new ASHMainrawdata(root,database,beginTime,endTime,""));
 				this.main.add(tabPane);
 				this.validate();
 				

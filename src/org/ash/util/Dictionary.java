@@ -336,7 +336,7 @@ public class Dictionary extends ListResourceBundle {
     {"tabSQLPlan.text","SQL plan"},
     
     /** audit_actions */
-    {"0","UNKNOWN"},                                                                
+    {"0",""},
     {"1","CREATE TABLE"},                                                           
     {"2","INSERT"},                                                                 
     {"3","SELECT"},                                                                 
