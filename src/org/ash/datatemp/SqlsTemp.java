@@ -21,11 +21,12 @@
  */
 package org.ash.datatemp;
 
+import org.ash.util.Options;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.ash.util.Options;
 
 /**
  * The Class SqlsTemp.
@@ -212,6 +213,10 @@ public class SqlsTemp {
 	public List<Double> getSqlPlanHashValue(String sqlId){
 		List<Double> list = sqlHashValueHashMap.get(sqlId);
 			return list;
+	}
+
+	public void putSqlType(String sqlId, String sqlType){
+		mainSqls.get(sqlId).put(SQL_TYPE, sqlType);
 	}
 	
 	/**

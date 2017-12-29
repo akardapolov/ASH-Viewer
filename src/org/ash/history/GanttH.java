@@ -21,64 +21,39 @@
  */
 package org.ash.history;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.MouseEvent;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import org.ash.conn.model.Model;
-import org.ash.database.ASHDatabase;
-import org.ash.database.Database10g2;
-import org.ash.database.Database11g1;
-import org.ash.database.Database11g2;
-import org.ash.gui.ASHReport;
-import org.ash.gui.ASHrawdata;
-import org.ash.gui.GanttSplitPane;
-import org.ash.gui.SqlPlan;
-import org.ash.util.Options;
-import org.ash.util.ProgressBarUtil;
-import org.ash.util.Utils;
-import org.syntax.jedit.JEditTextArea;
 import com.egantt.model.drawing.ContextResources;
 import com.egantt.model.drawing.DrawingState;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import ext.egantt.model.drawing.state.BasicDrawingState;
 import com.egantt.swing.cell.CellState;
 import com.egantt.swing.component.ComponentResources;
 import com.egantt.swing.component.context.BasicComponentContext;
 import com.egantt.swing.component.tooltip.ToolTipState;
 import com.egantt.swing.table.list.BasicJTableList;
-
 import ext.egantt.drawing.module.BasicPainterModule;
 import ext.egantt.drawing.module.GradientColorModule;
 import ext.egantt.drawing.painter.context.BasicPainterContext;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import ext.egantt.swing.GanttDrawingPartHelper;
 import ext.egantt.swing.GanttTable;
+import org.ash.conn.model.Model;
+import org.ash.database.ASHDatabase;
+import org.ash.gui.ASHReport;
+import org.ash.gui.ASHrawdata;
+import org.ash.gui.GanttSplitPane;
+import org.ash.util.Options;
+import org.ash.util.ProgressBarUtil;
+import org.ash.util.Utils;
+import org.syntax.jedit.JEditTextArea;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * The Class GanttH (history).
@@ -172,6 +147,9 @@ public class GanttH extends JPanel{
 	
 	/** SQL text */
 	private JEditTextArea jtextAreaSqlText = Options.getInstance().getJtextAreaSqlTextGanttH();
+
+	/** The SQL_TYPE. */
+	private String SQL_TYPE = "SQL_TYPE";
 	
 	/**
 	 * Constructor Gantt JPanel
@@ -533,8 +511,11 @@ public class GanttH extends JPanel{
 					me,countOfSqls,sumOfRange);
 			
 			data[i][1] = me.getKey();
-			data[i][2] = UNKNOWN;
-			
+			//data[i][2] = UNKNOWN;
+			double value = Double.parseDouble((String) me.getValue().get(SQL_TYPE));
+			data[i][2] = Options.getInstance().getResource(
+					Options.getInstance().getResource(String.valueOf((int) value)));
+
 			/** Load sqlid */
 			arraySqlIdType50.put(me.getKey(),
 						database.getSqlType(me.getKey()));

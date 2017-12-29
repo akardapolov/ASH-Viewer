@@ -21,22 +21,17 @@
  */
 package org.ash.history.detail;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
-import org.ash.history.ASHDatabaseH;
-import org.ash.util.Utils;
-
 import com.egantt.model.drawing.DrawingState;
 import com.egantt.model.drawing.part.ListDrawingPart;
-import ext.egantt.model.drawing.state.BasicDrawingState;
-
 import ext.egantt.drawing.module.BasicPainterModule;
+import ext.egantt.model.drawing.state.BasicDrawingState;
 import ext.egantt.swing.GanttDrawingPartHelper;
+import org.ash.history.ASHDatabaseH;
+import org.ash.util.Options;
+import org.ash.util.Utils;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class GanttSqls {
 
@@ -54,6 +49,9 @@ public class GanttSqls {
 	
 	/** The UNKNOWN var. */
 	private String UNKNOWN = "UNKNOWN";
+
+	/** The SQL_TYPE. */
+	private String SQL_TYPE = "SQL_TYPE";
 	
 	/** The scale toggle: 
 	 * < 30  => 2 
@@ -121,8 +119,11 @@ public class GanttSqls {
 					me,countOfSqls,sumOfRange);
 			
 			data[i][1] = me.getKey();
-			data[i][2] = UNKNOWN;
-			
+			//data[i][2] = UNKNOWN;
+			double value = Double.parseDouble((String) me.getValue().get(SQL_TYPE));
+			data[i][2] = Options.getInstance().getResource(
+					Options.getInstance().getResource(String.valueOf((int) value)));
+
 			/** Load sqlid */
 			arraySqlIdType50.put(me.getKey(),
 						database.getSqlType(me.getKey()));

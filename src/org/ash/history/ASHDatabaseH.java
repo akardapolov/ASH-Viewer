@@ -676,7 +676,7 @@ public class ASHDatabaseH {
 					String useridS = useridL.toString().trim();
 					String programSess = ASH.getProgram();
 
-					Double sqlPlanHashValue = (Double) ASH.getSqlPlanHashValue();
+					Double sqlPlanHashValue = ASH.getSqlPlanHashValue();
 
 					String waitClass = ASH.getWaitClass();
 					String eventName = ASH.getEvent();
@@ -688,14 +688,14 @@ public class ASHDatabaseH {
 								this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
 										sqlId, 0.0/*timeWaited*/, waitTime, 0.0/*waitClassId*/, sessionId, sessionidS,
 										sessionSerial, sessioniSerialS, useridL, useridS, programSess,
-										true, eventFlag, sqlPlanHashValue);
+										true, eventFlag, sqlPlanHashValue, String.valueOf(ASH.getSqlOPCode()));
 							}
 						} else {
 							if (waitClass != null && waitClass.equalsIgnoreCase(eventFlag)){
 								this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
 										sqlId, timeWaited, 0.0/*waittime*/, waitClassId, sessionId, sessionidS,
 										sessionSerial, sessioniSerialS, useridL, useridS, programSess,
-										true, eventName, sqlPlanHashValue);
+										true, eventName, sqlPlanHashValue, String.valueOf(ASH.getSqlOPCode()));
 							}
 						}
 					} else {
@@ -703,7 +703,7 @@ public class ASHDatabaseH {
 						this.loadDataToTempSqlSession(tmpSqlsTemp, tmpSessionsTemp,
 								sqlId, timeWaited, waitTime, waitClassId, sessionId, sessionidS,
 								sessionSerial, sessioniSerialS, useridL, useridS, programSess,
-								false, eventFlag, sqlPlanHashValue);
+								false, eventFlag, sqlPlanHashValue, String.valueOf(ASH.getSqlOPCode()));
 
 					}
 				}
@@ -790,7 +790,7 @@ public class ASHDatabaseH {
 										  String sqlId, double timeWaited, double waitTime,
 										  double waitClassId, Long sessionId, String sessionidS, Double sessionSerial,
 										  String sessioniSerialS, Long useridL, String useridS, String programSess,
-										  boolean isDetail, String eventDetail, double sqlPlanHashValue){
+										  boolean isDetail, String eventDetail, double sqlPlanHashValue, String sqlOpname){
 
 		int count = 1;
 
@@ -810,6 +810,7 @@ public class ASHDatabaseH {
 					waitClassId,
 					count);
 
+			tmpSqlsTemp.putSqlType(sqlId, sqlOpname);
 		}
 
 		/** Save data for session row */

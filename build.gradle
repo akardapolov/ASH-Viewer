@@ -10,7 +10,7 @@
 apply plugin: 'application'
 apply plugin: 'java'
 
-version = '3.5.2'
+version = '3.5.1'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
