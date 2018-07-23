@@ -21,23 +21,13 @@
  */
 package org.ash.database;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.je.Sequence;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
 import oracle.jdbc.OracleResultSet;
-
 import org.ash.conn.model.Model;
-import org.ash.datamodel.ActiveSessionHistory;
-import org.ash.datamodel.AshIdTime;
-import org.ash.datamodel.AshSqlIdTypeText;
-import org.ash.datamodel.AshSqlPlanDetail;
-import org.ash.datamodel.AshSqlPlanParent;
+import org.ash.datamodel.*;
 import org.ash.datatemp.SessionsTemp;
 import org.ash.datatemp.SqlsTemp;
 import org.ash.explainplanmodel.ExplainPlanModel10g2;
@@ -47,10 +37,14 @@ import org.ash.util.Utils;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jfree.data.xy.CategoryTableXYDataset;
 
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Sequence;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * The Class Database10g11gSE.
@@ -267,7 +261,7 @@ public class Database10g11gSE extends ASHDatabase {
 					String action = resultSetAsh.getString("ACTION");
 
 					// Create row for wait event 
-					if (waitTime == 0 && !waitClass.equalsIgnoreCase("Idle")) {
+							if (waitTime == 0 && !waitClass.equalsIgnoreCase("Idle")) {
 
 						try {
 							dao.ashById.putNoOverwrite(new AshIdTime(
