@@ -202,6 +202,9 @@ public class Model {
             else if(tmpVersion.substring(16, 18).equalsIgnoreCase("12")) {
                 setVersionDB("11g");
             }
+            else {
+                setVersionDB("11g");
+            }
 		}
 
 	/**
