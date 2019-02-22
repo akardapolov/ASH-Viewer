@@ -568,8 +568,12 @@ public class GetFromRemoteAndStore {
             rs.close();
             s.close();
         } catch (SQLException e) {
+            log.error("SQL error while executing the following statement:" + statement);
             log.error(Arrays.toString(e.getStackTrace()));
-            e.printStackTrace(); // need to log it
+        } catch (NullPointerException e) {
+            log.error("NullPointerException while executing the following statement:"
+                    + statement + ". Check you access rights to table or existence one.");
+            log.error(Arrays.toString(e.getStackTrace()));
         } finally {
             if (s != null) {
                 try {
