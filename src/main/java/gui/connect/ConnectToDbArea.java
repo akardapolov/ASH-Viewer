@@ -50,6 +50,7 @@ public class ConnectToDbArea extends JDialog {
 
     private JButton jButtonConnect;
     private JButton jButtonNewConn;
+    private JButton jButtonCopyConn;
     private JButton jButtonDeleteConn;
     private JButton jButtonSaveConn;
     private JButton jButtonCancel;
@@ -148,6 +149,7 @@ public class ConnectToDbArea extends JDialog {
         jButtonConnect = new JButton(Labels.getLabel("gui.connection.button.connect"));
         jButtonNewConn = new JButton(Labels.getLabel("gui.connection.button.new"));
         jButtonDeleteConn = new JButton(Labels.getLabel("gui.connection.button.delete"));
+        jButtonCopyConn = new JButton(Labels.getLabel("gui.connection.button.copy"));
         jButtonSaveConn = new JButton(Labels.getLabel("gui.connection.button.save"));
         jButtonSaveConn.setEnabled(false);
         jButtonCancel = new JButton(Labels.getLabel("gui.connection.button.cancel"));
@@ -245,10 +247,17 @@ public class ConnectToDbArea extends JDialog {
             this.isEditable.setEnabled(false);
         });
 
+        jButtonCopyConn.addActionListener(e ->{
+            this.setDetailEditable(true);
+            this.copyConnection();
+            this.isEditable.setEnabled(false);
+        });
+
         jButtonDeleteConn.addActionListener(e -> executor.submit(() -> {
             try {
                 jButtonConnect.setEnabled(false);
                 jButtonNewConn.setEnabled(false);
+                jButtonCopyConn.setEnabled(false);
                 jButtonDeleteConn.setEnabled(false);
                 this.isEditable.setEnabled(false);
 
@@ -257,6 +266,7 @@ public class ConnectToDbArea extends JDialog {
 
                 jButtonConnect.setEnabled(true);
                 jButtonNewConn.setEnabled(true);
+                jButtonCopyConn.setEnabled(true);
                 jButtonDeleteConn.setEnabled(true);
                 this.isEditable.setEnabled(true);
             } catch (Exception ex) {
@@ -308,6 +318,7 @@ public class ConnectToDbArea extends JDialog {
         /******/
         buttonPanel.add(jButtonConnect, "gap 1");
         buttonPanel.add(jButtonNewConn, "gap 1");
+        buttonPanel.add(jButtonCopyConn, "gap 1");
         buttonPanel.add(jButtonDeleteConn, "gap 1");
         buttonPanel.add(jButtonSaveConn, "gap 1");
         buttonPanel.add(jButtonCancel, "gap 1");
@@ -332,6 +343,7 @@ public class ConnectToDbArea extends JDialog {
 
         jButtonConnect.setEnabled(!bParameter);
         jButtonNewConn.setEnabled(!bParameter);
+        jButtonCopyConn.setEnabled(!bParameter);
         jButtonDeleteConn.setEnabled(!bParameter);
         jButtonSaveConn.setEnabled(bParameter);
         jButtonCancel.setEnabled(bParameter);
@@ -343,6 +355,9 @@ public class ConnectToDbArea extends JDialog {
         passwordTF.setText("");
         urlTF.setText("");
         jarTF.setText("");
+    }
+    private void copyConnection(){
+        connNameTF.setText("");
     }
 
     private void selectFromDbAndSetInGui(String connName){
