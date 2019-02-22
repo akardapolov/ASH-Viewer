@@ -24,28 +24,39 @@ public class MetadataEAVDAO implements IMetadataEAVDAO {
 
     @Override
     public boolean putMainDataEAVWithCheck(String moduleName, String entity, String attribute, String value){
-        boolean isExist = false;
+        boolean isDelete = false;
+        Long idToDeleteExistingRow = 0L;
 
         EntityCursor<MetadataEAV> mainDataEAV =
-                this.moduleNameEAVSecondaryIndex.entities();
+                this.moduleNameEAVSecondaryIndex.subIndex(moduleName).entities();
 
         try {
             for (MetadataEAV metaEAV : mainDataEAV) {
-                if (metaEAV.getModuleName().equalsIgnoreCase(moduleName)&&
-                        metaEAV.getEntity().equalsIgnoreCase(entity)&&
-                        metaEAV.getAttribute().equalsIgnoreCase(attribute) &&
-                        metaEAV.getValue().equalsIgnoreCase(value))
-                    isExist = true;
+                if (metaEAV.getModuleName().equalsIgnoreCase(moduleName)&
+                        metaEAV.getEntity().equalsIgnoreCase(entity)&
+                        metaEAV.getAttribute().equalsIgnoreCase(attribute))
+
+                if (!metaEAV.getValue().equalsIgnoreCase(value)){
+                    isDelete = true;
+                    idToDeleteExistingRow = metaEAV.getMainDataMetaEAVKey();
+                } else {
+                    isDelete = false;
+                }
             }
         } finally {
             mainDataEAV.close();
         }
 
-        if (!isExist){
+        if (isDelete){
+            this.mainDataMetaEAVPrimaryIndex.delete(idToDeleteExistingRow);
+            this.store.sync();
+
+            putMainDataEAVWithoutCheck(moduleName, entity, attribute, value);
+        } else {
             putMainDataEAVWithoutCheck(moduleName, entity, attribute, value);
         }
 
-        return isExist;
+        return isDelete;
     }
 
     @Override
@@ -68,12 +79,12 @@ public class MetadataEAVDAO implements IMetadataEAVDAO {
     public void deleteMainDataEAVWithCheck(String moduleName, String entity, String attribute){
         Long id = 0L;
         EntityCursor<MetadataEAV> mainDataEAV =
-                this.moduleNameEAVSecondaryIndex.entities();
+                this.moduleNameEAVSecondaryIndex.subIndex(moduleName).entities();
 
         try {
             for (MetadataEAV metaEAV : mainDataEAV) {
-                if (metaEAV.getModuleName().equalsIgnoreCase(moduleName)&&
-                        metaEAV.getEntity().equalsIgnoreCase(entity)&&
+                if (metaEAV.getModuleName().equalsIgnoreCase(moduleName)&
+                        metaEAV.getEntity().equalsIgnoreCase(entity)&
                         metaEAV.getAttribute().equalsIgnoreCase(attribute))
                     id = metaEAV.getMainDataMetaEAVKey();
             }
@@ -88,7 +99,7 @@ public class MetadataEAVDAO implements IMetadataEAVDAO {
     public void deleteMainDataEAVWithCheck(String moduleName, String entity){
         Long id = 0L;
         EntityCursor<MetadataEAV> mainDataEAV =
-                this.moduleNameEAVSecondaryIndex.entities();
+                this.moduleNameEAVSecondaryIndex.subIndex(moduleName).entities();
 
         try {
             for (MetadataEAV metaEAV : mainDataEAV) {
@@ -106,7 +117,7 @@ public class MetadataEAVDAO implements IMetadataEAVDAO {
     @Override
     public void deleteMainDataEAVByModule(String moduleName){
         EntityCursor<MetadataEAV> mainDataEAV =
-                this.moduleNameEAVSecondaryIndex.entities();
+                this.moduleNameEAVSecondaryIndex.subIndex(moduleName).entities();
         try {
             for (MetadataEAV metaEAV : mainDataEAV) {
                 if (metaEAV.getModuleName().equalsIgnoreCase(moduleName))
