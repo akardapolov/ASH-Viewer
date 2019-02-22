@@ -62,6 +62,8 @@ public class MainWindow {
 
         this.connectToDbAction.setConnectToDbButton(this.connectButton);
         this.startStopAction.setStartStopButton(this.startStopButton);
+
+        this.connectButton.doClick();
     }
 
     private void initJFrame(final BasicFrame jFrame){
