@@ -48,6 +48,7 @@ public class ChartDatasetManager {
         CategoryTableXYDatasetRDA mainXyDatasetRDA = new CategoryTableXYDatasetRDA();
         StackChartPanel mainStackChartPanel = new StackChartPanel(Labels.getLabel("chart.main.name"), colorManager);
         mainStackChartPanel.setXyDatasetRDA(mainXyDatasetRDA);
+        mainStackChartPanel.setXAxisLabel(" ");
         mainStackChartPanel.initialize();
 
         MonitorGantt2 monitorGantt2 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
@@ -62,11 +63,11 @@ public class ChartDatasetManager {
                 CategoryTableXYDatasetRDA xyDatasetRDA = new CategoryTableXYDatasetRDA();
                 StackChartPanel stackChartPanel = new StackChartPanel(e, colorManager);
                 stackChartPanel.setXyDatasetRDA(xyDatasetRDA);
+                stackChartPanel.setXAxisLabel(" ");
                 stackChartPanel.initialize();
                 stackChartPanel.getStackedChart().setChartTitle(Labels.getLabel("chart.main.ta"));
 
                 MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
-                //stackChartPanel.addChartListenerReleaseMouse(monitorGantt20);
 
                 NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGantt20, xyDatasetRDA);
                 nameChartDatasetDetail.add(nameChartDataset);

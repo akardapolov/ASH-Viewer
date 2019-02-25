@@ -20,6 +20,8 @@ import java.awt.*;
 public class StackChartPanel extends JPanel {
     private ColorManager colorManager;
     @Getter @Setter private CategoryTableXYDatasetRDA xyDatasetRDA;
+    @Getter @Setter private String xAxisLabel;
+    @Getter @Setter private String yAxisLabel;
 
     private JFreeChart jFreeChart;
     private DateAxis dateAxis;
@@ -53,10 +55,11 @@ public class StackChartPanel extends JPanel {
     private ChartPanel getChartPanel(CategoryTableXYDatasetRDA categoryTableXYDataset) {
         dateAxis = new DateAxis();
         jFreeChart =
-                ChartFactory.createStackedXYAreaChart(name, "",
+                ChartFactory.createStackedXYAreaChart(name, xAxisLabel,
                         Labels.getLabel("chart.main.ash"),categoryTableXYDataset,
                         PlotOrientation.VERTICAL,dateAxis,false,true,false);
         chartPanel = new ChartPanel(jFreeChart);
+
         return chartPanel;
     }
 

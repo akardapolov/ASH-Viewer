@@ -1,7 +1,5 @@
 package utility;
 
-import config.Labels;
-
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -349,10 +347,8 @@ public class Utils {
         directory.delete();
     }
 
-
-    public String getDateForLongShorted(long longDate){
-        //SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Labels.getLabel("main.dateformat"));
+    public static String getDateForLongShorted(long longDate, String dateFormat){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
         java.sql.Date dtDate= new java.sql.Date((longDate));
         return simpleDateFormat.format(dtDate);
     }
