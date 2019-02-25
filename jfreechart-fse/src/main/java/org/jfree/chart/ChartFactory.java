@@ -924,8 +924,10 @@ public abstract class ChartFactory {
             xAxis.setAutoRangeIncludesZero(false);
         */
 
+        xAxis.setLabel(xAxisLabel);
         xAxis.setLowerMargin(0.0);
         xAxis.setUpperMargin(0.0);
+
         NumberAxis yAxis = new NumberAxis(yAxisLabel);
         XYToolTipGenerator toolTipGenerator = null;
         if (tooltips) {
