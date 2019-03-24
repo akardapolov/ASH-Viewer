@@ -453,11 +453,12 @@ public class ConnectToDbArea extends JDialog {
 
             monitorDbPanel.setConnectionMetadata(connection);
             monitorDbPanel.initialize();
+
+            getFromRemoteAndStore.loadDataFromRemoteToLocalStore(); //
+
             monitorDbPanel.initializeGui();
 
             monitorDbPanel.setProfile(iProfile);
-
-            getFromRemoteAndStore.loadDataFromRemoteToLocalStore(); //
 
             startStopButton.setEnabled(true);
             startStopButton.doClick();

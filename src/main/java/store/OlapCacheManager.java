@@ -85,14 +85,14 @@ public class OlapCacheManager {
         loadAshRowData15(beginDtS15, paramIdSec, waitEventI, cache15SecLongId, hashmap15SecCache,
                 String.valueOf(AggregationTime.FifteenSecond));
 
-        /*LocalDateTime beginDtM = LocalDateTime.of(
+        LocalDateTime beginDtM = LocalDateTime.of(
                 dt.getYear(),
                 dt.getMonth(),
                 dt.getDayOfMonth(),
                 dt.getHour(),
                 dt.getMinute());
         loadAshRowData(beginDtM, paramIdSec, waitEventI, cache1MinLongId, hashmap1MinCache,
-                String.valueOf(AggregationTime.OneMinute));*/
+                String.valueOf(AggregationTime.OneMinute));
     }
 
     private void loadAshRowData(LocalDateTime dt, int paramId, int waitEventId,

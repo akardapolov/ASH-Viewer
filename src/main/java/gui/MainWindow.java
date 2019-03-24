@@ -54,7 +54,7 @@ public class MainWindow {
         this.mainStatusBar = mainStatusBar;
 
         this.mainToolBar.add(connectButton);
-        this.mainToolBar.add(startStopButton);
+        //this.mainToolBar.add(startStopButton);
 
         this.jFrame.addProfileArea(this.mainToolBar, BorderLayout.NORTH);
         this.jFrame.addProfileArea(this.mainTabPane, BorderLayout.CENTER);

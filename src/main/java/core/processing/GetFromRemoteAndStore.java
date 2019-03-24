@@ -109,6 +109,8 @@ public class GetFromRemoteAndStore {
     public void loadSqlsMetadata() {
         if (!this.isFirstRun) {
             this.olapCacheManager.setIProfile(this.iProfile);
+            storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
+
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.olapCacheManager.setAggrDao(storeManager.getDatabaseDAO().getOlapDAO().getAggrDao());
             this.loadMetadata();
