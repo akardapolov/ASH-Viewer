@@ -1,7 +1,6 @@
 package gui.detail;
 
 import core.ColorManager;
-import core.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.chart.CategoryTableXYDatasetRDA;
@@ -34,6 +33,7 @@ import static java.awt.BorderLayout.CENTER;
 @Slf4j
 public class SqlDetail extends JFrame implements ActionListener {
     private BasicFrame jFrame;
+    private GanttParam ganttParam;
     private final String valueAtSqlId;
     private StoreManager storeManager;
     private GetFromRemoteAndStore getFromRemoteAndStore;
@@ -56,11 +56,13 @@ public class SqlDetail extends JFrame implements ActionListener {
     private MonitorGantt3 monitorGantt;
 
     public SqlDetail(BasicFrame jFrame,
+                     GanttParam ganttParam,
                      String valueAtSqlId,
                      StoreManager storeManager,
                      GetFromRemoteAndStore getFromRemoteAndStore,
                      ColorManager colorManager) {
         this.jFrame = jFrame;
+        this.ganttParam = ganttParam;
         this.valueAtSqlId = valueAtSqlId;
         this.storeManager = storeManager;
         this.getFromRemoteAndStore = getFromRemoteAndStore;
@@ -113,8 +115,10 @@ public class SqlDetail extends JFrame implements ActionListener {
         stackedChartPanel.setXyDatasetRDA(categoryTableXYDatasetRTV);
         stackedChartPanel.initialize();
 
-        monitorGantt = new MonitorGantt3(new GanttParam.Builder(0D, 0D).sqlId(this.valueAtSqlId).build(),
-                                                jFrame, storeManager, getFromRemoteAndStore, colorManager);
+        monitorGantt = new MonitorGantt3(new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime())
+                                .sqlId(this.valueAtSqlId).build(), jFrame, storeManager, getFromRemoteAndStore, colorManager);
+        monitorGantt.setHistory(true);
+        monitorGantt.setGanttParam(new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime()).build());
         stackedChartPanel.addChartListenerReleaseMouse(monitorGantt);
 
         JSplitPane splitPaneChart = new JSplitPane();
@@ -193,13 +197,9 @@ public class SqlDetail extends JFrame implements ActionListener {
     }
 
     private void loadData(){
-
-        double start = getFromRemoteAndStore.getCurrServerTime() - ConstantManager.CURRENT_WINDOW;
-        double end = getFromRemoteAndStore.getCurrServerTime();
-
         storeManager.getDatabaseDAO()
                 .getOlapDAO().loadDataToCategoryTableXYDatasetRTVBySqlSessionID(
-                new GanttParam.Builder(start, end).sqlId(this.valueAtSqlId).build(),
+                new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime()).sqlId(this.valueAtSqlId).build(),
                 categoryTableXYDatasetRTV,
                 stackedChartPanel
         );

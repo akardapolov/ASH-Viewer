@@ -83,6 +83,8 @@ public class MonitorDbPanel {
         topActivitySplitPane.add(chartDatasetManager.getMainNameChartDataset().getStackChartPanel(), JSplitPane.TOP);
         topActivitySplitPane.add(chartDatasetManager.getMainNameChartDataset().getMonitorGantt2(), JSplitPane.BOTTOM);
 
+        chartDatasetManager.getMainNameChartDataset().getMonitorGantt2().setHistory(false);
+
         loadDetailChart();
         loadHistory();
     }
@@ -126,6 +128,7 @@ public class MonitorDbPanel {
         buttonPanel.setBorder(new EtchedBorder());
 
         monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
+        monitorGantt20.setHistory(false);
 
         chartDatasetManager.getNameChartDatasetDetail().stream().forEach(e -> {
             String strChartPanel = "cell 0 0, hidemode 3";
@@ -142,6 +145,7 @@ public class MonitorDbPanel {
                                     e.getMonitorGantt2().setVisible(false);
                                 });
                         e.getStackChartPanel().getStackedChart().getChartPanel().setVisible(true);
+
                         monitorGantt20.setWaitClassG(e.getName());
                         monitorGantt20.clearGui();
                         monitorGantt20.repaint();

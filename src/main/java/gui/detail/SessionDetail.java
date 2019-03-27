@@ -1,7 +1,6 @@
 package gui.detail;
 
 import core.ColorManager;
-import core.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.chart.CategoryTableXYDatasetRDA;
@@ -106,6 +105,8 @@ public class SessionDetail extends JFrame implements ActionListener {
         stackedChartPanel.initialize();
 
         monitorGantt = new MonitorGantt3(this.ganttParam, jFrame, storeManager, getFromRemoteAndStore, colorManager);
+        monitorGantt.setHistory(true);
+        monitorGantt.setGanttParam(new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime()).build());
         stackedChartPanel.addChartListenerReleaseMouse(monitorGantt);
 
         JSplitPane splitPaneChart = new JSplitPane();
@@ -142,13 +143,10 @@ public class SessionDetail extends JFrame implements ActionListener {
     }
 
     private void loadData(){
-
-        double start = getFromRemoteAndStore.getCurrServerTime() - ConstantManager.CURRENT_WINDOW;
-        double end = getFromRemoteAndStore.getCurrServerTime();
-
         storeManager.getDatabaseDAO()
                 .getOlapDAO().loadDataToCategoryTableXYDatasetRTVBySqlSessionID(
-                new GanttParam.Builder(start, end).sessionId(ganttParam.getSessionId()).serial(ganttParam.getSerial()).build(),
+                new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime())
+                        .sessionId(ganttParam.getSessionId()).serial(ganttParam.getSerial()).build(),
                 categoryTableXYDatasetRTV, stackedChartPanel
         );
     }

@@ -15,6 +15,8 @@ import gui.BasicFrame;
 import gui.detail.SessionDetail;
 import gui.detail.SqlDetail;
 import gui.util.ProgressBarUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.jdesktop.swingx.JXTable;
 import org.jfree.chart.util.GanttParam;
 import org.jfree.chart.util.IDetailPanel;
@@ -45,8 +47,8 @@ public class MonitorGantt3 extends JPanel implements IDetailPanel {
     private String[][] columnNamesSqls = {{"Activity %", "SQL ID", "SQL type"}};
     private String[][] columnNamesSessions = {{"Activity %", "Session ID", "Session Serial#", "Username", "Program"}};
 
-    private boolean isMinimalistic = false;
-    private boolean isOneHourSqlSessionDetail = false;
+    @Getter @Setter private GanttParam ganttParam;
+    @Getter @Setter private boolean isHistory;
 
     public MonitorGantt3(GanttParam ganttParamOut, BasicFrame jFrame, StoreManager storeManager,
                          GetFromRemoteAndStore getFromRemoteAndStore, ColorManager colorManager) {
@@ -78,6 +80,7 @@ public class MonitorGantt3 extends JPanel implements IDetailPanel {
         Thread t = new Thread() {
             @Override
             public void run() {
+                setTimeRange();
                 init0();
                 loadDataToJPanelsPrivate0(ganttParamIn);
             }
@@ -214,7 +217,8 @@ public class MonitorGantt3 extends JPanel implements IDetailPanel {
                 if (e.getClickCount() == 2)
                 {
                     final Object valueAt = table.getModel().getValueAt(table.getSelectedRow(), columnIndex);
-                    new SqlDetail(jFrame, (String) valueAt, storeManager, getFromRemoteAndStore, colorManager);
+                    new SqlDetail(jFrame, new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime()).build(),
+                            (String) valueAt, storeManager, getFromRemoteAndStore, colorManager);
                 }
             }
         });
@@ -230,11 +234,21 @@ public class MonitorGantt3 extends JPanel implements IDetailPanel {
                     final Object valueAtSerial = table.getModel().getValueAt(table.getSelectedRow(), cIndexSerial);
 
                     new SessionDetail(jFrame,
-                            new GanttParam.Builder(0D, 0D).sessionId((String) valueAtSessId).serial((String) valueAtSerial).build(),
+                            new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime())
+                                    .sessionId((String) valueAtSessId).serial((String) valueAtSerial).build(),
                             storeManager, getFromRemoteAndStore, colorManager);
                 }
             }
         });
+    }
+
+    private void setTimeRange(){
+        if (!isHistory){
+            double start = getFromRemoteAndStore.getCurrServerTime() - ConstantManager.CURRENT_WINDOW;
+            double end = getFromRemoteAndStore.getCurrServerTime();
+
+            ganttParam = new GanttParam.Builder(start, end).build();
+        }
     }
 
 }

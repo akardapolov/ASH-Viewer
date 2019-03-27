@@ -101,6 +101,8 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
         monitorGantt20.setIProfile(iProfile);
+        monitorGantt20.setHistory(true);
+        monitorGantt20.setGanttParam(ganttParam);
 
         mainStackChartPanelTA.addChartListenerReleaseMouse(monitorGantt20);
 
@@ -134,6 +136,8 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
         monitorGantt20.setIProfile(iProfile);
+        monitorGantt20.setHistory(true);
+        monitorGantt20.setGanttParam(ganttParam);
 
         LinkedHashSet<NameChartDataset> nameChartDatasetDetail = new LinkedHashSet<>();
 

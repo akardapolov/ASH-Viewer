@@ -50,6 +50,10 @@ public class MonitorGantt2 extends JPanel implements IDetailPanel {
 
     @Getter @Setter private IProfile iProfile;
 
+    @Getter @Setter private GanttParam ganttParam;
+
+    @Getter @Setter private boolean isHistory;
+
     public MonitorGantt2(BasicFrame jFrame, StoreManager storeManager,
                          GetFromRemoteAndStore getFromRemoteAndStore, ColorManager colorManager) {
         this.jFrame = jFrame;
@@ -66,6 +70,7 @@ public class MonitorGantt2 extends JPanel implements IDetailPanel {
             @Override
             public void run() {
                 try {
+                    setTimeRange();
                     initGui();
                     loadDataToJPanelsPrivate0(ganttParamIn);
                 } catch (Exception e){
@@ -230,7 +235,8 @@ public class MonitorGantt2 extends JPanel implements IDetailPanel {
                 if (e.getClickCount() == 2)
                 {
                     final Object valueAt = table.getModel().getValueAt(table.getSelectedRow(), columnIndex);
-                    new SqlDetail(jFrame, (String) valueAt, storeManager, getFromRemoteAndStore, colorManager);
+                    new SqlDetail(jFrame, new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime()).build(),
+                            (String) valueAt, storeManager, getFromRemoteAndStore, colorManager);
                 }
             }
         });
@@ -246,10 +252,20 @@ public class MonitorGantt2 extends JPanel implements IDetailPanel {
                     final Object valueAtSerial = table.getModel().getValueAt(table.getSelectedRow(), cIndexSerial);
 
                     new SessionDetail(jFrame,
-                            new GanttParam.Builder(0D, 0D).sessionId((String) valueAtSessId).serial((String) valueAtSerial).build(),
+                            new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime())
+                                    .sessionId((String) valueAtSessId).serial((String) valueAtSerial).build(),
                             storeManager, getFromRemoteAndStore, colorManager);
                 }
             }
         });
+    }
+
+    private void setTimeRange(){
+        if (!isHistory){
+            double start = getFromRemoteAndStore.getCurrServerTime() - ConstantManager.CURRENT_WINDOW;
+            double end = getFromRemoteAndStore.getCurrServerTime();
+
+            ganttParam = new GanttParam.Builder(start, end).build();
+        }
     }
 }
