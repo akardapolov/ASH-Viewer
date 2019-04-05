@@ -31,7 +31,7 @@ public final class Config {
         fileConfig = new FileConfig();
 
         bdbForRepository = new BerkleyDB(FileConfig.REPOSITORY_DIR);
-        bdbForRepository.getEnvConfig().setCachePercent(5);
+        bdbForRepository.getEnvConfig().setCachePercent(10);
 
         globalKeyBindings = new GlobalKeyBindings();
         colorManager = new ColorManager();

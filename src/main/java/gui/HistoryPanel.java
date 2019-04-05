@@ -24,6 +24,7 @@ import java.awt.event.ItemEvent;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HistoryPanel extends JPanel implements IDetailPanel {
@@ -71,12 +72,16 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         mainStackChartPanel.setXAxisLabel(" ");
         mainStackChartPanel.initialize();
 
-        mainStackChartPanel.addChartListenerReleaseMouse(this);
+        double diff = ganttParam.getBeginTime() - ganttParam.getEndTime();
 
+        if ((TimeUnit.DAYS.convert((long) diff, TimeUnit.MILLISECONDS) * (-1)) > 5){
+            mainStackChartPanel.setDateAxisWeekAndMore();
+        }
+
+        mainStackChartPanel.addChartListenerReleaseMouse(this);
 
         this.storeManager.getDatabaseDAO()
                 .getOlapDAO().loadDataToCategoryTableXYDatasetRTVHistoryTA(ganttParam, mainXyDatasetRDA, mainStackChartPanel);
-
 
         mainSplitPane = new JSplitPane();
         mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);

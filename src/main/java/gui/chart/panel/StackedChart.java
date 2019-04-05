@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.PeriodAxis;
+import org.jfree.chart.axis.PeriodAxisLabelInfo;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.block.BlockContainer;
 import org.jfree.chart.block.BorderArrangement;
@@ -21,6 +23,7 @@ import org.jfree.chart.renderer.xy.StackedXYAreaRenderer3;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.ui.HorizontalAlignment;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.util.IDetailPanel;
 import org.jfree.chart.util.SortOrder;
 import org.jfree.data.extension.DatasetIterator;
@@ -31,10 +34,13 @@ import org.jfree.data.extension.impl.XYDatasetSelectionExtension;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.general.SelectionChangeEvent;
 import org.jfree.data.general.SelectionChangeListener;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.Month;
 
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -154,6 +160,25 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
             }
         }
 
+    }
+
+    public void setDateAxisWeekAndMore(){
+        PeriodAxis domainAxis = new PeriodAxis(" ");
+        domainAxis.setTimeZone(TimeZone.getDefault());
+
+        domainAxis.setMajorTickTimePeriodClass(Day.class);
+        PeriodAxisLabelInfo[] info = new PeriodAxisLabelInfo[2];
+        info[0] = new PeriodAxisLabelInfo(Day.class,
+                new SimpleDateFormat("d"), new RectangleInsets(2, 2, 2, 2),
+                new Font("SansSerif", Font.BOLD, 8), Color.blue, false,
+                new BasicStroke(0.0f), Color.lightGray);
+        info[1] = new PeriodAxisLabelInfo(Month.class,
+                new SimpleDateFormat("MMM"));
+        /*info[2] = new PeriodAxisLabelInfo(Year.class,
+                new SimpleDateFormat("yyyy"));*/
+        domainAxis.setLabelInfo(info);
+
+        this.xyPlot.setDomainAxis(domainAxis);
     }
 
     public void addSeriesValue(double x, double y, String seriesName){

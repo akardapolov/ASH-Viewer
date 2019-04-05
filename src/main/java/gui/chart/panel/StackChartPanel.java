@@ -52,6 +52,10 @@ public class StackChartPanel extends JPanel {
         stackedChart.changeHeightRectangularHeightRegionSelectionHandler(oldH, newH);
     }
 
+    public void setDateAxisWeekAndMore(){
+        stackedChart.setDateAxisWeekAndMore();
+    }
+
     private ChartPanel getChartPanel(CategoryTableXYDatasetRDA categoryTableXYDataset) {
         dateAxis = new DateAxis();
         jFreeChart =
