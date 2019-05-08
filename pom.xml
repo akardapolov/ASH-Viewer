@@ -12,6 +12,7 @@
     <modules>
         <module>jfreechart-fse</module>
         <module>egantt</module>
+        <module>ashv</module>
     </modules>
 
     <dependencies>
@@ -124,7 +125,7 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>ashv/src/main/resources</directory>
                 <excludes>
                     <exclude>**/*.xml</exclude>
                     <exclude>**/*.txt</exclude>
@@ -170,6 +171,11 @@
                             <groupId>com.google.dagger</groupId>
                             <artifactId>dagger-compiler</artifactId>
                             <version>2.11</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.12.4</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
