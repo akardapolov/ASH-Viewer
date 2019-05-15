@@ -129,6 +129,8 @@ public class MonitorGantt3 extends JPanel implements IDetailPanel {
         tableGanttSql.setRowHeightForJtable(23);
         tableGanttSql.getJXTable().setColumnControlVisible(true);
 
+        tableGanttSql.getJXTable().setCellSelectionEnabled(true);
+
         setDoubleClickForColSqlId(tableGanttSql.getJXTable(), 1); // Open SQL id detail for double click event
 
         setTooltipAndPercent(tableGanttSql);
@@ -147,6 +149,8 @@ public class MonitorGantt3 extends JPanel implements IDetailPanel {
         tableGanttSessions.setRowHeightForJtable(23);
         tableGanttSessions.getJXTable().setColumnControlVisible(true);
         tableGanttSessions.getJXTable().getColumnExt(2).setVisible(false); //Set invisible for session Serial
+
+        tableGanttSessions.getJXTable().setCellSelectionEnabled(true);
 
         setDoubleClickForColSessionId(tableGanttSessions.getJXTable(), 1, 2);
 

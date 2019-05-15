@@ -142,6 +142,8 @@ public class MonitorGantt2 extends JPanel implements IDetailPanel {
         tableGanttSql.getJXTable().getColumnExt(1).setEditable(false);
         tableGanttSql.getJXTable().getColumnExt(2).setEditable(false);
 
+        tableGanttSql.getJXTable().setCellSelectionEnabled(true);
+
         setDoubleClickForColSqlId(tableGanttSql.getJXTable(), 1); // Open SQL id detail for double click event
 
         setTooltipAndPercent(tableGanttSql);
@@ -165,6 +167,8 @@ public class MonitorGantt2 extends JPanel implements IDetailPanel {
         tableGanttSessions.getJXTable().getColumnExt(1).setEditable(false);
         tableGanttSessions.getJXTable().getColumnExt(2).setEditable(false);
         tableGanttSessions.getJXTable().getColumnExt(3).setEditable(false);
+
+        tableGanttSessions.getJXTable().setCellSelectionEnabled(true);
 
         setDoubleClickForColSessionId(tableGanttSessions.getJXTable(), 1, 2);
 
