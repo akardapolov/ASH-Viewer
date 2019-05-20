@@ -109,16 +109,11 @@ public class GetFromRemoteAndStore {
     public void loadSqlsMetadata() {
         if (!this.isFirstRun) {
             this.olapCacheManager.setIProfile(this.iProfile);
-            storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
+            this.storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
 
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.olapCacheManager.setAggrDao(storeManager.getDatabaseDAO().getOlapDAO().getAggrDao());
             this.loadMetadata();
-
-            // For main chart
-            iProfile.getUniqueTreeEventListByWaitClass()
-                    .stream().forEach(e->chartDatasetManager.getMainNameChartDataset()
-                        .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e));
 
             iProfile.getSqlIdAddColName().stream().forEach(e -> SqlIdAddColName.add(this.getColumnIdForCol(e)));
             iProfile.getSessAddColName().stream().forEach(e -> SessAddColName.add(this.getColumnIdForCol(e)));
@@ -127,6 +122,11 @@ public class GetFromRemoteAndStore {
 
     public void loadDataFromRemoteToLocalStore() {
         this.loadSqlsMetadata();
+
+        // For main chart
+        iProfile.getUniqueTreeEventListByWaitClass()
+                .stream().forEach(e->chartDatasetManager.getMainNameChartDataset()
+                .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e));
 
         log.info("Start loading");
 

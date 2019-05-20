@@ -23,6 +23,7 @@ import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,7 +49,7 @@ public class MonitorDbPanel {
     @Getter @Setter private ConnectionMetadata connectionMetadata;
     @Getter @Setter private IProfile iProfile;
 
-    private HistoryPanel historyPanel;
+    @Getter @Setter private HistoryPanel historyPanel;
 
     @Inject
     public MonitorDbPanel(BasicFrame jFrame,
@@ -92,6 +93,10 @@ public class MonitorDbPanel {
     public void adddGui(){
         mainTabbedPane.add("Top Activity", topActivitySplitPane);
         mainTabbedPane.add("Detail", detailSplitPane);
+        mainTabbedPane.add("History", controlMainDetailHistory);
+    }
+
+    public void addGuiHistory(){
         mainTabbedPane.add("History", controlMainDetailHistory);
     }
 
@@ -183,7 +188,7 @@ public class MonitorDbPanel {
         }
     }
 
-    private void loadHistory(){
+    public void loadHistory(){
         controlMainDetailHistory = new JPanel();
         controlMainDetailHistory.setLayout(new BorderLayout());
 
@@ -264,8 +269,14 @@ public class MonitorDbPanel {
 
 
     private GanttParam getGanttParam(int numberOfHour){
-        double start = getFromRemoteAndStore.getCurrServerTime() - ConstantManager.CURRENT_WINDOW * numberOfHour;
-        double end = getFromRemoteAndStore.getCurrServerTime();
+        Instant instant = Instant.now();
+        long timeStampMillis = instant.toEpochMilli();
+
+        long currServerOrClientTime = getFromRemoteAndStore.getCurrServerTime() == 0L ?
+                timeStampMillis : getFromRemoteAndStore.getCurrServerTime();
+
+        double start = currServerOrClientTime - ConstantManager.CURRENT_WINDOW * numberOfHour;
+        double end = currServerOrClientTime;
 
         return new GanttParam.Builder(start, end).build();
     }

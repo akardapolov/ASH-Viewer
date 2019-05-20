@@ -51,6 +51,7 @@ public class ConnectToDbArea extends JDialog {
     private JButton jButtonConnect;
     private JButton jButtonNewConn;
     private JButton jButtonCopyConn;
+    private JButton jButtonEditConn;
     private JButton jButtonDeleteConn;
     private JButton jButtonSaveConn;
     private JButton jButtonCancel;
@@ -78,9 +79,8 @@ public class ConnectToDbArea extends JDialog {
     private JLabel passwordLbl = new JLabel(Labels.getLabel("gui.connection.password"), SwingConstants.LEADING);
     private JLabel urlLbl = new JLabel(Labels.getLabel("gui.connection.url"));
 
-    private JLabel jarLbl = new JLabel(Labels.getLabel("gui.connection.jar"));
     private JLabel profileNameLbl = new JLabel(Labels.getLabel("gui.connection.name"),SwingConstants.LEADING);
-    private JLabel editLbl = new JLabel(Labels.getLabel("gui.connection.edit"));
+    private JLabel offlineLbl = new JLabel(Labels.getLabel("gui.connection.offline"));
 
     private JTextField connNameTF = new JTextField();
     private JTextField usernameTF = new JTextField();
@@ -88,7 +88,7 @@ public class ConnectToDbArea extends JDialog {
     private JTextField urlTF = new JTextField();
     private JTextField jarTF = new JTextField();
     private JFileChooser jarFC = new JFileChooser();
-    private JCheckBox isEditable = new JCheckBox();
+    private JCheckBox isOffline = new JCheckBox();
 
     private JComboBox<String> profileBox = new JComboBox<>();
 
@@ -150,6 +150,7 @@ public class ConnectToDbArea extends JDialog {
         jButtonNewConn = new JButton(Labels.getLabel("gui.connection.button.new"));
         jButtonDeleteConn = new JButton(Labels.getLabel("gui.connection.button.delete"));
         jButtonCopyConn = new JButton(Labels.getLabel("gui.connection.button.copy"));
+        jButtonEditConn = new JButton(Labels.getLabel("gui.connection.button.edit"));
         jButtonSaveConn = new JButton(Labels.getLabel("gui.connection.button.save"));
         jButtonSaveConn.setEnabled(false);
         jButtonCancel = new JButton(Labels.getLabel("gui.connection.button.cancel"));
@@ -213,44 +214,52 @@ public class ConnectToDbArea extends JDialog {
         detailJPanel.add(profileNameLbl,   "skip");
         detailJPanel.add(profileBox,   "span, growx");
 
-        //detailJPanel.add(jarLbl,   "skip");
         detailJPanel.add(openFileButton,    "skip, wmin 30");
         detailJPanel.add(jarTF,    "span, growx, wmin 150");
 
-        detailJPanel.add(editLbl,   "skip");
-        detailJPanel.add(isEditable,   "span, growx");
-        isEditable.setSelected(false);
+        detailJPanel.add(offlineLbl,   "skip");
+        detailJPanel.add(isOffline,   "span, growx");
 
-        isEditable.addItemListener(e -> {
-            if (!isEditable.isSelected()){
+        isOffline.setSelected(false);
+        /*isOffline.addItemListener(e -> {
+            if (!isOffline.isSelected()){
                 setDetailEditable(false);
             }else {
                 setDetailEditable(true);
                 connNameTF.setEnabled(false);
             }
-        });
+        });*/
 
         jButtonConnect.addActionListener(e -> {
             this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
 
-            ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionName,
-                    jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
-            jButtonConnect.setEnabled(false);
+            if (isOffline.isSelected()){
+                ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionNameOffline,
+                        jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
+                jButtonConnect.setEnabled(false);
 
-            String oldTitle = jFrame.getTitle();
-            jFrame.setTitle(oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());
+                String oldTitle = jFrame.getTitle();
+                jFrame.setTitle("Offline: " + oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());
+            } else {
+                ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionName,
+                        jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
+                jButtonConnect.setEnabled(false);
+
+                String oldTitle = jFrame.getTitle();
+                jFrame.setTitle(oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());
+            }
         });
 
         jButtonNewConn.addActionListener(e ->{
             this.setDetailEditable(true);
             this.clearProfileFields();
-            this.isEditable.setEnabled(false);
+            //this.isOffline.setEnabled(false);
         });
 
         jButtonCopyConn.addActionListener(e ->{
             this.setDetailEditable(true);
             this.copyConnection();
-            this.isEditable.setEnabled(false);
+            //this.isOffline.setEnabled(false);
         });
 
         jButtonDeleteConn.addActionListener(e -> executor.submit(() -> {
@@ -259,7 +268,7 @@ public class ConnectToDbArea extends JDialog {
                 jButtonNewConn.setEnabled(false);
                 jButtonCopyConn.setEnabled(false);
                 jButtonDeleteConn.setEnabled(false);
-                this.isEditable.setEnabled(false);
+                //this.isOffline.setEnabled(false);
 
                 this.deleteData();
                 this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
@@ -268,25 +277,36 @@ public class ConnectToDbArea extends JDialog {
                 jButtonNewConn.setEnabled(true);
                 jButtonCopyConn.setEnabled(true);
                 jButtonDeleteConn.setEnabled(true);
-                this.isEditable.setEnabled(true);
+                //this.isOffline.setEnabled(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(jFrame, ex.getMessage());
             }
         }));
 
+        jButtonEditConn.addActionListener(e ->{
+            executor.submit(() -> {
+                try {
+                    setDetailEditable(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(jFrame, ex.getMessage());
+                }
+            });
+        });
+
         jButtonSaveConn.addActionListener(e ->{
             /** create and save data **/
             executor.submit(() -> {
                 try {
-                    this.isEditable.setEnabled(true);
+                    //this.isOffline.setEnabled(true);
                     jButtonSaveConn.setEnabled(false);
                     jButtonCancel.setEnabled(false);
 
                     this.saveData();
                     this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                     this.setDetailEditable(false);
-                    this.isEditable.setSelected(false);
+                    //this.isOffline.setSelected(false);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -298,13 +318,13 @@ public class ConnectToDbArea extends JDialog {
         jButtonCancel.addActionListener(e ->{
             /** cancel **/
             executor.submit(() -> {
-                this.isEditable.setEnabled(true);
+                //this.isOffline.setEnabled(true);
                 jButtonSaveConn.setEnabled(false);
                 jButtonCancel.setEnabled(false);
 
                 this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                 this.setDetailEditable(false);
-                this.isEditable.setSelected(false);
+                //this.isOffline.setSelected(false);
             });
             /** cancel **/
         });
@@ -320,6 +340,7 @@ public class ConnectToDbArea extends JDialog {
         buttonPanel.add(jButtonNewConn, "gap 1");
         buttonPanel.add(jButtonCopyConn, "gap 1");
         buttonPanel.add(jButtonDeleteConn, "gap 1");
+        buttonPanel.add(jButtonEditConn, "gap 1");
         buttonPanel.add(jButtonSaveConn, "gap 1");
         buttonPanel.add(jButtonCancel, "gap 1");
         /******/
@@ -464,6 +485,40 @@ public class ConnectToDbArea extends JDialog {
             startStopButton.doClick();
 
             monitorDbPanel.adddGui();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(jFrame, ex.getMessage());
+        }
+
+        this.setVisible(false);
+    }
+
+    private void loadObjectsByConnectionNameOffline(){
+        try {
+            ConnectionMetadata connection =
+                    this.storeManager.getRepositoryDAO()
+                            .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection"))
+                            .stream()
+                            .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
+                            .findFirst()
+                            .get();
+
+            getFromRemoteAndStore.initProfile(iProfile); //
+
+            chartDatasetManager.setIProfile(iProfile);
+
+            monitorDbPanel.setConnectionMetadata(connection);
+            monitorDbPanel.initialize();
+
+            storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
+
+            monitorDbPanel.loadHistory();
+
+            monitorDbPanel.setIProfile(iProfile);
+            monitorDbPanel.getHistoryPanel().setIProfile(iProfile);
+
+            monitorDbPanel.addGuiHistory();
 
         } catch (Exception ex) {
             ex.printStackTrace();
