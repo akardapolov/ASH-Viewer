@@ -36,6 +36,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
     private ChartDatasetManager chartDatasetManager;
 
     private JSplitPane mainSplitPane;
+    private JPanel detailJPanel;
     private StackChartPanel mainStackChartPanel;
 
     @Getter @Setter private IProfile iProfile;
@@ -54,7 +55,10 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         this.setLayout(new BorderLayout());
 
         this.mainHistoryJPanel = new JPanel();
+        this.detailJPanel = new JPanel();
+
         this.mainHistoryJPanel.setLayout(new BorderLayout());
+        this.detailJPanel.setLayout(new BorderLayout());
 
         this.add(mainHistoryJPanel, BorderLayout.CENTER);
     }
@@ -65,6 +69,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
     private void addPreviewChart(GanttParam ganttParam){
         mainHistoryJPanel.removeAll();
+        detailJPanel.removeAll();
 
         CategoryTableXYDatasetRDA mainXyDatasetRDA = new CategoryTableXYDatasetRDA();
         mainStackChartPanel = new StackChartPanel(Labels.getLabel("chart.main.name"), colorManager);
@@ -89,7 +94,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         mainSplitPane.setDividerLocation(300);
 
         mainSplitPane.add(mainStackChartPanel.getStackedChart().getChartPanel(), JSplitPane.TOP);
-        mainSplitPane.add(new JPanel(), JSplitPane.BOTTOM);
+        mainSplitPane.add(detailJPanel, JSplitPane.BOTTOM);
 
         mainHistoryJPanel.add(mainSplitPane, BorderLayout.CENTER);
         mainHistoryJPanel.revalidate();
@@ -213,18 +218,30 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             detailSplitPane.add(controlStackedChartInner, JSplitPane.TOP);
             detailSplitPane.add(monitorGantt20, JSplitPane.BOTTOM);
         }
-
     }
 
     @Override
     public void LoadDataToDetail(GanttParam ganttParam) {
-        ProgressBarUtil.runProgressDialog(()
-                -> LoadDataToDetail0(ganttParam), jFrame, "Loading data ..");
+        /*ProgressBarUtil.runProgressDialog(()
+                -> LoadDataToDetail0(ganttParam), jFrame, "Loading data ..");*/
+
+        ProgressBarUtil.loadProgressBar(this, this.detailJPanel, "Loading, please wait...");
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    LoadDataToDetail0(ganttParam);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        t.start();
     }
 
     public void LoadDataToDetail0(GanttParam ganttParam) {
-        JPanel mainJPanel = new JPanel();
-        mainJPanel.setLayout(new BorderLayout());
+        //detailJPanel = new JPanel();
+        //detailJPanel.setLayout(new BorderLayout());
 
         JTabbedPane tabsTopActAndDetails = new JTabbedPane();
 
@@ -245,14 +262,12 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         tabsTopActAndDetails.add("Top activity", topASplitPane);
         tabsTopActAndDetails.add("Detail", detailSplitPane);
 
-        mainJPanel.add(tabsTopActAndDetails, BorderLayout.CENTER);
-        mainJPanel.revalidate();
-        mainJPanel.repaint();
+        detailJPanel.removeAll();
+        detailJPanel.add(tabsTopActAndDetails, BorderLayout.CENTER);
+        detailJPanel.repaint();
+        detailJPanel.validate();
 
-        mainSplitPane.setDividerLocation(300);
-        mainSplitPane.add(mainJPanel, JSplitPane.BOTTOM);
-
-        mainHistoryJPanel.revalidate();
-        mainHistoryJPanel.repaint();
+        /*mainHistoryJPanel.revalidate();
+        mainHistoryJPanel.repaint();*/
     }
 }
