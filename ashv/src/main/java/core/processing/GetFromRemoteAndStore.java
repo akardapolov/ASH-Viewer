@@ -26,6 +26,7 @@ import profile.Postgres;
 import remote.RemoteDBManager;
 import store.ConvertManager;
 import store.OlapCacheManager;
+import store.RawStoreManager;
 import store.StoreManager;
 import store.dao.olap.AggrDAO;
 import store.entity.database.SqlPlan;
@@ -53,6 +54,7 @@ public class GetFromRemoteAndStore {
     private ColorManager colorManager;
     private ConvertManager convertManager;
     private ChartDatasetManager chartDatasetManager;
+    private RawStoreManager rawStoreManager;
 
     private OlapCacheManager olapCacheManager;
 
@@ -85,13 +87,15 @@ public class GetFromRemoteAndStore {
                                  StoreManager storeManager,
                                  OlapCacheManager olapCacheManager,
                                  ConvertManager convertManager,
-                                 ChartDatasetManager chartDatasetManager) {
+                                 ChartDatasetManager chartDatasetManager,
+                                 RawStoreManager rawStoreManager) {
         this.colorManager = colorManager;
         this.remoteDBManager = remoteDBManagers;
         this.storeManager = storeManager;
         this.olapCacheManager = olapCacheManager;
         this.convertManager = convertManager;
         this.chartDatasetManager = chartDatasetManager;
+        this.rawStoreManager = rawStoreManager;
     }
 
     public void initConnection(ConnectionMetadata connectionMetadata) {
@@ -114,6 +118,8 @@ public class GetFromRemoteAndStore {
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.olapCacheManager.setAggrDao(storeManager.getDatabaseDAO().getOlapDAO().getAggrDao());
             this.loadMetadata();
+
+            this.rawStoreManager.setSqlColMetadata(metadataMap.get(modNameAshSql));
 
             iProfile.getSqlIdAddColName().stream().forEach(e -> SqlIdAddColName.add(this.getColumnIdForCol(e)));
             iProfile.getSessAddColName().stream().forEach(e -> SessAddColName.add(this.getColumnIdForCol(e)));
@@ -314,6 +320,8 @@ public class GetFromRemoteAndStore {
 
             AtomicInteger currRow = new AtomicInteger(0);
 
+            Map<Integer, Object> columns = new LinkedHashMap<>();
+
             s = this.getStatementForAsh();
             rs = s.executeQuery();
 
@@ -336,7 +344,7 @@ public class GetFromRemoteAndStore {
                 Map<Integer, String> sqlTmp = new HashMap<>();
                 Map<Integer, String> sessTmp = new HashMap<>();
 
-                for (int i = 0; i < metadataMap.get(modNameAshSql).stream().count(); i++) {
+                for (int i = 0; i < metadataMap.get(modNameAshSql).size(); i++) {
                     kk.getAndIncrement();
 
                     if (kk.get() == sampleTimeColNameId) {
@@ -392,6 +400,9 @@ public class GetFromRemoteAndStore {
                         }
                         continue;
                     }
+
+                    /** Load raw data **/
+                    columns.put(i, rs.getObject(i+1));
                 }
 
                 LocalDateTime sampleTimeDt =
@@ -434,6 +445,9 @@ public class GetFromRemoteAndStore {
                     currRow.set(0);
                     this.olapCacheManager.unloadCacheToDB15(sampleTimeG);
                 }
+
+                /** Load raw data **/
+                rawStoreManager.loadColumns(sampleTime, columns);
             }
 
             this.olapCacheManager.unloadCacheToDB();
