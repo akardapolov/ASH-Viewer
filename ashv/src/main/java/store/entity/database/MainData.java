@@ -9,7 +9,7 @@ public class MainData {
     @PrimaryKey
     private long key;
 
-    // -1 means no data
+    // Integer.MIN_VALUE means no data
     private int [][] mainMatrix;
 
     public MainData(){}

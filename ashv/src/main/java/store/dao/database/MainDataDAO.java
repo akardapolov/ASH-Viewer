@@ -24,4 +24,9 @@ public class MainDataDAO implements IMainDataDAO {
         return this.mainDataPrimaryIndex.entities();
     }
 
+    @Override
+    public PrimaryIndex<Long, MainData> getPrimaryIndex() {
+        return mainDataPrimaryIndex;
+    }
+
 }

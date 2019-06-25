@@ -653,6 +653,7 @@ public class GetFromRemoteAndStore {
             Parameters param = new Parameters.Builder(min, max).build();
 
             storeManager.getDatabaseDAO().getOlapDAO().deleteData(param);
+            storeManager.getDatabaseDAO().deleteMainData(param);
         }
     }
 

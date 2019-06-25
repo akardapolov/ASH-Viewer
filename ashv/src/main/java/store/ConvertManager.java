@@ -90,11 +90,9 @@ public class ConvertManager {
                                         .getParameterDoubleDAO().getCheckOrLoadParameter(bigDecimal.doubleValue())
                         );
             case DATE:
+            case TIMESTAMP:
                 Timestamp dt = (Timestamp) obj;
                 return (int) (dt == null ? intNullValue : dt.getTime()/1000);
-            case TIMESTAMP:
-                Timestamp timestamp = (Timestamp) obj;
-                return (int) (timestamp == null ? intNullValue : timestamp.getTime()/1000);
             case RAW:
                 return storeManager.getDatabaseDAO()
                         .getParameterStringDAO().getCheckOrLoadParameter (obj == null ? Labels.getLabel("local.null") : getByte(obj));
