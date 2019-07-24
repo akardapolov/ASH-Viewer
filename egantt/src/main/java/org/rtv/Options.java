@@ -29,7 +29,7 @@ public class Options {
     /** Oracle */
 
     /** PG */
-    public static final String LBL_PG_CPU = "CPU";
+    public static final String LBL_PG_CPU = "CPU used";
     public static final String LBL_PG_IO = "IO";
     public static final String LBL_PG_LOCK = "Lock";
     public static final String LBL_PG_LWLOCK = "LWLock";

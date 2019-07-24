@@ -8,7 +8,6 @@ import store.entity.database.MainData;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +19,6 @@ public class RawStoreManager {
     private StoreManager storeManager;
     private ConvertManager convertManager;
 
-    private long sampleTimeG = 0L;
-    private List<Map<Integer, Object>> rows = new ArrayList<>();
-
     @Getter @Setter private List<SqlColMetadata> sqlColMetadata;
 
     @Inject
@@ -32,28 +28,16 @@ public class RawStoreManager {
         this.convertManager = convertManager;
     }
 
-    public void loadColumns(long sampleTime, Map<Integer, Object> columns){
-        if (sampleTimeG == 0L)
-            sampleTimeG = sampleTime;
-
-        if (sampleTime == sampleTimeG){
-            rows.add(columns);
-        } else {
-            loadData(sampleTime);
+    public void loadData(long sampleTime, List<Map<Integer, Object>> rows0){
+        if (!rows0.isEmpty()) {
+            this.storeManager.getDatabaseDAO().getMainDataDAO().putMainDataNoOverwrite(
+                    new MainData(sampleTime, loadFromCollectionToArray(rows0))
+            );
         }
-
-        sampleTimeG = sampleTime;
-    }
-
-    private void loadData(long sampleTime){
-        this.storeManager.getDatabaseDAO().getMainDataDAO().putMainDataNoOverwrite(
-                new MainData(sampleTime, loadFromCollectionToArray(rows))
-        );
     }
 
     private int [][] loadFromCollectionToArray(List<Map<Integer, Object>> rows){
         int numberOfCol = rows.stream().findFirst().get().size();
-
         int [][] out = new int[rows.size()][numberOfCol];
 
         AtomicInteger atomicInt = new AtomicInteger(0);

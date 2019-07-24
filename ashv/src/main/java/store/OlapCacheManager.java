@@ -57,7 +57,7 @@ public class OlapCacheManager {
      *}
      * </pre>
      */
-    public void loadAshRowData(LocalDateTime dt, String parameter,
+    public void loadAshRawData(LocalDateTime dt, String parameter,
                                String[] additionalParams, String waitEvent, byte waitClass){
 
         // Check directory
@@ -72,7 +72,7 @@ public class OlapCacheManager {
                 dt.getHour(),
                 dt.getMinute(),
                 dt.getSecond());
-        loadAshRowData(beginDtS, paramIdSec, waitEventI, cache1SecLongId, hashmap1SecCache,
+        loadAshRawData(beginDtS, paramIdSec, waitEventI, cache1SecLongId, hashmap1SecCache,
                 String.valueOf(AggregationTime.OneSecond));
 
         LocalDateTime beginDtS15 = LocalDateTime.of(
@@ -91,11 +91,11 @@ public class OlapCacheManager {
                 dt.getDayOfMonth(),
                 dt.getHour(),
                 dt.getMinute());
-        loadAshRowData(beginDtM, paramIdSec, waitEventI, cache1MinLongId, hashmap1MinCache,
+        loadAshRawData(beginDtM, paramIdSec, waitEventI, cache1MinLongId, hashmap1MinCache,
                 String.valueOf(AggregationTime.OneMinute));
     }
 
-    private void loadAshRowData(LocalDateTime dt, int paramId, int waitEventId,
+    private void loadAshRawData(LocalDateTime dt, int paramId, int waitEventId,
                                 long cacheId, Map<CompositeKeyCache, Map<Integer, Integer>> hashmapCache,
                                 String aggregationTime){
         long dateIdSec = dt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();

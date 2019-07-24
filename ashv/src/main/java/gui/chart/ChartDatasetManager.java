@@ -7,6 +7,7 @@ import gui.BasicFrame;
 import gui.chart.panel.NameChartDataset;
 import gui.chart.panel.StackChartPanel;
 import gui.gantt.MonitorGantt2;
+import gui.table.RawDataTable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -55,8 +56,12 @@ public class ChartDatasetManager {
         mainStackChartPanel.addChartListenerReleaseMouse(monitorGantt2);
         monitorGantt2.setIProfile(iProfile);
 
+        RawDataTable mainRawDataTable = new RawDataTable(jFrame, storeManager);
+        mainStackChartPanel.addChartListenerReleaseMouse(mainRawDataTable);
+        mainRawDataTable.setIProfile(iProfile);
+
         mainNameChartDataset = new NameChartDataset(Labels.getLabel("chart.main.name"),
-                mainStackChartPanel, monitorGantt2, mainXyDatasetRDA);
+                mainStackChartPanel, monitorGantt2, mainXyDatasetRDA, mainRawDataTable);
 
         this.iProfile.getUniqueTreeEventListByWaitClass().stream().forEach(e -> {
 
@@ -68,8 +73,9 @@ public class ChartDatasetManager {
                 stackChartPanel.getStackedChart().setChartTitle(Labels.getLabel("chart.main.ta"));
 
                 MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
+                RawDataTable rawDataTableInner = new RawDataTable(jFrame, storeManager);
 
-                NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGantt20, xyDatasetRDA);
+                NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGantt20, xyDatasetRDA, rawDataTableInner);
                 nameChartDatasetDetail.add(nameChartDataset);
 
         });

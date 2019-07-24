@@ -22,6 +22,7 @@ import pojo.SqlColMetadata;
 import pojo.SqlPlanPojo;
 import pojo.SqlPojo;
 import profile.IProfile;
+import profile.OracleEE;
 import profile.Postgres;
 import remote.RemoteDBManager;
 import store.ConvertManager;
@@ -114,6 +115,7 @@ public class GetFromRemoteAndStore {
         if (!this.isFirstRun) {
             this.olapCacheManager.setIProfile(this.iProfile);
             this.storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
+            this.storeManager.getDatabaseDAO().setConvertManager(this.convertManager);
 
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.olapCacheManager.setAggrDao(storeManager.getDatabaseDAO().getOlapDAO().getAggrDao());
@@ -141,8 +143,12 @@ public class GetFromRemoteAndStore {
                 this.deleteDataBeforeLoading();
                 this.loadUsername();
             }
+
+            log.info("Start loading olap");
             this.loadDataToOlap();
+            log.info("Start loading stacked chart");
             this.loadToMainStackedChart();
+            log.info("Stop loading olap");
 
             if (!this.isFirstRun) { // resolve the issue with the gap for big data in ASV
                 this.isFirstRun = true;
@@ -285,16 +291,21 @@ public class GetFromRemoteAndStore {
             metadataMap.put(modNameSysdateSql, loadSqlMetaData(modNameSysdateSql, iProfile.getSqlTextSysdate()));
             metadataMap.put(modNameAshSql, loadSqlMetaData(modNameAshSql, iProfile.getSqlTextAshOneRow()));
 
-            // Store metadata in local store
-            metadataMap.entrySet().stream().forEach(e -> e.getValue().stream().forEach(x -> {
-                this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(e.getKey(), x.getColName(),
-                        Labels.getLabel("local.sql.metadata.columnId"), String.valueOf(x.getColId()));
-                this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(e.getKey(), x.getColName(),
-                        Labels.getLabel("local.sql.metadata.columnName"), x.getColName().toUpperCase()); // PG bug here resolved :: lower-upper case
-                this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(e.getKey(), x.getColName(),
-                        Labels.getLabel("local.sql.metadata.columnType"), x.getColDbTypeName().toUpperCase()); // PG bug here resolved :: lower-upper case
+            List<SqlColMetadata> metadataMapFromLocalDB =
+                    this.storeManager.getRepositoryDAO().getSqlColDbTypeMetadata(modNameAshSql);
 
-            }));
+            // Store metadata in local store
+            metadataMap.get(modNameAshSql).forEach(x -> {
+
+                if (metadataMapFromLocalDB.stream().noneMatch(e -> e.getColId() == x.getColId())){
+                    this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(modNameAshSql, x.getColName(),
+                            Labels.getLabel("local.sql.metadata.columnId"), String.valueOf(x.getColId()));
+                    this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(modNameAshSql, x.getColName(),
+                            Labels.getLabel("local.sql.metadata.columnName"), x.getColName().toUpperCase()); // PG bug here resolved :: lower-upper case
+                    this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(modNameAshSql, x.getColName(),
+                            Labels.getLabel("local.sql.metadata.columnType"), x.getColDbTypeName().toUpperCase()); // PG bug here resolved :: lower-upper case
+
+                }});
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
         }
@@ -316,11 +327,10 @@ public class GetFromRemoteAndStore {
 
         currServerTime = getOneRowOutputDateFromDB(iProfile.getSqlTextSysdate());
 
+        List<Map<Integer, Object>> rows = new ArrayList<>();
+
         try {
-
             AtomicInteger currRow = new AtomicInteger(0);
-
-            Map<Integer, Object> columns = new LinkedHashMap<>();
 
             s = this.getStatementForAsh();
             rs = s.executeQuery();
@@ -344,8 +354,14 @@ public class GetFromRemoteAndStore {
                 Map<Integer, String> sqlTmp = new HashMap<>();
                 Map<Integer, String> sessTmp = new HashMap<>();
 
+                // Prepare collection of rows to store data
+                Map<Integer, Object> columns = new LinkedHashMap<>();
+
                 for (int i = 0; i < metadataMap.get(modNameAshSql).size(); i++) {
                     kk.getAndIncrement();
+
+                    /** Load raw data **/
+                    columns.put(i, rs.getObject(i+1));
 
                     if (kk.get() == sampleTimeColNameId) {
                         Timestamp timestamp = (Timestamp) rs.getObject(i+1);
@@ -400,9 +416,13 @@ public class GetFromRemoteAndStore {
                         }
                         continue;
                     }
+                }
 
-                    /** Load raw data **/
-                    columns.put(i, rs.getObject(i+1));
+                rows.add(columns);
+
+                if (sampleTime != sampleTimeG & (iProfile instanceof OracleEE)){
+                    rawStoreManager.loadData(sampleTime, rows);
+                    rows.clear();
                 }
 
                 LocalDateTime sampleTimeDt =
@@ -433,7 +453,7 @@ public class GetFromRemoteAndStore {
                 addParamSqlSess[1] = sessAddParam[0];
                 addParamSqlSess[2] = sessAddParam[1];
 
-                this.olapCacheManager.loadAshRowData(sampleTimeDt, sqlId + "_" + sessionId + "_" + seriailId,
+                this.olapCacheManager.loadAshRawData(sampleTimeDt, sqlId + "_" + sessionId + "_" + seriailId,
                         addParamSqlSess, waitEvent, iProfile.getWaitClassId(waitClass));
 
                 /** Additional dimension for session detail **/
@@ -442,13 +462,12 @@ public class GetFromRemoteAndStore {
                 sampleTimeG = sampleTime;
 
                 if (!this.isFirstRun & currRow.getAndIncrement() > 6000) {
-                    currRow.set(0);
                     this.olapCacheManager.unloadCacheToDB15(sampleTimeG);
                 }
-
-                /** Load raw data **/
-                rawStoreManager.loadColumns(sampleTime, columns);
             }
+
+            rawStoreManager.loadData(sampleTimeG, rows);
+            rows.clear();
 
             this.olapCacheManager.unloadCacheToDB();
             this.olapCacheManager.unloadCacheToDB15(getOneRowOutputDateFromDB(iProfile.getSqlTextSysdate()));
@@ -610,7 +629,6 @@ public class GetFromRemoteAndStore {
     }
 
     private void loadUserIdUsernameToLocalDB(String statement){
-        long out = 0;
         PreparedStatement s = null;
         ResultSet rs = null;
 

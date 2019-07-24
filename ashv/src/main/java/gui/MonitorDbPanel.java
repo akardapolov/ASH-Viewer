@@ -5,6 +5,7 @@ import core.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.chart.ChartDatasetManager;
 import gui.gantt.MonitorGantt2;
+import gui.table.RawDataTable;
 import gui.util.ProgressBarUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,10 +42,13 @@ public class MonitorDbPanel {
 
     private JSplitPane topActivitySplitPane;
     private JSplitPane detailSplitPane;
+    private JTabbedPane mainGanttAndRaw;
+    private JTabbedPane detailGanttAndRaw;
 
     private JPanel controlMainDetailHistory;
 
     private MonitorGantt2 monitorGantt20;
+    private RawDataTable rawDataTable20;
 
     @Getter @Setter private ConnectionMetadata connectionMetadata;
     @Getter @Setter private IProfile iProfile;
@@ -81,8 +85,13 @@ public class MonitorDbPanel {
         topActivitySplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         topActivitySplitPane.setDividerSize(10);
         topActivitySplitPane.setDividerLocation(400);
+
+        mainGanttAndRaw = new JTabbedPane();
+        mainGanttAndRaw.add("Top sql & sessions", chartDatasetManager.getMainNameChartDataset().getMonitorGantt2());
+        mainGanttAndRaw.add("Raw data", chartDatasetManager.getMainNameChartDataset().getRawDataTable());
+
         topActivitySplitPane.add(chartDatasetManager.getMainNameChartDataset().getStackChartPanel(), JSplitPane.TOP);
-        topActivitySplitPane.add(chartDatasetManager.getMainNameChartDataset().getMonitorGantt2(), JSplitPane.BOTTOM);
+        topActivitySplitPane.add(mainGanttAndRaw, JSplitPane.BOTTOM);
 
         chartDatasetManager.getMainNameChartDataset().getMonitorGantt2().setHistory(false);
 
@@ -109,6 +118,7 @@ public class MonitorDbPanel {
         this.iProfile = iProfile0;
         this.monitorGantt20.setIProfile(iProfile0);
         this.historyPanel.setIProfile(iProfile0);
+        this.rawDataTable20.setIProfile(iProfile0);
     }
 
     private void loadDetailChart(){
@@ -134,6 +144,12 @@ public class MonitorDbPanel {
 
         monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
         monitorGantt20.setHistory(false);
+        rawDataTable20 = new RawDataTable(jFrame, storeManager);
+
+        detailGanttAndRaw = new JTabbedPane();
+
+        detailGanttAndRaw.add("Top sql & sessions", monitorGantt20);
+        detailGanttAndRaw.add("Raw data", rawDataTable20);
 
         chartDatasetManager.getNameChartDatasetDetail().stream().forEach(e -> {
             String strChartPanel = "cell 0 0, hidemode 3";
@@ -152,6 +168,8 @@ public class MonitorDbPanel {
                         e.getStackChartPanel().getStackedChart().getChartPanel().setVisible(true);
 
                         monitorGantt20.setWaitClassG(e.getName());
+                        rawDataTable20.setWaitClassValue(e.getName());
+
                         monitorGantt20.clearGui();
                         monitorGantt20.repaint();
                     }
@@ -169,6 +187,7 @@ public class MonitorDbPanel {
             jPanelStackedCharts.add(e.getStackChartPanel().getStackedChart().getChartPanel(), strChartPanel);
 
             e.getStackChartPanel().addChartListenerReleaseMouse(monitorGantt20);
+            e.getStackChartPanel().addChartListenerReleaseMouse(rawDataTable20);
 
             atomicInt.getAndIncrement();
         });
@@ -184,7 +203,7 @@ public class MonitorDbPanel {
             controlStackedChartInner.add(jPanelStackedCharts, BorderLayout.CENTER);
 
             detailSplitPane.add(controlStackedChartInner, JSplitPane.TOP);
-            detailSplitPane.add(monitorGantt20, JSplitPane.BOTTOM);
+            detailSplitPane.add(detailGanttAndRaw, JSplitPane.BOTTOM);
         }
     }
 

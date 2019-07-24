@@ -8,6 +8,7 @@ import gui.chart.ChartDatasetManager;
 import gui.chart.panel.NameChartDataset;
 import gui.chart.panel.StackChartPanel;
 import gui.gantt.MonitorGantt2;
+import gui.table.RawDataTable;
 import gui.util.ProgressBarUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -109,18 +110,27 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         mainStackChartPanelTA.setXAxisLabel(" ");
         mainStackChartPanelTA.initialize();
 
+        JTabbedPane historyGanttAndRaw = new JTabbedPane();
+
         MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
         monitorGantt20.setIProfile(iProfile);
         monitorGantt20.setHistory(true);
         monitorGantt20.setGanttParam(ganttParam);
 
+        RawDataTable rawDataTable20 = new RawDataTable(jFrame, storeManager);
+        rawDataTable20.setIProfile(iProfile);
+
+        historyGanttAndRaw.add("Top sql & sessions", monitorGantt20);
+        historyGanttAndRaw.add("Raw data", rawDataTable20);
+
         mainStackChartPanelTA.addChartListenerReleaseMouse(monitorGantt20);
+        mainStackChartPanelTA.addChartListenerReleaseMouse(rawDataTable20);
 
         this.storeManager.getDatabaseDAO()
                 .getOlapDAO().loadDataToCategoryTableXYDatasetRTVHistoryTA(ganttParam, mainXyDatasetRDA, mainStackChartPanelTA);
 
         topASplitPane.add(mainStackChartPanelTA.getStackedChart().getChartPanel(), JSplitPane.TOP);
-        topASplitPane.add(monitorGantt20, JSplitPane.BOTTOM);
+        topASplitPane.add(historyGanttAndRaw, JSplitPane.BOTTOM);
     }
 
     private void loadDataToDetail(GanttParam ganttParam, JSplitPane detailSplitPane){
@@ -144,10 +154,18 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         buttonPanel.setFloatable(false);
         buttonPanel.setBorder(new EtchedBorder());
 
+        JTabbedPane mainGanttAndRaw = new JTabbedPane();
+
         MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
         monitorGantt20.setIProfile(iProfile);
         monitorGantt20.setHistory(true);
         monitorGantt20.setGanttParam(ganttParam);
+
+        RawDataTable rawDataTableInner20 = new RawDataTable(jFrame, storeManager);
+        rawDataTableInner20.setIProfile(iProfile);
+
+        mainGanttAndRaw.add("Top sql & sessions", monitorGantt20);
+        mainGanttAndRaw.add("Raw data", rawDataTableInner20);
 
         LinkedHashSet<NameChartDataset> nameChartDatasetDetail = new LinkedHashSet<>();
 
@@ -160,8 +178,9 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             stackChartPanel.getStackedChart().setChartTitle(Labels.getLabel("chart.main.ta"));
 
             MonitorGantt2 monitorGanttInner = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
+            RawDataTable rawDataTableInner = new RawDataTable(jFrame, storeManager);
 
-            NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGanttInner, xyDatasetRDA);
+            NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGanttInner, xyDatasetRDA, rawDataTableInner);
             nameChartDatasetDetail.add(nameChartDataset);
         });
 
@@ -184,6 +203,8 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
                                 });
                         e.getStackChartPanel().getStackedChart().getChartPanel().setVisible(true);
                         monitorGantt20.setWaitClassG(e.getName());
+                        rawDataTableInner20.setWaitClassValue(e.getName());
+
                         monitorGantt20.clearGui();
                         monitorGantt20.repaint();
                     }
@@ -201,6 +222,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             jPanelStackedCharts.add(e.getStackChartPanel().getStackedChart().getChartPanel(), strChartPanel);
 
             e.getStackChartPanel().addChartListenerReleaseMouse(monitorGantt20);
+            e.getStackChartPanel().addChartListenerReleaseMouse(rawDataTableInner20);
 
             atomicInt.getAndIncrement();
         });
@@ -216,7 +238,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             controlStackedChartInner.add(jPanelStackedCharts, BorderLayout.CENTER);
 
             detailSplitPane.add(controlStackedChartInner, JSplitPane.TOP);
-            detailSplitPane.add(monitorGantt20, JSplitPane.BOTTOM);
+            detailSplitPane.add(mainGanttAndRaw, JSplitPane.BOTTOM);
         }
     }
 

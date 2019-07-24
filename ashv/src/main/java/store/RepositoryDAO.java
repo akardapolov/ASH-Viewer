@@ -6,6 +6,7 @@ import config.Labels;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import pojo.ConnectionMetadata;
+import pojo.SqlColMetadata;
 import store.dao.repository.IMetadataEAVDAO;
 import store.dao.repository.MetadataEAVDAO;
 import store.entity.repository.MetadataEAV;
@@ -81,6 +82,37 @@ public class RepositoryDAO {
         } finally {
             mainDataEAV.close();
         }
+
+        return out;
+    }
+
+
+    public List<SqlColMetadata> getSqlColDbTypeMetadata(String moduleName){
+        List<SqlColMetadata> out = new ArrayList<>();
+        Set<String> list = new HashSet<>();
+
+        EntityCursor<MetadataEAV> mainDataEAV =
+                this.metadataEAVDAO.getModuleSecondaryIndex().subIndex(moduleName).entities();
+
+        try {
+            for (MetadataEAV metaEAV : mainDataEAV) {
+                if (metaEAV.getModuleName().equalsIgnoreCase(moduleName) &&
+                        metaEAV.getAttribute().equalsIgnoreCase(Labels.getLabel("local.sql.metadata.columnId"))) {
+                    list.add(metaEAV.getEntity());
+                }
+            }
+        } finally {
+            mainDataEAV.close();
+        }
+
+        list.forEach(e -> {
+
+            SqlColMetadata sqlColMetadata = new SqlColMetadata();
+            sqlColMetadata.setColId(Integer.parseInt(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnId")))); sqlColMetadata.setColName(e);
+            sqlColMetadata.setColDbTypeName(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnType")));
+
+            out.add(sqlColMetadata);
+        });
 
         return out;
     }
