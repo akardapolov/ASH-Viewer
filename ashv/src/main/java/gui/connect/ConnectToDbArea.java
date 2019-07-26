@@ -9,6 +9,7 @@ import gui.BasicFrame;
 import gui.MainTabbedPane;
 import gui.MonitorDbPanel;
 import gui.chart.ChartDatasetManager;
+import gui.custom.HintTextField;
 import gui.util.ProgressBarUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
@@ -85,8 +86,8 @@ public class ConnectToDbArea extends JDialog {
     private JTextField connNameTF = new JTextField();
     private JTextField usernameTF = new JTextField();
     private JPasswordField passwordTF = new JPasswordField();
-    private JTextField urlTF = new JTextField();
-    private JTextField jarTF = new JTextField();
+    private JTextField urlTF = new HintTextField(Labels.getLabel("gui.connection.url.hint"));
+    private JTextField jarTF = new HintTextField(Labels.getLabel("gui.connection.jar.hint"));
     private JFileChooser jarFC = new JFileChooser();
     private JCheckBox isOffline = new JCheckBox();
 
@@ -193,12 +194,12 @@ public class ConnectToDbArea extends JDialog {
         detailJPanel.add(separatorLbl, "gapbottom 1, span, split 2, aligny center");
         detailJPanel.add(new JSeparator(), "gapleft rel, growx");
 
-
         detailJPanel.add(connNameLbl,   "skip");
         detailJPanel.add(connNameTF,    "span, growx");
 
         detailJPanel.add(urlLbl,   "skip");
         detailJPanel.add(urlTF,    "span, growx");
+        urlTF.setToolTipText(Labels.getLabel("gui.connection.url.tooltip"));
 
         detailJPanel.add(usernameLbl,   "skip");
         detailJPanel.add(usernameTF,    "span, growx");
