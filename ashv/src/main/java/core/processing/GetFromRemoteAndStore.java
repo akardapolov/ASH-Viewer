@@ -418,12 +418,14 @@ public class GetFromRemoteAndStore {
                     }
                 }
 
-                rows.add(columns);
-
-                if (sampleTime != sampleTimeG & (iProfile instanceof OracleEE)){
-                    rawStoreManager.loadData(sampleTime, rows);
-                    rows.clear();
+                if (iProfile instanceof OracleEE) {
+                    if (sampleTime != sampleTimeG) {
+                        rawStoreManager.loadData(sampleTimeG, rows);
+                        rows.clear();
+                    }
                 }
+
+                rows.add(columns);
 
                 LocalDateTime sampleTimeDt =
                         LocalDateTime.ofInstant(Instant.ofEpochMilli(sampleTime), ZoneId.systemDefault());
