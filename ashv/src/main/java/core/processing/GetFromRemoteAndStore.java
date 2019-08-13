@@ -33,7 +33,6 @@ import store.dao.olap.AggrDAO;
 import store.entity.database.SqlPlan;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshUser;
-import utility.StackTraceUtil;
 import utility.Utils;
 
 import javax.inject.Inject;
@@ -99,7 +98,7 @@ public class GetFromRemoteAndStore {
         this.rawStoreManager = rawStoreManager;
     }
 
-    public void initConnection(ConnectionMetadata connectionMetadata) {
+    public void initConnection(ConnectionMetadata connectionMetadata) throws SQLException{
         this.chartDatasetManager.setGetFromRemoteAndStore(this);
 
         this.connectionMetadata = connectionMetadata;
@@ -530,12 +529,14 @@ public class GetFromRemoteAndStore {
                 .findFirst().get().getColId();
     }
 
-    private void initializeConnection() {
-        try {
+    private void initializeConnection() throws SQLException {
+        this.connection = this.remoteDBManager.getConnection();
+
+        /*try {
             this.connection = this.remoteDBManager.getConnection();
         } catch (Exception e) {
             log.error(StackTraceUtil.getCustomStackTrace(e));
-        }
+        }*/
     }
 
     private List<SqlColMetadata> loadSqlMetaData(String sqlName, String sqlText) {

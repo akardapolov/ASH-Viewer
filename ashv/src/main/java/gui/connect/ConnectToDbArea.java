@@ -17,6 +17,7 @@ import org.jdesktop.swingx.JXTable;
 import pojo.ConnectionMetadata;
 import profile.*;
 import store.StoreManager;
+import utility.StackTraceUtil;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,6 +30,7 @@ import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -458,7 +460,7 @@ public class ConnectToDbArea extends JDialog {
         }
     }
 
-    private void loadObjectsByConnectionName(){
+    private void loadObjectsByConnectionName() {
         try {
             ConnectionMetadata connection =
                     this.storeManager.getRepositoryDAO()
@@ -487,9 +489,9 @@ public class ConnectToDbArea extends JDialog {
 
             monitorDbPanel.adddGui();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(jFrame, ex.getMessage());
+        } catch (SQLException sqlEx) {
+            log.error(StackTraceUtil.getCustomStackTrace(sqlEx));
+            JOptionPane.showMessageDialog(jFrame, StackTraceUtil.getCustomStackTrace(sqlEx));
         }
 
         this.setVisible(false);

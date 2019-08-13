@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
 import pojo.ConnectionMetadata;
-import utility.StackTraceUtil;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;
@@ -44,15 +43,15 @@ public class RemoteDBManager {
         }
     }
 
-    public Connection getConnection() {
-        Connection connection = null;
+    public Connection getConnection() throws SQLException {
+        /*Connection connection = null;
         try {
             connection = this.basicDataSource.getConnection();
         } catch (SQLException e) {
             log.error(StackTraceUtil.getCustomStackTrace(e));
-        }
+        }*/
 
-        return connection;
+        return this.basicDataSource.getConnection();
     }
 
     private ClassLoader getClassLoader()throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException {
