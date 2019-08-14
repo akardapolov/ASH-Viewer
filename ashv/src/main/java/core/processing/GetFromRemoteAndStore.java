@@ -531,12 +531,6 @@ public class GetFromRemoteAndStore {
 
     private void initializeConnection() throws SQLException {
         this.connection = this.remoteDBManager.getConnection();
-
-        /*try {
-            this.connection = this.remoteDBManager.getConnection();
-        } catch (Exception e) {
-            log.error(StackTraceUtil.getCustomStackTrace(e));
-        }*/
     }
 
     private List<SqlColMetadata> loadSqlMetaData(String sqlName, String sqlText) {

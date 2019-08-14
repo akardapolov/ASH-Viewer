@@ -44,14 +44,8 @@ public class RemoteDBManager {
     }
 
     public Connection getConnection() throws SQLException {
-        /*Connection connection = null;
-        try {
-            connection = this.basicDataSource.getConnection();
-        } catch (SQLException e) {
-            log.error(StackTraceUtil.getCustomStackTrace(e));
-        }*/
-
-        return this.basicDataSource.getConnection();
+        Connection connection = this.basicDataSource.getConnection();
+        return connection;
     }
 
     private ClassLoader getClassLoader()throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException {
