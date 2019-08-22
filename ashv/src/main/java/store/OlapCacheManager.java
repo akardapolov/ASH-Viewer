@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import profile.IProfile;
 import store.cache.CompositeKeyCache;
-import store.dao.olap.AggrDAO;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshAggrMinData15Sec;
 import store.entity.olap.AshAggrMinData1Min;
@@ -26,7 +25,6 @@ import java.util.stream.Stream;
 public class OlapCacheManager {
 
     @Getter @Setter private OlapDAO olapDAO;
-    @Getter @Setter private AggrDAO aggrDao;
 
     @Getter @Setter private IProfile iProfile;
 
@@ -61,9 +59,9 @@ public class OlapCacheManager {
                                String[] additionalParams, String waitEvent, byte waitClass){
 
         // Check directory
-        int paramIdSec = aggrDao.getCheckOrLoadParameter(parameter, additionalParams); // 1 sec/min
+        int paramIdSec = olapDAO.getCheckOrLoadParameter(parameter, additionalParams); // 1 sec/min
 
-        int waitEventI = aggrDao.getCheckOrLoadWaitEvent(waitEvent, waitClass);
+        int waitEventI = olapDAO.getCheckOrLoadWaitEvent(waitEvent, waitClass);
 
         LocalDateTime beginDtS = LocalDateTime.of(
                 dt.getYear(),
@@ -190,7 +188,7 @@ public class OlapCacheManager {
             int index = 0;
             for (Map.Entry<Integer, Integer> mapEntry : e.getValue().entrySet()) {
                 waitId[index] = mapEntry.getKey();
-                waitClass[index] = this.aggrDao.getClassIdForWaitEventId(mapEntry.getKey());
+                waitClass[index] = this.olapDAO.getClassIdForWaitEventId(mapEntry.getKey());
                 sum[index] = mapEntry.getValue();
                 index++;
             }
@@ -227,7 +225,7 @@ public class OlapCacheManager {
                 int index0 = 0;
                 for (Map.Entry<Integer, Integer> mapEntry0 : mx.entrySet()) {
                     waitId0[index0] = mapEntry0.getKey();
-                    waitClass0[index0] = this.aggrDao.getClassIdForWaitEventId(mapEntry0.getKey());
+                    waitClass0[index0] = this.olapDAO.getClassIdForWaitEventId(mapEntry0.getKey());
                     sum0[index0] = mapEntry0.getValue();
                     index0++;
                 }
@@ -242,17 +240,17 @@ public class OlapCacheManager {
             switch (aggregationTime) {
                 case "OneSecond":
                     AshAggrMinData aggrMinData1Sec =
-                            this.aggrDao.getAshAggrMinDataDAO().getAshAggrMinDataRange(
+                            this.olapDAO.getAshAggrMinDataDAO().getAshAggrMinDataRange(
                                     compositeKeyCache.getDateId(), compositeKeyCache.getParamId());
                     return aggrMinData1Sec.getMatrixValues()[id];
                 case "FifteenSecond":
                     AshAggrMinData15Sec aggrMinData15Sec =
-                            this.aggrDao.getAshAggrMinData15SecDAO().getAshAggrMinDataRange(
+                            this.olapDAO.getAshAggrMinData15SecDAO().getAshAggrMinDataRange(
                                     compositeKeyCache.getDateId(), compositeKeyCache.getParamId());
                     return aggrMinData15Sec.getMatrixValues()[id];
                 case "OneMinute":
                     AshAggrMinData1Min aggrMinData1Min =
-                            this.aggrDao.getAshAggrMinData1MinDAO().getAshAggrMinDataRange(
+                            this.olapDAO.getAshAggrMinData1MinDAO().getAshAggrMinDataRange(
                                     compositeKeyCache.getDateId(), compositeKeyCache.getParamId());
                     return aggrMinData1Min.getMatrixValues()[id];
                 default:
@@ -264,13 +262,13 @@ public class OlapCacheManager {
         switch (aggregationTime) {
             case "OneSecond":
                 AshAggrMinData obj1sec = new AshAggrMinData(dateId, paramId, waitId, waitClass, sum);
-                return aggrDao.getAshAggrMinDataDAO().putDataNoOverwrite(obj1sec);
+                return olapDAO.getAshAggrMinDataDAO().putDataNoOverwrite(obj1sec);
             case "FifteenSecond":
                 AshAggrMinData15Sec obj15sec = new AshAggrMinData15Sec(dateId, paramId, waitId, waitClass, sum);
-                return aggrDao.getAshAggrMinData15SecDAO().putDataNoOverwrite(obj15sec);
+                return olapDAO.getAshAggrMinData15SecDAO().putDataNoOverwrite(obj15sec);
             case "OneMinute":
                 AshAggrMinData1Min obj1min = new AshAggrMinData1Min(dateId, paramId, waitId, waitClass, sum);
-                return aggrDao.getAshAggrMinData1MinDAO().putDataNoOverwrite(obj1min);
+                return olapDAO.getAshAggrMinData1MinDAO().putDataNoOverwrite(obj1min);
             default:
                 throw new IllegalArgumentException("Invalid aggregation time");
         }

@@ -1,6 +1,7 @@
 package store;
 
-import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.je.DatabaseException;
+import com.sleepycat.persist.*;
 import core.ConstantManager;
 import core.parameter.Parameters;
 import gui.chart.CategoryTableXYDatasetRDA;
@@ -10,40 +11,155 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jfree.chart.util.GanttParam;
 import profile.IProfile;
-import store.dao.olap.AggrDAO;
-import store.entity.olap.AshAggrMinData;
-import store.entity.olap.AshAggrMinData15Sec;
-import store.entity.olap.AshAggrMinData1Min;
+import store.dao.olap.*;
+import store.entity.olap.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class OlapDAO {
     private BerkleyDB berkleyDB;
-    @Getter
-    private AggrDAO aggrDao;
+    private EntityStore store;
 
-    @Getter @Setter
-    private IProfile iProfile;
+    @Getter @Setter private IProfile iProfile;
 
-    public OlapDAO(BerkleyDB berkleyDB) {
+    @Getter public IAshAggrMinDataDAO ashAggrMinDataDAO;
+    @Getter public IAshAggrMinData15SecDAO ashAggrMinData15SecDAO;
+    @Getter public IAshAggrMinData1MinDAO ashAggrMinData1MinDAO;
+
+    private PrimaryIndex<Integer, AshParameter> ashParameterPrimaryIndex;
+    private PrimaryIndex<Integer, AshWaitEvent> ashWaitEventPrimaryIndex;
+    private PrimaryIndex<Integer, AshUser> ashUserPrimaryIndex;
+
+    private SecondaryIndex<String, Integer, AshParameter> ashParameterSecondaryIndexStrValue;
+
+    private SecondaryIndex<String, Integer, AshWaitEvent> ashWaitEventSecondaryIndexStrValue;
+    private SecondaryIndex<Byte, Integer, AshWaitEvent> ashWaitEventSecondaryIndexByteValue;
+
+    private SecondaryIndex<String, Integer, AshUser> ashUserSecondaryIndexStrValue;
+
+    public OlapDAO(BerkleyDB berkleyDB) throws DatabaseException {
         this.berkleyDB = berkleyDB;
-        this.aggrDao = new AggrDAO(berkleyDB.getStore());
+        this.store = this.berkleyDB.getStore();
+
+        this.ashAggrMinDataDAO = new AshAggrMinDataDAO(this.store, this);
+        this.ashAggrMinData15SecDAO = new AshAggrMinData15SecDAO(this.store, this);
+        this.ashAggrMinData1MinDAO = new AshAggrMinData1MinDAO(this.store, this);
+
+        this.ashParameterPrimaryIndex = store.getPrimaryIndex(Integer.class, AshParameter.class);
+        this.ashWaitEventPrimaryIndex = store.getPrimaryIndex(Integer.class, AshWaitEvent.class);
+        this.ashUserPrimaryIndex = store.getPrimaryIndex(Integer.class, AshUser.class);
+
+        this.ashParameterSecondaryIndexStrValue = store.getSecondaryIndex(ashParameterPrimaryIndex, String.class, "paramValue");
+
+        this.ashWaitEventSecondaryIndexStrValue = store.getSecondaryIndex(ashWaitEventPrimaryIndex, String.class, "eventValue");
+        this.ashWaitEventSecondaryIndexByteValue = store.getSecondaryIndex(ashWaitEventPrimaryIndex, Byte.class, "waitClass");
+
+        this.ashUserSecondaryIndexStrValue = store.getSecondaryIndex(ashUserPrimaryIndex, String.class, "userName");
+    }
+
+    public void putUserIdUsername(AshUser ashUser){
+        this.ashUserPrimaryIndex.putNoOverwrite(ashUser);
+    }
+
+    public int getCheckOrLoadParameter(String parameter, String[] additionalParams){
+        if (!this.ashParameterSecondaryIndexStrValue.contains(parameter)){
+            this.ashParameterPrimaryIndex.putNoOverwrite(
+                    new AshParameter(0, parameter, additionalParams)
+            );
+        }
+        return this.ashParameterSecondaryIndexStrValue.get(parameter).getParamId();
+    }
+
+    public String getStrParameterValueById(int paramId){
+        return this.ashParameterPrimaryIndex.get(paramId).getParamValue();
+    }
+
+    public int getParameterIdByStrValue(String paramStrValue){
+        return this.ashParameterSecondaryIndexStrValue.get(paramStrValue).getParamId();
+    }
+
+    public String[] getAdditStrArrayParameters(int paramId){
+        return this.ashParameterPrimaryIndex.get(paramId).getAdditionalParams();
+    }
+
+    public int getCheckOrLoadWaitEvent(String waitEvent, byte waitClass){
+        if (!this.ashWaitEventSecondaryIndexStrValue.contains(waitEvent)){
+            this.ashWaitEventPrimaryIndex.putNoOverwrite(
+                    new AshWaitEvent(0, waitEvent, waitClass)
+            );
+        }
+        return this.ashWaitEventSecondaryIndexStrValue.get(waitEvent).getEventId();
+    }
+
+    public byte getClassIdForWaitEventId(int waitId){
+        return this.ashWaitEventPrimaryIndex.get(waitId).getWaitClass();
+    }
+
+    public String getEventStrValueForWaitEventId(int waitEventId){
+        return this.ashWaitEventPrimaryIndex.get(waitEventId).getEventValue();
+    }
+
+    public String getUsername(int userId){
+        Optional<AshUser> opt = Optional.ofNullable(this.ashUserPrimaryIndex.get(userId));
+
+        if (opt.isPresent()){
+            return opt.get().getUserName();
+        } else {
+            return "";
+        }
+    }
+
+    public int getEventGrp(int eventId){
+        if (this.ashWaitEventPrimaryIndex.contains(eventId)){
+            return this.ashWaitEventPrimaryIndex.get(eventId).getWaitClass();
+        } else {
+            return -1;
+        }
+    }
+
+    public <K, V> EntityCursor<V> doRangeQuery(EntityIndex<K, V> index,
+                                               K fromKey,
+                                               boolean fromInclusive,
+                                               K toKey,
+                                               boolean toInclusive)
+            throws DatabaseException {
+
+        assert (index != null);
+
+        return index.entities(fromKey,
+                fromInclusive,
+                toKey,
+                toInclusive);
+    }
+
+    @Deprecated
+    public boolean isParameterExist(String parameter){
+        return this.ashParameterSecondaryIndexStrValue.contains(parameter);
+    }
+
+    @Deprecated
+    public boolean isWaitEventExist(String waitEvent){
+        return this.ashWaitEventSecondaryIndexStrValue.contains(waitEvent);
+    }
+
+    public void close() {
+        this.store.close();
     }
 
     public void deleteData(Parameters parameters) {
         // Delete data from MainData entity
         try {
             EntityCursor<AshAggrMinData> cursor =
-                    aggrDao.getAshAggrMinDataDAO()
+                    getAshAggrMinDataDAO()
                             .getAshAggrEntityCursorRangeQuery((long) parameters.getBeginTime(), (long) parameters.getEndTime());
 
             EntityCursor<AshAggrMinData15Sec> cursor15sec =
-                    aggrDao.getAshAggrMinData15SecDAO()
+                    getAshAggrMinData15SecDAO()
                             .getAshAggrEntityCursorRangeQuery((long) parameters.getBeginTime(), (long) parameters.getEndTime());
 
             EntityCursor<AshAggrMinData1Min> cursor1Min =
-                    aggrDao.getAshAggrMinData1MinDAO()
+                    getAshAggrMinData1MinDAO()
                             .getAshAggrEntityCursorRangeQuery((long) parameters.getBeginTime(), (long) parameters.getEndTime());
 
             try {
@@ -95,7 +211,7 @@ public class OlapDAO {
 
             /****/
             EntityCursor<AshAggrMinData15Sec> cursor =
-                    aggrDao.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
+                    getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
             Iterator<AshAggrMinData15Sec> iterator = cursor.iterator();
 
             hashMap.putIfAbsent(d, new HashMap<>());
@@ -104,7 +220,7 @@ public class OlapDAO {
             while (iterator.hasNext()) {
                 AshAggrMinData15Sec sl = iterator.next();
                 boolean needToProcess;
-                boolean checkParamId = aggrDao.getStrParameterValueById(sl.getCompositeKey().getParamId()).contains(paramId);
+                boolean checkParamId = getStrParameterValueById(sl.getCompositeKey().getParamId()).contains(paramId);
 
                 if (!ganttParam.getSqlId().isEmpty()
                         & checkParamId) { // SQL_ID
@@ -139,7 +255,7 @@ public class OlapDAO {
         }
 
         LinkedHashMap<Integer, String> uniqueLHashSetEventLstStr = new LinkedHashMap<>();
-        uniqueLHashSetEventLst.stream().forEach(e -> uniqueLHashSetEventLstStr.put(e, aggrDao.getEventStrValueForWaitEventId(e)));
+        uniqueLHashSetEventLst.stream().forEach(e -> uniqueLHashSetEventLstStr.put(e, getEventStrValueForWaitEventId(e)));
 
         uniqueLHashSetEventLstStr.entrySet().stream().forEach(u -> stackChartPanel.getStackedChart().setSeriesPaintDynamicDetail(u.getValue()));
 
@@ -222,7 +338,7 @@ public class OlapDAO {
     private void loadDataFrom1MinEntityByWaitClass(LinkedHashMap<Long, HashMap<Integer, Integer>> hashMap, long d, long end0){
 
         EntityCursor<AshAggrMinData1Min> cursor =
-                aggrDao.getAshAggrMinData1MinDAO().getAshAggrEntityCursorRangeQuery(d, end0);
+                getAshAggrMinData1MinDAO().getAshAggrEntityCursorRangeQuery(d, end0);
         Iterator<AshAggrMinData1Min> iterator = cursor.iterator();
 
         hashMap.putIfAbsent(d, new HashMap<>());
@@ -247,7 +363,7 @@ public class OlapDAO {
     private void loadDataFrom15SecEntityByWaitClass(LinkedHashMap<Long, HashMap<Integer, Integer>> hashMap, long d, long end0){
 
         EntityCursor<AshAggrMinData15Sec> cursor =
-                aggrDao.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
+                getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
         Iterator<AshAggrMinData15Sec> iterator = cursor.iterator();
 
         hashMap.putIfAbsent(d, new HashMap<>());
@@ -288,7 +404,7 @@ public class OlapDAO {
 
             /****/
             EntityCursor<AshAggrMinData15Sec> cursor =
-                    aggrDao.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
+                    getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
             Iterator<AshAggrMinData15Sec> iterator = cursor.iterator();
 
             hashMap.putIfAbsent(d, new HashMap<>());
@@ -319,7 +435,7 @@ public class OlapDAO {
                 .forEach(e -> {
                     uniqueLHashSetEventLstStr0.put(e.getKey(), new LinkedHashMap<>());
                     e.getValue().stream().forEach(m -> uniqueLHashSetEventLstStr0.get(e.getKey())
-                            .put(m, aggrDao.getEventStrValueForWaitEventId(m)));
+                            .put(m, getEventStrValueForWaitEventId(m)));
                 });
 
         nameChartDatasetList.stream().forEach(e -> {
@@ -357,11 +473,6 @@ public class OlapDAO {
 
                         });
             });
-
         });
-
-
     }
-
-
 }

@@ -9,10 +9,10 @@ import ext.egantt.drawing.module.BasicPainterModule;
 import ext.egantt.swing.GanttDrawingPartHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.util.GanttParam;
+import store.OlapDAO;
 import store.StoreManager;
 import store.cache.CompositeKeyCache2;
 import store.cache.TripleValueCache;
-import store.dao.olap.AggrDAO;
 import store.entity.olap.AshAggrMinData15Sec;
 import utility.Utils;
 
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GanttDataById3 {
     private StoreManager storeManager;
-    private AggrDAO dao;
+    private OlapDAO olapDAO;
 
     private final byte parameterGroupId;
 
@@ -42,7 +42,7 @@ public class GanttDataById3 {
 
     public GanttDataById3(StoreManager storeManager, byte parameterGroupId){
         this.storeManager = storeManager;
-        this.dao = storeManager.getDatabaseDAO().getOlapDAO().getAggrDao();
+        this.olapDAO = storeManager.getDatabaseDAO().getOlapDAO();
         this.parameterGroupId = parameterGroupId;
     }
 
@@ -71,7 +71,7 @@ public class GanttDataById3 {
         long start1 = begin.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
         EntityCursor<AshAggrMinData15Sec> cursor =
-                this.dao.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(start1, end0);
+                this.olapDAO.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(start1, end0);
         Iterator<AshAggrMinData15Sec> iterator = cursor.iterator();
 
         /////////////////////////////////////////////
@@ -81,30 +81,30 @@ public class GanttDataById3 {
             //byte parameterGrpId = (byte) this.dao.getParameterGrp(sl.getCompositeKey().getParamId());
 
             //if (parameterGrpId == 2) {
-                String[] output = this.dao.getStrParameterValueById(sl.getCompositeKey().getParamId()).split("_");
+                String[] output = this.olapDAO.getStrParameterValueById(sl.getCompositeKey().getParamId()).split("_");
 
                 if (!this.ganttParamTo.getSqlId().isEmpty() &
                             this.parameterGroupId == 0){   // SQL_ID for Sql chart
                     if (this.ganttParamTo.getSqlId().equalsIgnoreCase(output[0])){
-                        loadAshRowAggrData(sl, this.dao.getParameterIdByStrValue(output[0]), (byte) 2);
+                        loadAshRowAggrData(sl, this.olapDAO.getParameterIdByStrValue(output[0]), (byte) 2);
                     }
                 } else if (!this.ganttParamTo.getSqlId().isEmpty() &
                         this.parameterGroupId == 1) {    // SQL_ID for for Session chart
                     if (this.ganttParamTo.getSqlId().equalsIgnoreCase(output[0])) {
-                        loadAshRowAggrData(sl, this.dao.getParameterIdByStrValue(output[1]+"_"+output[2]), (byte) 2);
+                        loadAshRowAggrData(sl, this.olapDAO.getParameterIdByStrValue(output[1]+"_"+output[2]), (byte) 2);
                     }
                 } else if (!this.ganttParamTo.getSessionId().isEmpty() &
                                 this.parameterGroupId == 1) {    // SessionId + SerialId for Session chart
                     if (this.ganttParamTo.getSessionId().equalsIgnoreCase(output[1]) &
                             this.ganttParamTo.getSerial().equalsIgnoreCase(output[2])) {
-                        loadAshRowAggrData(sl, this.dao.getParameterIdByStrValue(output[1]+"_"+output[2]), (byte) 2);
+                        loadAshRowAggrData(sl, this.olapDAO.getParameterIdByStrValue(output[1]+"_"+output[2]), (byte) 2);
                     }
                 } else if (!this.ganttParamTo.getSessionId().isEmpty() &
                         this.parameterGroupId == 0) {    // SessionId + SerialId for Sql chart
                     if (!output[0].equalsIgnoreCase("Null") &
                             this.ganttParamTo.getSessionId().equalsIgnoreCase(output[1]) &
                             this.ganttParamTo.getSerial().equalsIgnoreCase(output[2])){
-                        loadAshRowAggrData(sl, this.dao.getParameterIdByStrValue(output[0]), (byte) 2);
+                        loadAshRowAggrData(sl, this.olapDAO.getParameterIdByStrValue(output[0]), (byte) 2);
                     }
                 }
 
@@ -138,12 +138,12 @@ public class GanttDataById3 {
                                 .findAny().get().setSum(e.getValue());
                     } else {
                         tripleValueCache.add(new TripleValueCache(e.getKey(),
-                                    (byte) this.dao.getEventGrp(e.getKey()),
+                                    (byte) this.olapDAO.getEventGrp(e.getKey()),
                                     e.getValue()));
                     }
                 } else {
                     tripleValueCache.add(new TripleValueCache(e.getKey(),
-                            (byte) this.dao.getEventGrp(e.getKey()),
+                            (byte) this.olapDAO.getEventGrp(e.getKey()),
                             e.getValue()));
                 }
             });
@@ -154,7 +154,7 @@ public class GanttDataById3 {
 
             allWaitId1.entrySet().forEach(e ->{
                         tripleValueCache.add(new TripleValueCache(e.getKey(),
-                                (byte) this.dao.getEventGrp(e.getKey()),
+                                (byte) this.olapDAO.getEventGrp(e.getKey()),
                                 e.getValue()));
             });
         }
@@ -199,8 +199,8 @@ public class GanttDataById3 {
     }
 
     private void loadDataByRow(Object[][] data, int rowNumber, AtomicInteger atomicIntegerInter, CompositeKeyCache2 key){
-        String[] outputParam = this.dao.getStrParameterValueById(key.getParamId()).split("_");
-        String[] addParam = this.dao.getAdditStrArrayParameters(key.getParamId());
+        String[] outputParam = this.olapDAO.getStrParameterValueById(key.getParamId()).split("_");
+        String[] addParam = this.olapDAO.getAdditStrArrayParameters(key.getParamId());
 
         if (this.parameterGroupId == 0){ // SqlId
             data[rowNumber][atomicIntegerInter.getAndIncrement()] = outputParam[0];
@@ -223,7 +223,7 @@ public class GanttDataById3 {
             }
 
             data[rowNumber][atomicIntegerInter.getAndIncrement()] =
-                    storeManager.getDatabaseDAO().getOlapDAO().getAggrDao().getUsername(userId);
+                    storeManager.getDatabaseDAO().getOlapDAO().getUsername(userId);
             data[rowNumber][atomicIntegerInter.getAndIncrement()] =
                     addParam[1].equalsIgnoreCase(ConstantManager.NULL_VALUE) ? "" : addParam[1];
 
@@ -290,7 +290,7 @@ public class GanttDataById3 {
             Integer key0 = entry.getKey();
             Integer value0 = entry.getValue();
 
-            String keyString = this.dao.getEventStrValueForWaitEventId(key0);
+            String keyString = this.olapDAO.getEventStrValueForWaitEventId(key0);
             double value = value0;
 
             // Show only not zero activities.
@@ -354,9 +354,9 @@ public class GanttDataById3 {
                     e.getValue()
                             .stream()
                             .forEach(k -> {
-                                    if(!arrayList.contains(this.dao.getEventStrValueForWaitEventId(k.getWaitEventId()))){
+                                    if(!arrayList.contains(this.olapDAO.getEventStrValueForWaitEventId(k.getWaitEventId()))){
                                         arrayList.add(
-                                                this.dao.getEventStrValueForWaitEventId(k.getWaitEventId()));
+                                                this.olapDAO.getEventStrValueForWaitEventId(k.getWaitEventId()));
                                     }
                             });
 

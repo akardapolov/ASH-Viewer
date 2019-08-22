@@ -25,11 +25,7 @@ import profile.IProfile;
 import profile.OracleEE;
 import profile.Postgres;
 import remote.RemoteDBManager;
-import store.ConvertManager;
-import store.OlapCacheManager;
-import store.RawStoreManager;
-import store.StoreManager;
-import store.dao.olap.AggrDAO;
+import store.*;
 import store.entity.database.SqlPlan;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshUser;
@@ -117,7 +113,6 @@ public class GetFromRemoteAndStore {
             this.storeManager.getDatabaseDAO().setConvertManager(this.convertManager);
 
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
-            this.olapCacheManager.setAggrDao(storeManager.getDatabaseDAO().getOlapDAO().getAggrDao());
             this.loadMetadata();
 
             this.rawStoreManager.setSqlColMetadata(metadataMap.get(modNameAshSql));
@@ -201,9 +196,9 @@ public class GetFromRemoteAndStore {
                 continue;
             }
 
-            AggrDAO aggrDAO = this.storeManager.getDatabaseDAO().getOlapDAO().getAggrDao();
+            OlapDAO olapDAO = storeManager.getDatabaseDAO().getOlapDAO();
 
-            EntityCursor<AshAggrMinData> cursor = aggrDAO.getAshAggrMinDataDAO().getAshAggrEntityCursorRangeQuery(d, (d + range));
+            EntityCursor<AshAggrMinData> cursor = olapDAO.getAshAggrMinDataDAO().getAshAggrEntityCursorRangeQuery(d, (d + range));
             Iterator<AshAggrMinData> iterator = cursor.iterator();
 
             hashMap.putIfAbsent(d, new long[waitClassCount]);
@@ -228,7 +223,7 @@ public class GetFromRemoteAndStore {
                                         sl.getSum(this.getIProfile().getWaitClassId(k)));                    //mtrx[2]::sum;
 
                         allWaitId1.entrySet().stream().forEach(s -> {
-                            out.merge(aggrDAO.getEventStrValueForWaitEventId(s.getKey()), s.getValue(), Integer::sum);
+                            out.merge(olapDAO.getEventStrValueForWaitEventId(s.getKey()), s.getValue(), Integer::sum);
                         });
 
                     });
@@ -435,7 +430,7 @@ public class GetFromRemoteAndStore {
                             .sorted(Map.Entry.comparingByKey()).forEach(e -> sqlAddParam[e.getKey()] = e.getValue());
 
                     /** Additional dimension for sql detail **/
-                    storeManager.getDatabaseDAO().getOlapDAO().getAggrDao().getCheckOrLoadParameter(sqlId, sqlAddParam);
+                    storeManager.getDatabaseDAO().getOlapDAO().getCheckOrLoadParameter(sqlId, sqlAddParam);
                 }
 
                 // Sqltext (for postgres db only)
@@ -458,7 +453,7 @@ public class GetFromRemoteAndStore {
                         addParamSqlSess, waitEvent, iProfile.getWaitClassId(waitClass));
 
                 /** Additional dimension for session detail **/
-                storeManager.getDatabaseDAO().getOlapDAO().getAggrDao().getCheckOrLoadParameter(sessionId + "_" + seriailId, sessAddParam);
+                storeManager.getDatabaseDAO().getOlapDAO().getCheckOrLoadParameter(sessionId + "_" + seriailId, sessAddParam);
 
                 sampleTimeG = sampleTime;
 
@@ -633,7 +628,7 @@ public class GetFromRemoteAndStore {
             s = connection.prepareStatement(statement);
             rs = s.executeQuery();
             while (rs.next()) {
-                storeManager.getDatabaseDAO().getOlapDAO().getAggrDao()
+                storeManager.getDatabaseDAO().getOlapDAO()
                         .putUserIdUsername(new AshUser(rs.getInt(1), rs.getString(2)));
             }
 

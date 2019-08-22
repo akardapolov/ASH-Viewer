@@ -12,22 +12,13 @@ public class CompositeKeyCache2 {
     public int getParamId() {
         return paramId;
     }
-
     public void setParamId(int paramId) {
         this.paramId = paramId;
     }
 
-    public byte getParamGrp() {
-        return paramGrp;
-    }
-
-    public void setParamGrp(byte paramGrp) {
-        this.paramGrp = paramGrp;
-    }
-
     @Override
     public boolean equals(Object obj) {
-        if(obj != null && obj instanceof CompositeKeyCache2) {
+        if(obj instanceof CompositeKeyCache2) {
             CompositeKeyCache2 keyCache = (CompositeKeyCache2)obj;
             return (paramId == keyCache.paramId);
         }

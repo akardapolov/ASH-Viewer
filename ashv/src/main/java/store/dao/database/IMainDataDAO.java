@@ -5,7 +5,8 @@ import com.sleepycat.persist.PrimaryIndex;
 import store.entity.database.MainData;
 
 public interface IMainDataDAO {
-    public boolean putMainDataNoOverwrite(MainData mainData);
+
+    boolean putMainDataNoOverwrite(MainData mainData);
     EntityCursor<MainData> getEntityCursorPrimary();
     PrimaryIndex<Long, MainData> getPrimaryIndex();
 }

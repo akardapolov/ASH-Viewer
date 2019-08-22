@@ -5,42 +5,38 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.SecondaryIndex;
+import store.OlapDAO;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.CompositeKey;
 
-public class AshAggrMinDataDAO {
+public class AshAggrMinDataDAO implements IAshAggrMinDataDAO {
 
     private EntityStore store;
-    private AggrDAO aggrDAO;
+    private OlapDAO olapDAO;
 
     private PrimaryIndex<CompositeKey, AshAggrMinData> ashAggrMinDataPrimaryIndex;
     private SecondaryIndex<Long, CompositeKey, AshAggrMinData> ashAggrMinDataSecondaryIndexDateId;
 
-    public AshAggrMinDataDAO(EntityStore store, AggrDAO aggrDAO) throws DatabaseException {
+    public AshAggrMinDataDAO(EntityStore store, OlapDAO olapDAO) throws DatabaseException {
         this.store = store;
-        this.aggrDAO = aggrDAO;
+        this.olapDAO = olapDAO;
 
         this.ashAggrMinDataPrimaryIndex = store.getPrimaryIndex(CompositeKey.class, AshAggrMinData.class);
         this.ashAggrMinDataSecondaryIndexDateId = store.getSecondaryIndex(ashAggrMinDataPrimaryIndex, Long.class, "dateId");
     }
 
+    @Override
     public boolean putDataNoOverwrite(AshAggrMinData iAshAggrMinDataDAO) {
         return this.ashAggrMinDataPrimaryIndex.putNoOverwrite(iAshAggrMinDataDAO);
     }
 
-    public void putDataOverwrite(AshAggrMinData iAshAggrMinDataDAO) {
-        this.ashAggrMinDataPrimaryIndex.put(iAshAggrMinDataDAO);
-    }
-
-    public boolean isCompositeKeyExist(CompositeKey compositeKeyStart){
-        return this.ashAggrMinDataPrimaryIndex.contains(compositeKeyStart);
-    }
-
+    @Override
     public AshAggrMinData getAshAggrMinDataRange(long dateId, int paramId) {
         return this.ashAggrMinDataPrimaryIndex.get(new CompositeKey(dateId, paramId));
     }
 
+    @Override
     public EntityCursor<AshAggrMinData> getAshAggrEntityCursorRangeQuery(long start, long end) {
-        return this.aggrDAO.doRangeQuery(this.ashAggrMinDataSecondaryIndexDateId, start, true, end, true);
+        return this.olapDAO.doRangeQuery(this.ashAggrMinDataSecondaryIndexDateId, start, true, end, true);
     }
 }

@@ -9,8 +9,8 @@ import store.entity.database.ParameterString;
 public class ParameterStringDAO implements IParameterStringDAO {
     private EntityStore store;
 
-    public PrimaryIndex<Integer, ParameterString> rdaStringParameterPrimIndex;
-    public SecondaryIndex<String, Integer, ParameterString> rdaStringParameterSecIndex;
+    private PrimaryIndex<Integer, ParameterString> rdaStringParameterPrimIndex;
+    private SecondaryIndex<String, Integer, ParameterString> rdaStringParameterSecIndex;
 
     public ParameterStringDAO(EntityStore store){
         this.store = store;
@@ -34,13 +34,4 @@ public class ParameterStringDAO implements IParameterStringDAO {
 
     @Override
     public EntityCursor<ParameterString> getEntityCursorPrimary() { return this.rdaStringParameterPrimIndex.entities(); }
-
-    @Override
-    public EntityCursor<ParameterString> getEntityCursorSecondary() { return this.rdaStringParameterSecIndex.entities(); }
-
-    @Override
-    public PrimaryIndex<Integer, ParameterString> getRdaStringParameterPrimIndex() { return this.rdaStringParameterPrimIndex; }
-
-    @Override
-    public SecondaryIndex<String, Integer, ParameterString> getRdaStringParameterSecIndex() { return this.rdaStringParameterSecIndex; }
 }

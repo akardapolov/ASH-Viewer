@@ -10,8 +10,8 @@ public class SqlPlanDAO implements ISqlPlan{
     private EntityStore store;
 
     private PrimaryIndex<Long, SqlPlan> mainDataPrimaryIndex;
-    public SecondaryIndex<String, Long, SqlPlan> sqlIdSecIndex;
-    public SecondaryIndex<Long, Long, SqlPlan> planHashValueSecIndex;
+    private SecondaryIndex<String, Long, SqlPlan> sqlIdSecIndex;
+    private SecondaryIndex<Long, Long, SqlPlan> planHashValueSecIndex;
 
     public SqlPlanDAO(EntityStore store){
         this.store = store;
@@ -46,16 +46,8 @@ public class SqlPlanDAO implements ISqlPlan{
 
     @Override
     public EntityCursor<SqlPlan> getEntityCursorPrimary() { return mainDataPrimaryIndex.entities(); }
-
-    @Override
-    public EntityCursor<SqlPlan> getEntityCursorSqlId() { return sqlIdSecIndex.entities(); }
-
-    @Override
-    public EntityCursor<SqlPlan> getEntityCursorPlanHashValue() { return planHashValueSecIndex.entities(); }
-
     @Override
     public SecondaryIndex<String, Long, SqlPlan> getEnityCurSqlId() { return sqlIdSecIndex; }
-
     @Override
     public SecondaryIndex<Long, Long, SqlPlan> getEnityCurPlanHashValue() { return planHashValueSecIndex; }
 }

@@ -11,8 +11,8 @@ import java.util.Optional;
 public class ParamStringStringDAO implements IParamStringStringDAO {
     private EntityStore store;
 
-    public PrimaryIndex<String, ParamStringString> rdaStringParameterPrimIndex;
-    public SecondaryIndex<String, String, ParamStringString> rdaStringParameterSecIndex;
+    private PrimaryIndex<String, ParamStringString> rdaStringParameterPrimIndex;
+    private SecondaryIndex<String, String, ParamStringString> rdaStringParameterSecIndex;
 
     public ParamStringStringDAO(EntityStore store){
         this.store = store;
@@ -33,6 +33,7 @@ public class ParamStringStringDAO implements IParamStringStringDAO {
 
     @Override
     public boolean isExistValueByParameter (String parameter) {
+
         Optional<ParamStringString> opt = Optional.ofNullable(this.rdaStringParameterPrimIndex.get(parameter));
 
         if (opt.isPresent()){
@@ -44,13 +45,4 @@ public class ParamStringStringDAO implements IParamStringStringDAO {
 
     @Override
     public EntityCursor<ParamStringString> getEntityCursorPrimary() { return this.rdaStringParameterPrimIndex.entities(); }
-
-    @Override
-    public EntityCursor<ParamStringString> getEntityCursorSecondary() { return this.rdaStringParameterSecIndex.entities(); }
-
-    @Override
-    public PrimaryIndex<String, ParamStringString> getRdaStringParameterPrimIndex() { return this.rdaStringParameterPrimIndex; }
-
-    @Override
-    public SecondaryIndex<String, String, ParamStringString> getRdaStringParameterSecIndex() { return this.rdaStringParameterSecIndex; }
 }

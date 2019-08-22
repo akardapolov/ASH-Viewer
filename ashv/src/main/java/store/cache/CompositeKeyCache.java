@@ -12,22 +12,16 @@ public class CompositeKeyCache implements Comparable<CompositeKeyCache>{
     public long getDateId() {
         return dateId;
     }
-
-    public void setDateId(long dateId) {
-        this.dateId = dateId;
-    }
-
     public int getParamId() {
         return paramId;
     }
-
     public void setParamId(int paramId) {
         this.paramId = paramId;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(obj != null && obj instanceof CompositeKeyCache) {
+        if(obj instanceof CompositeKeyCache) {
             CompositeKeyCache keyCache = (CompositeKeyCache)obj;
             return (dateId == keyCache.dateId) & (paramId == keyCache.paramId);
         }

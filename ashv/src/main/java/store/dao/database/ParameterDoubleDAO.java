@@ -30,8 +30,6 @@ public class ParameterDoubleDAO implements IParameterDoubleDAO {
     }
 
     @Override public double getParameterStrById(int id) { return this.rdaStringParameterPrimIndex.get(id).getParamDValue(); }
-    @Override public PrimaryIndex<Integer, ParameterDouble> getRdaStringParameterPrimIndex() { return this.rdaStringParameterPrimIndex; }
-    @Override public SecondaryIndex<Double, Integer, ParameterDouble> getRdaStringParameterSecIndex() { return this.rdaStringParameterSecIndex;  }
     @Override public EntityCursor<ParameterDouble> getEntityCursorPrimary() { return this.rdaStringParameterPrimIndex.entities(); }
-    @Override public EntityCursor<ParameterDouble> getEntityCursorSecondary() { return this.rdaStringParameterSecIndex.entities(); }
+
 }

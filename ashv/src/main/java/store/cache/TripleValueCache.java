@@ -9,19 +9,15 @@ public class TripleValueCache {
     public int getWaitEventId() {
         return waitEventId;
     }
-
     public byte getWaitClassId() {
         return waitClassId;
     }
-
     public int getWaitClassIdInt() {
         return waitClassId;
     }
-
     public int getSum() {
         return sum;
     }
-
     public void setSum(int iSum) {
         this.sum = this.sum + iSum;
     }
@@ -39,7 +35,7 @@ public class TripleValueCache {
 
     @Override
     public boolean equals(Object o) {
-        if(o != null && o instanceof TripleValueCache) {
+        if(o instanceof TripleValueCache) {
             TripleValueCache keyCache = (TripleValueCache)o;
             return (waitEventId == keyCache.waitEventId);
         }

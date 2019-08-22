@@ -11,10 +11,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jfree.chart.util.GanttParam;
 import profile.IProfile;
+import store.OlapDAO;
 import store.StoreManager;
 import store.cache.CompositeKeyCache2;
 import store.cache.TripleValueCache;
-import store.dao.olap.AggrDAO;
 import store.entity.olap.AshAggrMinData15Sec;
 import utility.Utils;
 
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class GanttDataById2 {
     private StoreManager storeManager;
-    private AggrDAO dao;
+    private OlapDAO olapDAO;
 
     private final byte parameterGroupId;
 
@@ -43,7 +43,7 @@ public class GanttDataById2 {
 
     public GanttDataById2(StoreManager storeManager, byte parameterGroupId){
         this.storeManager = storeManager;
-        this.dao = storeManager.getDatabaseDAO().getOlapDAO().getAggrDao();
+        this.olapDAO = storeManager.getDatabaseDAO().getOlapDAO();
         this.parameterGroupId = parameterGroupId;
     }
 
@@ -81,7 +81,7 @@ public class GanttDataById2 {
         long start1 = begin.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
         EntityCursor<AshAggrMinData15Sec> cursor =
-                this.dao.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(start1, end0 + ConstantManager.CURRENT_WINDOW / ConstantManager.MAX_POINT_PER_GRAPH);
+                this.olapDAO.getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(start1, end0 + ConstantManager.CURRENT_WINDOW / ConstantManager.MAX_POINT_PER_GRAPH);
         Iterator<AshAggrMinData15Sec> iterator = cursor.iterator();
 
         /////////////////////////////////////////////
@@ -90,7 +90,7 @@ public class GanttDataById2 {
             boolean needToProcess;
 
             if (this.parameterGroupId == 0
-                    & !this.dao.getStrParameterValueById(sl.getCompositeKey().getParamId()).contains(
+                    & !this.olapDAO.getStrParameterValueById(sl.getCompositeKey().getParamId()).contains(
                         ConstantManager.NULL_VALUE)){ // SQL_ID
                 needToProcess = true;
             } else if (this.parameterGroupId == 1 ){ // SessionId + SerialId
@@ -111,14 +111,14 @@ public class GanttDataById2 {
 
         /** !!! Refactor it !!! **/
         int paramId = ashAggrMinData.getCompositeKey().getParamId();
-        String[] outputParam = this.dao.getStrParameterValueById(ashAggrMinData.getCompositeKey().getParamId()).split("_");
+        String[] outputParam = this.olapDAO.getStrParameterValueById(ashAggrMinData.getCompositeKey().getParamId()).split("_");
 
         if (this.parameterGroupId == 0 & !outputParam[0].equalsIgnoreCase(ConstantManager.NULL_VALUE)){
-            paramId = this.dao.getParameterIdByStrValue(outputParam[0]);
+            paramId = this.olapDAO.getParameterIdByStrValue(outputParam[0]);
         } else {
             if (!outputParam[0].equalsIgnoreCase(ConstantManager.NULL_VALUE)){
-                int paramId0 = dao.getCheckOrLoadParameter(ConstantManager.NULL_VALUE + "_" + outputParam[1] + "_" + outputParam[2],
-                         this.dao.getAdditStrArrayParameters(paramId)); // 1 sec
+                int paramId0 = olapDAO.getCheckOrLoadParameter(ConstantManager.NULL_VALUE + "_" + outputParam[1] + "_" + outputParam[2],
+                         this.olapDAO.getAdditStrArrayParameters(paramId)); // 1 sec
 
                 paramId = paramId0;
             }
@@ -149,12 +149,12 @@ public class GanttDataById2 {
                                 .findAny().get().setSum(e.getValue());
                     } else {
                         tripleValueCache.add(new TripleValueCache(e.getKey(),
-                                (byte) this.dao.getEventGrp(e.getKey()),
+                                (byte) this.olapDAO.getEventGrp(e.getKey()),
                                 e.getValue()));
                     }
                 } else {
                     tripleValueCache.add(new TripleValueCache(e.getKey(),
-                            (byte) this.dao.getEventGrp(e.getKey()),
+                            (byte) this.olapDAO.getEventGrp(e.getKey()),
                             e.getValue()));
                 }
             });
@@ -165,7 +165,7 @@ public class GanttDataById2 {
 
             allWaitId1.entrySet().forEach(e ->{
                 tripleValueCache.add(new TripleValueCache(e.getKey(),
-                        (byte) this.dao.getEventGrp(e.getKey()),
+                        (byte) this.olapDAO.getEventGrp(e.getKey()),
                         e.getValue()));
             });
         }
@@ -212,8 +212,8 @@ public class GanttDataById2 {
     }
 
     private void loadDataByRow(Object[][] data, int rowNumber, AtomicInteger atomicIntegerInter, CompositeKeyCache2 key){
-        String[] outputParam = this.dao.getStrParameterValueById(key.getParamId()).split("_");
-        String[] addParam = this.dao.getAdditStrArrayParameters(key.getParamId());
+        String[] outputParam = this.olapDAO.getStrParameterValueById(key.getParamId()).split("_");
+        String[] addParam = this.olapDAO.getAdditStrArrayParameters(key.getParamId());
 
         if (this.parameterGroupId == 0){ // SqlId
             data[rowNumber][atomicIntegerInter.getAndIncrement()] = outputParam[0];
@@ -230,7 +230,7 @@ public class GanttDataById2 {
             }
 
             data[rowNumber][atomicIntegerInter.getAndIncrement()] =
-                    storeManager.getDatabaseDAO().getOlapDAO().getAggrDao().getUsername(userId);
+                    storeManager.getDatabaseDAO().getOlapDAO().getUsername(userId);
             data[rowNumber][atomicIntegerInter.getAndIncrement()] =
                     addParam[2].equalsIgnoreCase(ConstantManager.NULL_VALUE) ? "" : addParam[2];
 
@@ -302,7 +302,7 @@ public class GanttDataById2 {
 
             String keyString = waitClassId == -1
                     ? iProfile.getWaitClass(key0.byteValue())
-                    : this.dao.getEventStrValueForWaitEventId(key0);
+                    : this.olapDAO.getEventStrValueForWaitEventId(key0);
             double value = value0;
 
             // Show only not zero activities.
@@ -372,9 +372,9 @@ public class GanttDataById2 {
                                                 iProfile.getWaitClass(k.getWaitClassId()));
                                     }
                                 } else {
-                                    if (!arrayList.contains(this.dao.getEventStrValueForWaitEventId(k.getWaitEventId()))) {
+                                    if (!arrayList.contains(this.olapDAO.getEventStrValueForWaitEventId(k.getWaitEventId()))) {
                                         arrayList.add(
-                                                this.dao.getEventStrValueForWaitEventId(k.getWaitEventId()));
+                                                this.olapDAO.getEventStrValueForWaitEventId(k.getWaitEventId()));
                                     }
                                 }
                             });
