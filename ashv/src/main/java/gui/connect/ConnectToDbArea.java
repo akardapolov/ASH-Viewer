@@ -63,7 +63,7 @@ public class ConnectToDbArea extends JDialog {
 
     private JButton startStopButton;
 
-    private int width = 300;
+    private int width = 340;
     private int height = 340;
 
     private DefaultTableModel modelConn;
@@ -83,6 +83,10 @@ public class ConnectToDbArea extends JDialog {
     private JLabel urlLbl = new JLabel(Labels.getLabel("gui.connection.url"));
 
     private JLabel profileNameLbl = new JLabel(Labels.getLabel("gui.connection.name"),SwingConstants.LEADING);
+
+    private JLabel profileDetailLbl = new JLabel(Labels.getLabel("gui.connection.profile.detail"));
+    private JLabel profileMessageLbl = new JLabel(Labels.getLabel("gui.connection.profile.message"));
+
     private JLabel offlineLbl = new JLabel(Labels.getLabel("gui.connection.offline"));
 
     private JTextField connNameTF = new JTextField();
@@ -128,7 +132,7 @@ public class ConnectToDbArea extends JDialog {
     private void init(){
         //MigLayout lmMain = new MigLayout("debug", "[grow][][grow]", "[][][]");
         MigLayout lmMain = new MigLayout("", "[grow][][grow]", "[][][]");
-        MigLayout lmDetail = new MigLayout("ins 10", "[para]0[grow][100lp, fill][60lp][95lp, fill]", "");
+        MigLayout lmDetail = new MigLayout("ins 10", "[para]0[grow][150lp, fill][60lp][95lp, fill]", "");
         MigLayout lmButtonPanel = new MigLayout("fillx", "[50lp][50lp][50lp][50lp]");
 
         mainJPanel = new JPanel(lmMain);
@@ -216,6 +220,9 @@ public class ConnectToDbArea extends JDialog {
         Arrays.stream(ConstantManager.Profile.values()).forEach(k -> profileBox.addItem(k.name()));
         detailJPanel.add(profileNameLbl,   "skip");
         detailJPanel.add(profileBox,   "span, growx");
+
+        detailJPanel.add(profileDetailLbl, "skip");
+        detailJPanel.add(profileMessageLbl,   "span, growx");
 
         detailJPanel.add(openFileButton,    "skip, wmin 30");
         detailJPanel.add(jarTF,    "span, growx, wmin 150");
@@ -350,7 +357,7 @@ public class ConnectToDbArea extends JDialog {
 
         mainJPanel.add(buttonPanel, "wrap, span 2, wmin 200");
         mainJPanel.add(tableDataPaneConn, "growy, span 1, wmin 150");
-        mainJPanel.add(detailJPanel, "top, growx, wmin 150");
+        mainJPanel.add(detailJPanel, "top, growx, wmin 200");
 
         JdialogComponentListener jdialogComponentListener = new JdialogComponentListener();
         this.addComponentListener(jdialogComponentListener);
@@ -403,6 +410,14 @@ public class ConnectToDbArea extends JDialog {
         profileBox.setSelectedItem(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
                 Labels.getLabel("local.sql.metadata.connection"),
                 connName, Labels.getLabel("local.sql.metadata.connection.profile")));
+
+        String selItem = (String) profileBox.getSelectedItem();
+        if (selItem != null && selItem.equalsIgnoreCase(String.valueOf(ConstantManager.Profile.OracleEE))) {
+            profileMessageLbl.setVisible(true);
+        } else {
+            profileMessageLbl.setVisible(false);
+        }
+
     }
 
     private void saveData(){
