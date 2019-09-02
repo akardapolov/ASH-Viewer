@@ -15,7 +15,10 @@ import store.entity.database.MainData;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -50,25 +53,23 @@ public class DatabaseDAO {
         this.olapDAO = new OlapDAO(berkleyDB);
     }
 
-    public void deleteMainData(Parameters parameters) {
+    public long getMax(Parameters parameters) {
+        long out = 0;
         long start = (long) parameters.getBeginTime();
         long end = (long) parameters.getEndTime();
 
-        try {
-            EntityCursor<MainData> cursor
-                    = doRangeQuery(this.mainDataDAO.getPrimaryIndex(), start, true, end, true);
+        EntityCursor<Long> cursor
+                = this.mainDataDAO.getPrimaryIndex().keys(start, true, end, true);
+
+        if (cursor != null) {
             try {
-                for (MainData entity = cursor.first();
-                     entity != null;
-                     entity = cursor.next()) {
-                    cursor.delete();
-                }
+                if (cursor.last() != null) out = cursor.last();
             } finally {
                 cursor.close();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
+        return out;
     }
 
     public List<Object[][]> getMatrixDataForJTable(long begin, long end,

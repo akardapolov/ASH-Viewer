@@ -3,7 +3,6 @@ package store;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.*;
 import core.ConstantManager;
-import core.parameter.Parameters;
 import gui.chart.CategoryTableXYDatasetRDA;
 import gui.chart.panel.NameChartDataset;
 import gui.chart.panel.StackChartPanel;
@@ -145,45 +144,6 @@ public class OlapDAO {
 
     public void close() {
         this.store.close();
-    }
-
-    public void deleteData(Parameters parameters) {
-        // Delete data from MainData entity
-        try {
-            EntityCursor<AshAggrMinData> cursor =
-                    getAshAggrMinDataDAO()
-                            .getAshAggrEntityCursorRangeQuery((long) parameters.getBeginTime(), (long) parameters.getEndTime());
-
-            EntityCursor<AshAggrMinData15Sec> cursor15sec =
-                    getAshAggrMinData15SecDAO()
-                            .getAshAggrEntityCursorRangeQuery((long) parameters.getBeginTime(), (long) parameters.getEndTime());
-
-            EntityCursor<AshAggrMinData1Min> cursor1Min =
-                    getAshAggrMinData1MinDAO()
-                            .getAshAggrEntityCursorRangeQuery((long) parameters.getBeginTime(), (long) parameters.getEndTime());
-
-            try {
-                for (AshAggrMinData entity = cursor.first();
-                     entity != null;
-                     entity = cursor.next()) {
-                    cursor.delete();
-                }
-                for (AshAggrMinData15Sec entity15 = cursor15sec.first();
-                     entity15 != null;
-                     entity15 = cursor15sec.next()) {
-                    cursor15sec.delete();
-                }
-                for (AshAggrMinData1Min entity1Min = cursor1Min.first();
-                     entity1Min != null;
-                     entity1Min = cursor1Min.next()) {
-                    cursor.delete();
-                }
-            } finally {
-                cursor.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void loadDataToCategoryTableXYDatasetRTVBySqlSessionID(GanttParam ganttParam,

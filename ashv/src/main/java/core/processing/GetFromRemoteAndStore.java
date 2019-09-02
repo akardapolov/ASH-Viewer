@@ -133,10 +133,7 @@ public class GetFromRemoteAndStore {
         log.info("Start loading");
 
         try {
-            if (!this.isFirstRun) {
-                this.deleteDataBeforeLoading();
-                this.loadUsername();
-            }
+            if (!this.isFirstRun) this.loadUsername();
 
             log.info("Start loading olap");
             this.loadDataToOlap();
@@ -329,7 +326,7 @@ public class GetFromRemoteAndStore {
             s = this.getStatementForAsh();
             rs = s.executeQuery();
 
-            rs.setFetchSize(5000); // to speed up loading
+            rs.setFetchSize(15000); // to speed up loading
 
             while (rs.next()) {
                 AtomicInteger kk = new AtomicInteger(0);
@@ -503,8 +500,12 @@ public class GetFromRemoteAndStore {
             s = connection.prepareStatement(sqlText);
         } else {
             if (!this.isFirstRun) {
-                sqlText = sqlText + orderBy;
+                sqlText = sqlText + where + orderBy;
                 s = connection.prepareStatement(sqlText);
+
+                Parameters param = new Parameters.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime).build();
+                s.setTimestamp(1, new java.sql.Timestamp(this.storeManager.getDatabaseDAO().getMax(param)));
+
             } else {
                 sqlText = sqlText + where + orderBy;
                 s = connection.prepareStatement(sqlText);
@@ -652,18 +653,6 @@ public class GetFromRemoteAndStore {
                     e.printStackTrace();
                 }
             }
-        }
-    }
-
-    private void deleteDataBeforeLoading(){
-        if (iProfile.isDeleteOldDataOnStart()) {
-            long min = getOneRowOutputDateFromDB(iProfile.getSqlTextMin());
-            long max = getOneRowOutputDateFromDB(iProfile.getSqlTextSysdate());
-
-            Parameters param = new Parameters.Builder(min, max).build();
-
-            storeManager.getDatabaseDAO().getOlapDAO().deleteData(param);
-            storeManager.getDatabaseDAO().deleteMainData(param);
         }
     }
 
