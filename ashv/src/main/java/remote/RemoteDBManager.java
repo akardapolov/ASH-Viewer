@@ -6,6 +6,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import pojo.ConnectionMetadata;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -49,7 +50,7 @@ public class RemoteDBManager {
     }
 
     private ClassLoader getClassLoader()throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException {
-        URL url = new URL("file:/" + this.connectionMetadata.getJar());
+        URL url = new File(this.connectionMetadata.getJar().trim()).toURI().toURL();
         URLClassLoader ucl = new URLClassLoader(new URL[]{url});
         return ucl;
     }
