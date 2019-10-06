@@ -19,7 +19,7 @@ public final class ConstantManager extends LinkedHashMap {
     // Add profile implementation to src/profile
     public enum Profile {OracleEE, OracleSE, Postgres, Postgres96}
 
-    public enum History {Hour8, Hour12, Day1, Week, Month}
+    public enum History {Hour8, Hour12, Day1, Week, Month, Custom}
 
     private static Map coreOpt = new LinkedHashMap();
 

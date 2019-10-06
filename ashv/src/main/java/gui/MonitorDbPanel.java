@@ -1,5 +1,9 @@
 package gui;
 
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.components.TimePickerSettings;
+import config.Labels;
 import core.ColorManager;
 import core.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
@@ -25,6 +29,8 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -211,6 +217,12 @@ public class MonitorDbPanel {
         controlMainDetailHistory = new JPanel();
         controlMainDetailHistory.setLayout(new BorderLayout());
 
+        MigLayout lm0 = new MigLayout("", "[][]", "[]");
+        JPanel mainStartEndDateTimePicker = new JPanel(lm0);
+
+        MigLayout lm1 = new MigLayout("fillx", "[1lp][1lp][1lp][1lp][1lp][1lp][1lp][1lp]");
+        JPanel startEndDateTimePicker = new JPanel(lm1);
+
         historyPanel = new HistoryPanel(jFrame, colorManager, storeManager, getFromRemoteAndStore, chartDatasetManager);
 
         Map<String, JRadioButton> mapRadioButton = new LinkedHashMap<>();
@@ -221,13 +233,17 @@ public class MonitorDbPanel {
         buttonPanel.setFloatable(false);
         buttonPanel.setBorder(new EtchedBorder());
 
-        JRadioButton aRadioHour4 = new JRadioButton(String.valueOf(ConstantManager.History.Hour8));
-        aRadioHour4.addItemListener(evt -> {
+        Custom custom = new Custom(buttonPanel);
+        custom.initialize();
+
+        JRadioButton aRadioHour8 = new JRadioButton(String.valueOf(ConstantManager.History.Hour8));
+        aRadioHour8.addItemListener(evt -> {
             AbstractButton sel = (AbstractButton)evt.getItemSelectable();
             if(evt.getStateChange() == ItemEvent.SELECTED){
                 if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Hour8))){
                     ProgressBarUtil.runProgressDialog(()
                             -> historyPanel.initializeGui(getGanttParam(8)), jFrame, "Loading data ..");
+                    custom.setEnabled(false);
                 }
             }
         });
@@ -239,6 +255,7 @@ public class MonitorDbPanel {
                 if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Hour12))){
                     ProgressBarUtil.runProgressDialog(()
                             -> historyPanel.initializeGui(getGanttParam(12)), jFrame, "Loading data ..");
+                    custom.setEnabled(false);
                 }
             }
         });
@@ -250,6 +267,7 @@ public class MonitorDbPanel {
                 if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Day1))){
                     ProgressBarUtil.runProgressDialog(()
                             -> historyPanel.initializeGui(getGanttParam(24)), jFrame, "Loading data ..");
+                    custom.setEnabled(false);
                 }
             }
         });
@@ -258,29 +276,74 @@ public class MonitorDbPanel {
         aRadioWeek.addItemListener(evt -> {
             AbstractButton sel = (AbstractButton)evt.getItemSelectable();
             if(evt.getStateChange() == ItemEvent.SELECTED){
+                System.out.println(ItemEvent.SELECTED);
                 if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Week))){
                     ProgressBarUtil.runProgressDialog(()
                             -> historyPanel.initializeGui(getGanttParam(168)), jFrame, "Loading data ..");
+                    custom.setEnabled(false);
                 }
             }
         });
 
-        mapRadioButton.put(String.valueOf(ConstantManager.History.Hour8), aRadioHour4);
+        JRadioButton aRadioMonth = new JRadioButton(String.valueOf(ConstantManager.History.Month));
+        aRadioMonth.addItemListener(evt -> {
+            AbstractButton sel = (AbstractButton)evt.getItemSelectable();
+            if(evt.getStateChange() == ItemEvent.SELECTED){
+                if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Month))){
+                    ProgressBarUtil.runProgressDialog(()
+                            -> historyPanel.initializeGui(getGanttParam(740)), jFrame, "Loading data ..");
+                    custom.setEnabled(false);
+                }
+            }
+        });
+
+        JRadioButton aRadioCustom = new JRadioButton(String.valueOf(ConstantManager.History.Custom));
+        aRadioCustom.addItemListener(evt -> {
+            AbstractButton sel = (AbstractButton)evt.getItemSelectable();
+            if(evt.getStateChange() == ItemEvent.SELECTED){
+                if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Custom))){
+                    custom.setEnabled(true);
+                }
+            }
+        });
+
+        mapRadioButton.put(String.valueOf(ConstantManager.History.Hour8), aRadioHour8);
         mapRadioButton.put(String.valueOf(ConstantManager.History.Hour12), aRadioHour12);
         mapRadioButton.put(String.valueOf(ConstantManager.History.Day1), aRadioDay1);
         mapRadioButton.put(String.valueOf(ConstantManager.History.Week), aRadioWeek);
+        mapRadioButton.put(String.valueOf(ConstantManager.History.Month), aRadioMonth);
+        mapRadioButton.put(String.valueOf(ConstantManager.History.Custom), aRadioCustom);
 
         mapRadioButton.entrySet().stream().forEach(e ->{
             bg.add(e.getValue());
             buttonPanel.add(e.getValue());
         });
 
+        custom.fillButtonPanel();
+
         mapRadioButton.entrySet().stream().findFirst()
                 .filter(e -> e.getKey().equalsIgnoreCase(String.valueOf(ConstantManager.History.Hour8)))
                 .get().getValue().doClick();
 
 
-        controlMainDetailHistory.add(buttonPanel, BorderLayout.NORTH);
+        startEndDateTimePicker.add(new JLabel(), ""); // empty
+        startEndDateTimePicker.add(buttonPanel, "gap 1");
+        startEndDateTimePicker.add(new JLabel(), ""); // empty
+        /*startEndDateTimePicker.add(comboMappCategory, "gap 10");
+        startEndDateTimePicker.add(jButtonLoadToLocalDB, "gap 10");
+        startEndDateTimePicker.add(jButtonDeleteFromLocalDB, "gap 10");*/
+
+        startEndDateTimePicker.add(new JLabel(Labels.getLabel("gui.history.date.start")), "");
+        startEndDateTimePicker.add(custom.getDtpStart(), "gap 1");
+        startEndDateTimePicker.add(new JLabel(), ""); // empty
+        startEndDateTimePicker.add(new JLabel(Labels.getLabel("gui.history.date.end")), "");
+        startEndDateTimePicker.add(custom.getDtpEnd(), "gap 1");
+        startEndDateTimePicker.add(new JLabel(), ""); // empty
+        startEndDateTimePicker.add(custom.getLoadButton(), "gap 1");
+
+        mainStartEndDateTimePicker.add(startEndDateTimePicker, "span 2, wmin 100");
+
+        controlMainDetailHistory.add(mainStartEndDateTimePicker/*buttonPanel*/, BorderLayout.NORTH);
         controlMainDetailHistory.add(historyPanel, BorderLayout.CENTER);
 
         controlMainDetailHistory.revalidate();
@@ -298,6 +361,64 @@ public class MonitorDbPanel {
         double end = currServerOrClientTime;
 
         return new GanttParam.Builder(start, end).build();
+    }
+
+    class Custom {
+        private JToolBar buttonPanel;
+        @Getter private JButton loadButton;
+        @Getter private DateTimePicker dtpStart;
+        @Getter private DateTimePicker dtpEnd;
+
+        public Custom(JToolBar buttonPanel) {
+            this.buttonPanel = buttonPanel;
+            this.loadButton = new JButton(Labels.getLabel("gui.history.date.load.data.button"));
+        }
+
+        public void initialize(){
+            DatePickerSettings dateSettingsStart = new DatePickerSettings();
+            DatePickerSettings dateSettingsEnd = new DatePickerSettings();
+            TimePickerSettings timeSettingsStart = new TimePickerSettings();
+            TimePickerSettings timeSettingsEnd = new TimePickerSettings();
+            dateSettingsStart.setAllowEmptyDates(false);
+            timeSettingsStart.setAllowEmptyTimes(false);
+            dateSettingsEnd.setAllowEmptyDates(false);
+            timeSettingsEnd.setAllowEmptyTimes(false);
+
+            dtpStart = new DateTimePicker(dateSettingsStart, timeSettingsStart);
+            dtpEnd = new DateTimePicker(dateSettingsEnd, timeSettingsEnd);
+
+            loadButton = new JButton(Labels.getLabel("gui.history.date.load.data.button"));
+            loadButton.addActionListener(e -> loadDataCustom());
+        }
+
+        public void fillButtonPanel(){
+            this.buttonPanel.add(dtpStart);
+            this.buttonPanel.add(dtpEnd);
+            this.buttonPanel.add(loadButton);
+        }
+
+        public void setEnabled(boolean flag){
+            dtpStart.setEnabled(flag);
+            dtpEnd.setEnabled(flag);
+            loadButton.setEnabled(flag);
+        }
+
+        public void loadDataCustom(){
+            ProgressBarUtil.runProgressDialog(()
+                    -> historyPanel.initializeGui(getParameters()), jFrame, "Loading data ..");
+        }
+
+        private GanttParam getParameters(){
+
+            LocalDateTime beginDt = dtpStart.getDateTimePermissive();
+            LocalDateTime endDt = dtpEnd.getDateTimePermissive();
+
+            long start = beginDt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            long end = endDt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+            return new GanttParam.Builder(start, end).build();
+        }
+
     }
 
 }
