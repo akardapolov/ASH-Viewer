@@ -1,0 +1,74 @@
+/*
+ * @(#)CrimsonTreeNavigator.java
+ *
+ * Copyright 2002 EGANTT LLP. All rights reserved.
+ * PROPRIETARY/QPL. Use is subject to license terms.
+ */
+
+package com.egantt.data.navigator;
+
+import com.egantt.data.Navigator;
+
+import org.apache.crimson.tree.TreeWalker;
+
+import org.w3c.dom.Node;
+
+public class CrimsonTreeNavigator implements Navigator
+{
+	protected final TreeWalker walker;
+	protected Object previous;
+
+	public CrimsonTreeNavigator(TreeWalker walker)
+	{
+		this.walker = walker;
+	}
+
+	// _________________________________________________________________________
+
+	public Object current()
+	{
+		return walker.getCurrent();
+	}
+
+	// _________________________________________________________________________
+
+	public Object first()
+	{
+		walker.reset();
+		this.previous = null;
+		return walker.getCurrent();
+	}
+
+	public Object last()
+	{
+		while (walker.getNext() != null)
+		{
+			previous = walker.getCurrent();
+		}
+		return walker.getCurrent();
+	}
+
+	// _________________________________________________________________________
+
+	public Object previous()
+	{
+		if (previous == null)
+			return null;
+
+		walker.reset();
+		for (Node node = walker.getCurrent(); node != previous; node = walker.getNext())
+			continue;
+
+		return previous;
+	}
+
+	public Object next()
+	{
+		Object previous = walker.getCurrent();
+		if (previous == null)
+			return null;
+
+		this.previous = previous;
+		return walker.getNext();
+	}
+}
