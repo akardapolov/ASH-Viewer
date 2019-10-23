@@ -528,7 +528,7 @@ public class ConnectToDbArea extends JDialog {
 
             monitorDbPanel.setConnectionMetadata(connection);
             monitorDbPanel.initialize();
-            getFromRemoteAndStore.loadDataFromRemoteToLocalStoreSetConvertManager(); //
+            getFromRemoteAndStore.loadConvertManager(); //
 
             storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
 

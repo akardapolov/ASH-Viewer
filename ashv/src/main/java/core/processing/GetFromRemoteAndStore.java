@@ -69,8 +69,6 @@ public class GetFromRemoteAndStore {
 
     @Getter @Setter private IProfile iProfile;
 
-    //@Getter @Setter private boolean isDataExist = false;
-
     // Detail
     private Map<String, LinkedHashMap<String, Integer>> mapDetail = new TreeMap<>();
 
@@ -122,7 +120,7 @@ public class GetFromRemoteAndStore {
     }
 
     public void loadDataFromRemoteToLocalStore() {
-        this.loadDataFromRemoteToLocalStoreSetConvertManager();
+        this.loadConvertManager();
 
         this.loadSqlsMetadata();
 
@@ -154,7 +152,7 @@ public class GetFromRemoteAndStore {
         this.storeManager.syncBdb();
     }
 
-    public void loadDataFromRemoteToLocalStoreSetConvertManager(){
+    public void loadConvertManager(){
         this.storeManager.getDatabaseDAO().setConvertManager(this.convertManager);
     }
 

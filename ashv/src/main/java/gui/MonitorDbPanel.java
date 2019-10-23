@@ -6,6 +6,7 @@ import com.github.lgooddatepicker.components.TimePickerSettings;
 import config.Labels;
 import core.ColorManager;
 import core.ConstantManager;
+import core.parameter.Parameters;
 import core.processing.GetFromRemoteAndStore;
 import gui.chart.ChartDatasetManager;
 import gui.gantt.MonitorGantt2;
@@ -28,7 +29,6 @@ import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedHashMap;
@@ -349,10 +349,9 @@ public class MonitorDbPanel {
         controlMainDetailHistory.revalidate();
     }
 
-
     private GanttParam getGanttParam(int numberOfHour){
-        Instant instant = Instant.now();
-        long timeStampMillis = instant.toEpochMilli();
+        Parameters param = new Parameters.Builder(0L, Long.MAX_VALUE).build();
+        long timeStampMillis = storeManager.getDatabaseDAO().getMax(param);
 
         long currServerOrClientTime = getFromRemoteAndStore.getCurrServerTime() == 0L ?
                 timeStampMillis : getFromRemoteAndStore.getCurrServerTime();
