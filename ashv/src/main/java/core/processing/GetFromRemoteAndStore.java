@@ -110,7 +110,6 @@ public class GetFromRemoteAndStore {
         if (!this.isFirstRun) {
             this.olapCacheManager.setIProfile(this.iProfile);
             this.storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
-            this.storeManager.getDatabaseDAO().setConvertManager(this.convertManager);
 
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.loadMetadata();
@@ -123,6 +122,8 @@ public class GetFromRemoteAndStore {
     }
 
     public void loadDataFromRemoteToLocalStore() {
+        this.loadDataFromRemoteToLocalStoreSetConvertManager();
+
         this.loadSqlsMetadata();
 
         // For main chart
@@ -151,6 +152,10 @@ public class GetFromRemoteAndStore {
         }
 
         this.storeManager.syncBdb();
+    }
+
+    public void loadDataFromRemoteToLocalStoreSetConvertManager(){
+        this.storeManager.getDatabaseDAO().setConvertManager(this.convertManager);
     }
 
     private void loadUsername() {
