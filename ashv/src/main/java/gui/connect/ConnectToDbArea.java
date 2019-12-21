@@ -5,6 +5,7 @@ import config.Labels;
 import core.manager.ColorManager;
 import core.manager.ConnectionManager;
 import core.manager.ConstantManager;
+import core.parameter.ConnectionParameters;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.MainTabbedPane;
@@ -405,31 +406,15 @@ public class ConnectToDbArea extends JDialog {
     }
 
     private void selectFromDbAndSetInGui(String connName){
-        connectionManager.setConnectionName(connName);
+        ConnectionParameters connParameters = connectionManager.getConnectionParameters(connName);
 
-        connNameTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                        Labels.getLabel("local.sql.metadata.connection"),
-                        connName, Labels.getLabel("local.sql.metadata.connection.name")));
-        usernameTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connName, Labels.getLabel("local.sql.metadata.connection.username")));
-        passwordTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connName, Labels.getLabel("local.sql.metadata.connection.password")));
-        urlTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connName, Labels.getLabel("local.sql.metadata.connection.url")));
-        jarTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connName, Labels.getLabel("local.sql.metadata.connection.jar")));
-        profileBox.setSelectedItem(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connName, Labels.getLabel("local.sql.metadata.connection.profile")));
-
-        /*rawDataDaysRetainTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connName, Labels.getLabel("local.sql.metadata.connection.other.raw")));*/
-        rawDataDaysRetainTF.setText(String.valueOf(connectionManager.getRetainDays()));
+        connNameTF.setText(connParameters.getConnectionName());
+        usernameTF.setText(connParameters.getUserName());
+        passwordTF.setText(connParameters.getPassword());
+        urlTF.setText(connParameters.getUrl());
+        jarTF.setText(connParameters.getJar());
+        profileBox.setSelectedItem(connParameters.getProfile());
+        rawDataDaysRetainTF.setText(connParameters.getRawRetainDays());
 
         String selItem = (String) profileBox.getSelectedItem();
         if (selItem != null && selItem.equalsIgnoreCase(String.valueOf(ConstantManager.Profile.OracleEE))) {
@@ -446,36 +431,17 @@ public class ConnectToDbArea extends JDialog {
     private void saveData(){
         this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
 
-        connectionManager.setConnectionName(connNameTF.getText());
+        ConnectionParameters connParameters = new ConnectionParameters.Builder(connNameTF.getText())
+                .userName(usernameTF.getText())
+                .password(passwordTF.getText())
+                .url(urlTF.getText())
+                .jar(jarTF.getText())
+                .profile(String.valueOf((profileBox.getSelectedItem())))
+                .driverName(iProfile.getDriverName())
+                .rawRetainDays(rawDataDaysRetainTF.getText())
+                .build();
 
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.name"),connNameTF.getText());
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.username"),usernameTF.getText());
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.password"),passwordTF.getText());
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.url"),urlTF.getText());
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.jar"),jarTF.getText());
-
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.profile"),String.valueOf((profileBox.getSelectedItem())));
-
-        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.driver"),iProfile.getDriverName());
-
-        /*storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
-                Labels.getLabel("local.sql.metadata.connection.other.raw"),rawDataDaysRetainTF.getText());*/
-        connectionManager.setRetentionDays(rawDataDaysRetainTF.getText());
+        connectionManager.saveConnection(connParameters);
 
         storeManager.syncRepo();
     }
@@ -496,7 +462,6 @@ public class ConnectToDbArea extends JDialog {
                 .getModuleMetadata(moduleName)
                 .forEach(m -> {
                     modelConn.addRow(new Object[]{m.getConnName()});
-                    connectionManager.setConnectionName(m.getConnName());
                 });
 
         try {
@@ -515,8 +480,6 @@ public class ConnectToDbArea extends JDialog {
                             .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
                             .findFirst()
                             .get();
-
-            connectionManager.setConnectionName(connNameTF.getText());
 
             getFromRemoteAndStore.initConnection(connection); //
             getFromRemoteAndStore.initProfile(iProfile); //
@@ -554,8 +517,6 @@ public class ConnectToDbArea extends JDialog {
                             .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
                             .findFirst()
                             .get();
-
-            connectionManager.setConnectionName(connNameTF.getText());
 
             getFromRemoteAndStore.initProfile(iProfile); //
 
