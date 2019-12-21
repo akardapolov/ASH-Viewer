@@ -2,8 +2,9 @@ package core.processing;
 
 import com.sleepycat.persist.EntityCursor;
 import config.Labels;
-import core.ColorManager;
-import core.ConstantManager;
+import core.manager.ColorManager;
+import core.manager.ConnectionManager;
+import core.manager.ConstantManager;
 import core.parameter.Parameters;
 import gui.chart.CategoryTableXYDatasetRDA;
 import gui.chart.ChartDatasetManager;
@@ -51,6 +52,7 @@ public class GetFromRemoteAndStore {
     private ConvertManager convertManager;
     private ChartDatasetManager chartDatasetManager;
     private RawStoreManager rawStoreManager;
+    private ConnectionManager connectionManager;
 
     private OlapCacheManager olapCacheManager;
 
@@ -58,6 +60,7 @@ public class GetFromRemoteAndStore {
     private long sampleTimeG = 0L;
     @Getter private long currServerTime = 0L;
 
+    @Getter
     private ConnectionMetadata connectionMetadata;
 
     private Connection connection = null;
@@ -82,7 +85,8 @@ public class GetFromRemoteAndStore {
                                  OlapCacheManager olapCacheManager,
                                  ConvertManager convertManager,
                                  ChartDatasetManager chartDatasetManager,
-                                 RawStoreManager rawStoreManager) {
+                                 RawStoreManager rawStoreManager,
+                                 ConnectionManager connectionManager) {
         this.colorManager = colorManager;
         this.remoteDBManager = remoteDBManagers;
         this.storeManager = storeManager;
@@ -90,6 +94,7 @@ public class GetFromRemoteAndStore {
         this.convertManager = convertManager;
         this.chartDatasetManager = chartDatasetManager;
         this.rawStoreManager = rawStoreManager;
+        this.connectionManager = connectionManager;
     }
 
     public void initConnection(ConnectionMetadata connectionMetadata) throws SQLException{
@@ -419,7 +424,9 @@ public class GetFromRemoteAndStore {
                     }
                 }
 
-                rows.add(columns);
+                if (connectionManager.getRetainDays() > 0){
+                    rows.add(columns);
+                }
 
                 LocalDateTime sampleTimeDt =
                         LocalDateTime.ofInstant(Instant.ofEpochMilli(sampleTime), ZoneId.systemDefault());

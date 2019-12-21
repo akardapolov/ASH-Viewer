@@ -4,8 +4,8 @@ import com.github.lgooddatepicker.components.DatePickerSettings;
 import com.github.lgooddatepicker.components.DateTimePicker;
 import com.github.lgooddatepicker.components.TimePickerSettings;
 import config.Labels;
-import core.ColorManager;
-import core.ConstantManager;
+import core.manager.ColorManager;
+import core.manager.ConstantManager;
 import core.parameter.Parameters;
 import core.processing.GetFromRemoteAndStore;
 import gui.chart.ChartDatasetManager;
@@ -276,7 +276,6 @@ public class MonitorDbPanel {
         aRadioWeek.addItemListener(evt -> {
             AbstractButton sel = (AbstractButton)evt.getItemSelectable();
             if(evt.getStateChange() == ItemEvent.SELECTED){
-                System.out.println(ItemEvent.SELECTED);
                 if (sel.getText().equalsIgnoreCase(String.valueOf(ConstantManager.History.Week))){
                     ProgressBarUtil.runProgressDialog(()
                             -> historyPanel.initializeGui(getGanttParam(168)), jFrame, "Loading data ..");
@@ -329,9 +328,6 @@ public class MonitorDbPanel {
         startEndDateTimePicker.add(new JLabel(), ""); // empty
         startEndDateTimePicker.add(buttonPanel, "gap 1");
         startEndDateTimePicker.add(new JLabel(), ""); // empty
-        /*startEndDateTimePicker.add(comboMappCategory, "gap 10");
-        startEndDateTimePicker.add(jButtonLoadToLocalDB, "gap 10");
-        startEndDateTimePicker.add(jButtonDeleteFromLocalDB, "gap 10");*/
 
         startEndDateTimePicker.add(new JLabel(Labels.getLabel("gui.history.date.start")), "");
         startEndDateTimePicker.add(custom.getDtpStart(), "gap 1");

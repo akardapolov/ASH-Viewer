@@ -4,7 +4,7 @@ import com.egantt.model.drawing.DrawingState;
 import com.egantt.model.drawing.part.ListDrawingPart;
 import com.egantt.model.drawing.state.BasicDrawingState;
 import com.sleepycat.persist.EntityCursor;
-import core.ConstantManager;
+import core.manager.ConstantManager;
 import ext.egantt.drawing.module.BasicPainterModule;
 import ext.egantt.swing.GanttDrawingPartHelper;
 import lombok.extern.slf4j.Slf4j;

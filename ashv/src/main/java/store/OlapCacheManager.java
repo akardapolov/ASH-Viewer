@@ -1,6 +1,6 @@
 package store;
 
-import core.ConstantManager;
+import core.manager.ConstantManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

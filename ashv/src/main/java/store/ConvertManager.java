@@ -1,7 +1,7 @@
 package store;
 
 import config.Labels;
-import core.ConstantManager;
+import core.manager.ConstantManager;
 import lombok.extern.slf4j.Slf4j;
 import pojo.SqlColMetadata;
 import store.entity.database.MainData;

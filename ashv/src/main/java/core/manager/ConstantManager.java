@@ -1,4 +1,4 @@
-package core;
+package core.manager;
 
 import org.rtv.Options;
 
@@ -20,6 +20,11 @@ public final class ConstantManager extends LinkedHashMap {
     public enum Profile {OracleEE, OracleSE, Postgres, Postgres96}
 
     public enum History {Hour8, Hour12, Day1, Week, Month, Custom}
+
+    public enum RetainRawData {Never, Always};
+
+    public static int RETAIN_DAYS_MIN = 0;
+    public static int RETAIN_DAYS_MAX = 101;
 
     private static Map coreOpt = new LinkedHashMap();
 

@@ -1,6 +1,6 @@
 package profile;
 
-import core.ConstantManager;
+import core.manager.ConstantManager;
 import org.rtv.Options;
 
 import java.awt.*;

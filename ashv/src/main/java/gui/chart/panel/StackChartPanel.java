@@ -1,7 +1,7 @@
 package gui.chart.panel;
 
 import config.Labels;
-import core.ColorManager;
+import core.manager.ColorManager;
 import gui.chart.CategoryTableXYDatasetRDA;
 import lombok.Getter;
 import lombok.Setter;

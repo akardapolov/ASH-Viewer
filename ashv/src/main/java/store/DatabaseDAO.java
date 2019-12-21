@@ -4,7 +4,7 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityIndex;
 import config.Labels;
-import core.ConstantManager;
+import core.manager.ConstantManager;
 import core.parameter.Parameters;
 import lombok.Getter;
 import lombok.Setter;
@@ -129,6 +129,22 @@ public class DatabaseDAO {
         EntityCursor<MainData> entityCursor =
                 doRangeQuery(this.mainDataDAO.getPrimaryIndex(), start, true, end, true);
         return entityCursor;
+    }
+
+    public void deleteMainData(long start, long end){
+        EntityCursor<MainData> entityCursor =
+                doRangeQuery(this.mainDataDAO.getPrimaryIndex(), start, true, end, true);
+
+        try {
+            for (MainData entity = entityCursor.first(); entity != null; entity = entityCursor.next()) {
+                    entityCursor.delete();
+            }
+        } catch (Exception e){
+            log.error(e.getMessage());
+        } finally {
+            entityCursor.close();
+         }
+
     }
 
     private String getDateTimeStr(long dtValue){

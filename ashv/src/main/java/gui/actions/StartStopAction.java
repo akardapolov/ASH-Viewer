@@ -1,10 +1,9 @@
 package gui.actions;
 
 import config.Labels;
-import core.CurrrentState;
-import core.SqlExecutorThread;
-import core.StateMachine;
-import core.StateTransitionListener;
+import core.*;
+import core.thread.ClearDatabaseThread;
+import core.thread.SqlExecutorThread;
 import gui.BasicFrame;
 
 import javax.inject.Inject;
@@ -19,16 +18,19 @@ public class StartStopAction implements ActionListener, StateTransitionListener 
 
     private StateMachine stateMachine;
     private SqlExecutorThread sqlExecutorThread;
+    private ClearDatabaseThread clearDatabaseThread;
 
     String[] buttonTexts = new String[CurrrentState.values().length];
 
     @Inject
     public StartStopAction(BasicFrame jFrame,
                            StateMachine stateMachine,
-                           SqlExecutorThread sqlExecutorThread){
+                           SqlExecutorThread sqlExecutorThread,
+                           ClearDatabaseThread clearDatabaseThread){
         this.jFrame = jFrame;
         this.stateMachine = stateMachine;
         this.sqlExecutorThread = sqlExecutorThread;
+        this.clearDatabaseThread = clearDatabaseThread;
 
         stateMachine.addTransitionListener(this);
 
@@ -55,6 +57,7 @@ public class StartStopAction implements ActionListener, StateTransitionListener 
                 this.startStopButton.setEnabled(false);
                 this.stateMachine.startScanning();
                 this.sqlExecutorThread.startIt();
+                this.clearDatabaseThread.schedulerTimer();
                 this.startStopButton.setEnabled(true);
                 break;
             case STOP:

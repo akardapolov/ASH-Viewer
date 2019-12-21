@@ -1,7 +1,7 @@
 package gui.chart;
 
 import config.Labels;
-import core.ColorManager;
+import core.manager.ColorManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.chart.panel.NameChartDataset;

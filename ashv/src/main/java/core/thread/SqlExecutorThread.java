@@ -1,5 +1,8 @@
-package core;
+package core.thread;
 
+import core.CurrrentState;
+import core.StateMachine;
+import core.StateTransitionListener;
 import core.processing.GetFromRemoteAndStore;
 import lombok.extern.slf4j.Slf4j;
 import store.OlapCacheManager;
@@ -11,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class SqlExecutorThread implements StateTransitionListener{
+public class SqlExecutorThread implements StateTransitionListener {
 
     private StateMachine stateMachine;
     private StoreManager storeManager;

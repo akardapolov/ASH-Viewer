@@ -2,7 +2,7 @@ package config.dagger;
 
 import config.FileConfig;
 import config.GUIConfig;
-import core.ColorManager;
+import core.manager.ColorManager;
 import gui.events.GlobalKeyBindings;
 import lombok.Getter;
 import store.BerkleyDB;

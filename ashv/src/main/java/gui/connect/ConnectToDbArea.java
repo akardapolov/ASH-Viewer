@@ -2,8 +2,9 @@ package gui.connect;
 
 import config.GUIConfig;
 import config.Labels;
-import core.ColorManager;
-import core.ConstantManager;
+import core.manager.ColorManager;
+import core.manager.ConnectionManager;
+import core.manager.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.MainTabbedPane;
@@ -14,6 +15,7 @@ import gui.util.ProgressBarUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.JXTextField;
 import pojo.ConnectionMetadata;
 import profile.*;
 import store.StoreManager;
@@ -43,12 +45,15 @@ public class ConnectToDbArea extends JDialog {
     private StoreManager storeManager;
     private GetFromRemoteAndStore getFromRemoteAndStore;
     private ColorManager colorManager;
+    private ConnectionManager connectionManager;
     private MonitorDbPanel monitorDbPanel;
     private ChartDatasetManager chartDatasetManager;
     private MainTabbedPane mainTabbedPane;
 
     private JPanel mainJPanel;
-    private JPanel detailJPanel;
+    private JTabbedPane connJTabbedPane;
+    private JPanel connMainJPanel;
+    private JPanel connOtherJPanel;
     private JPanel buttonPanel;
 
     private JButton jButtonConnect;
@@ -74,20 +79,20 @@ public class ConnectToDbArea extends JDialog {
     static final Color LABEL_COLOR = new Color(0, 70, 213);
     private JScrollPane tableDataPaneConn;
 
-    private JLabel separatorLbl = new JLabel(Labels.getLabel("gui.connection.connection"));
-    private JLabel profileLbl = new JLabel(Labels.getLabel("gui.connection.profile"));
+    private JLabel separatorConnLbl = new JLabel(Labels.getLabel("gui.connection.connection"));
+    private JLabel separatorProfileLbl = new JLabel(Labels.getLabel("gui.connection.profile"));
 
     private JLabel connNameLbl = new JLabel(Labels.getLabel("gui.connection.name"), SwingConstants.LEADING);
     private JLabel usernameLbl = new JLabel(Labels.getLabel("gui.connection.username"), SwingConstants.LEADING);
     private JLabel passwordLbl = new JLabel(Labels.getLabel("gui.connection.password"), SwingConstants.LEADING);
     private JLabel urlLbl = new JLabel(Labels.getLabel("gui.connection.url"));
-
     private JLabel profileNameLbl = new JLabel(Labels.getLabel("gui.connection.name"),SwingConstants.LEADING);
-
     private JLabel profileDetailLbl = new JLabel(Labels.getLabel("gui.connection.profile.detail"));
     private JLabel profileMessageLbl = new JLabel(Labels.getLabel("gui.connection.profile.message"));
-
     private JLabel offlineLbl = new JLabel(Labels.getLabel("gui.connection.offline"));
+
+    private JLabel separatorRetainLbl = new JLabel(Labels.getLabel("gui.connection.retain"));
+    private JLabel retainRawData = new JLabel(Labels.getLabel("gui.connection.retain.raw"));
 
     private JTextField connNameTF = new JTextField();
     private JTextField usernameTF = new JTextField();
@@ -95,9 +100,12 @@ public class ConnectToDbArea extends JDialog {
     private JTextField urlTF = new HintTextField(Labels.getLabel("gui.connection.url.hint"));
     private JTextField jarTF = new HintTextField(Labels.getLabel("gui.connection.jar.hint"));
     private JFileChooser jarFC = new JFileChooser();
-    private JCheckBox isOffline = new JCheckBox();
-
     private JComboBox<String> profileBox = new JComboBox<>();
+    private JCheckBox isOffline = new JCheckBox();
+    private JXTextField rawDataDaysRetainTF = new JXTextField();
+
+    private int DAYS_RETAIN_MIN = 0;
+    private int DAYS_RETAIN_MAX = 101;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -109,6 +117,7 @@ public class ConnectToDbArea extends JDialog {
                            StoreManager storeManager,
                            GetFromRemoteAndStore getFromRemoteAndStore,
                            ColorManager colorManager,
+                           ConnectionManager connectionManager,
                            MonitorDbPanel monitorDbPanel,
                            ChartDatasetManager chartDatasetManager,
                            @Named("startStopButton") JButton startStopButton,
@@ -121,6 +130,7 @@ public class ConnectToDbArea extends JDialog {
         this.storeManager = storeManager;
         this.getFromRemoteAndStore = getFromRemoteAndStore;
         this.colorManager = colorManager;
+        this.connectionManager = connectionManager;
         this.monitorDbPanel = monitorDbPanel;
         this.chartDatasetManager = chartDatasetManager;
         this.startStopButton = startStopButton;
@@ -130,13 +140,15 @@ public class ConnectToDbArea extends JDialog {
     }
 
     private void init(){
-        //MigLayout lmMain = new MigLayout("debug", "[grow][][grow]", "[][][]");
         MigLayout lmMain = new MigLayout("", "[grow][][grow]", "[][][]");
-        MigLayout lmDetail = new MigLayout("ins 10", "[para]0[grow][150lp, fill][60lp][95lp, fill]", "");
+        MigLayout lmConnMain = new MigLayout("ins 10", "[para]0[grow][150lp, fill][60lp][95lp, fill]", "");
+        MigLayout lmConnOther = new MigLayout("ins 10", "[para]0[grow][200lp, fill][60lp][95lp, fill]", "");
         MigLayout lmButtonPanel = new MigLayout("fillx", "[50lp][50lp][50lp][50lp]");
 
         mainJPanel = new JPanel(lmMain);
-        detailJPanel = new JPanel(lmDetail);
+        connJTabbedPane = new JTabbedPane();
+        connMainJPanel = new JPanel(lmConnMain);
+        connOtherJPanel = new JPanel(lmConnOther);
         buttonPanel = new JPanel(lmButtonPanel);
 
         this.init_gui();
@@ -196,49 +208,48 @@ public class ConnectToDbArea extends JDialog {
         tableDataPaneConn.setVerticalScrollBar(tableDataPaneConn.getVerticalScrollBar());
 
         /******/
-        separatorLbl.setForeground(LABEL_COLOR);
-        detailJPanel.add(separatorLbl, "gapbottom 1, span, split 2, aligny center");
-        detailJPanel.add(new JSeparator(), "gapleft rel, growx");
+        separatorConnLbl.setForeground(LABEL_COLOR);
+        connMainJPanel.add(separatorConnLbl, "gapbottom 1, span, split 2, aligny center");
+        connMainJPanel.add(new JSeparator(), "gapleft rel, growx");
 
-        detailJPanel.add(connNameLbl,   "skip");
-        detailJPanel.add(connNameTF,    "span, growx");
+        connMainJPanel.add(connNameLbl,   "skip");
+        connMainJPanel.add(connNameTF,    "span, growx");
 
-        detailJPanel.add(urlLbl,   "skip");
-        detailJPanel.add(urlTF,    "span, growx");
+        connMainJPanel.add(urlLbl,   "skip");
+        connMainJPanel.add(urlTF,    "span, growx");
         urlTF.setToolTipText(Labels.getLabel("gui.connection.url.tooltip"));
 
-        detailJPanel.add(usernameLbl,   "skip");
-        detailJPanel.add(usernameTF,    "span, growx");
+        connMainJPanel.add(usernameLbl,   "skip");
+        connMainJPanel.add(usernameTF,    "span, growx");
 
-        detailJPanel.add(passwordLbl,   "skip");
-        detailJPanel.add(passwordTF,    "span, growx");
+        connMainJPanel.add(passwordLbl,   "skip");
+        connMainJPanel.add(passwordTF,    "span, growx");
 
-        separatorLbl.setForeground(LABEL_COLOR);
-        detailJPanel.add(profileLbl, "gapbottom 1, span, split 2, aligny center");
-        detailJPanel.add(new JSeparator(), "gapleft rel, growx");
+        separatorProfileLbl.setForeground(LABEL_COLOR);
+        connMainJPanel.add(separatorProfileLbl, "gapbottom 1, span, split 2, aligny center");
+        connMainJPanel.add(new JSeparator(), "gapleft rel, growx");
 
         Arrays.stream(ConstantManager.Profile.values()).forEach(k -> profileBox.addItem(k.name()));
-        detailJPanel.add(profileNameLbl,   "skip");
-        detailJPanel.add(profileBox,   "span, growx");
+        connMainJPanel.add(profileNameLbl,   "skip");
+        connMainJPanel.add(profileBox,   "span, growx");
 
-        detailJPanel.add(profileDetailLbl, "skip");
-        detailJPanel.add(profileMessageLbl,   "span, growx");
+        connMainJPanel.add(profileDetailLbl, "skip");
+        connMainJPanel.add(profileMessageLbl,   "span, growx");
 
-        detailJPanel.add(openFileButton,    "skip, wmin 30");
-        detailJPanel.add(jarTF,    "span, growx, wmin 150");
+        connMainJPanel.add(openFileButton,    "skip, wmin 30");
+        connMainJPanel.add(jarTF,    "span, growx, wmin 150");
 
-        detailJPanel.add(offlineLbl,   "skip");
-        detailJPanel.add(isOffline,   "span, growx");
-
+        connMainJPanel.add(offlineLbl,   "skip");
+        connMainJPanel.add(isOffline,   "span, growx");
         isOffline.setSelected(false);
-        /*isOffline.addItemListener(e -> {
-            if (!isOffline.isSelected()){
-                setDetailEditable(false);
-            }else {
-                setDetailEditable(true);
-                connNameTF.setEnabled(false);
-            }
-        });*/
+
+        separatorRetainLbl.setForeground(LABEL_COLOR);
+        connOtherJPanel.add(separatorRetainLbl, "gapbottom 1, span, split 2, aligny center");
+        connOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
+
+        connOtherJPanel.add(retainRawData,   "skip");
+        connOtherJPanel.add(rawDataDaysRetainTF,    "span, growx");
+        rawDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.raw.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
             this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
@@ -263,13 +274,11 @@ public class ConnectToDbArea extends JDialog {
         jButtonNewConn.addActionListener(e ->{
             this.setDetailEditable(true);
             this.clearProfileFields();
-            //this.isOffline.setEnabled(false);
         });
 
         jButtonCopyConn.addActionListener(e ->{
             this.setDetailEditable(true);
             this.copyConnection();
-            //this.isOffline.setEnabled(false);
         });
 
         jButtonDeleteConn.addActionListener(e -> executor.submit(() -> {
@@ -278,7 +287,6 @@ public class ConnectToDbArea extends JDialog {
                 jButtonNewConn.setEnabled(false);
                 jButtonCopyConn.setEnabled(false);
                 jButtonDeleteConn.setEnabled(false);
-                //this.isOffline.setEnabled(false);
 
                 this.deleteData();
                 this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
@@ -287,7 +295,6 @@ public class ConnectToDbArea extends JDialog {
                 jButtonNewConn.setEnabled(true);
                 jButtonCopyConn.setEnabled(true);
                 jButtonDeleteConn.setEnabled(true);
-                //this.isOffline.setEnabled(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -298,6 +305,7 @@ public class ConnectToDbArea extends JDialog {
             executor.submit(() -> {
                 try {
                     setDetailEditable(true);
+                    setNumForRawDataDaysRetainTF();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -309,14 +317,14 @@ public class ConnectToDbArea extends JDialog {
             /** create and save data **/
             executor.submit(() -> {
                 try {
-                    //this.isOffline.setEnabled(true);
                     jButtonSaveConn.setEnabled(false);
                     jButtonCancel.setEnabled(false);
 
                     this.saveData();
                     this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                     this.setDetailEditable(false);
-                    //this.isOffline.setSelected(false);
+
+                    setTextRawDataDaysRetainTF();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -328,13 +336,13 @@ public class ConnectToDbArea extends JDialog {
         jButtonCancel.addActionListener(e ->{
             /** cancel **/
             executor.submit(() -> {
-                //this.isOffline.setEnabled(true);
                 jButtonSaveConn.setEnabled(false);
                 jButtonCancel.setEnabled(false);
 
                 this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                 this.setDetailEditable(false);
-                //this.isOffline.setSelected(false);
+
+                setTextRawDataDaysRetainTF();
             });
             /** cancel **/
         });
@@ -355,9 +363,12 @@ public class ConnectToDbArea extends JDialog {
         buttonPanel.add(jButtonCancel, "gap 1");
         /******/
 
+        connJTabbedPane.add(connMainJPanel, Labels.getLabel("gui.connection.connection.main"));
+        connJTabbedPane.add(connOtherJPanel, Labels.getLabel("gui.connection.connection.other"));
+
         mainJPanel.add(buttonPanel, "wrap, span 2, wmin 200");
         mainJPanel.add(tableDataPaneConn, "growy, span 1, wmin 150");
-        mainJPanel.add(detailJPanel, "top, growx, wmin 200");
+        mainJPanel.add(connJTabbedPane, "top, growx, wmin 200");
 
         JdialogComponentListener jdialogComponentListener = new JdialogComponentListener();
         this.addComponentListener(jdialogComponentListener);
@@ -371,6 +382,7 @@ public class ConnectToDbArea extends JDialog {
         profileBox.setEnabled(bParameter);
         jarTF.setEnabled(bParameter);
         openFileButton.setEnabled(bParameter);
+        rawDataDaysRetainTF.setEnabled(bParameter);
 
         jButtonConnect.setEnabled(!bParameter);
         jButtonNewConn.setEnabled(!bParameter);
@@ -386,12 +398,15 @@ public class ConnectToDbArea extends JDialog {
         passwordTF.setText("");
         urlTF.setText("");
         jarTF.setText("");
+        rawDataDaysRetainTF.setText("");
     }
     private void copyConnection(){
         connNameTF.setText("");
     }
 
     private void selectFromDbAndSetInGui(String connName){
+        connectionManager.setConnectionName(connName);
+
         connNameTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
                         Labels.getLabel("local.sql.metadata.connection"),
                         connName, Labels.getLabel("local.sql.metadata.connection.name")));
@@ -411,6 +426,11 @@ public class ConnectToDbArea extends JDialog {
                 Labels.getLabel("local.sql.metadata.connection"),
                 connName, Labels.getLabel("local.sql.metadata.connection.profile")));
 
+        /*rawDataDaysRetainTF.setText(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
+                Labels.getLabel("local.sql.metadata.connection"),
+                connName, Labels.getLabel("local.sql.metadata.connection.other.raw")));*/
+        rawDataDaysRetainTF.setText(String.valueOf(connectionManager.getRetainDays()));
+
         String selItem = (String) profileBox.getSelectedItem();
         if (selItem != null && selItem.equalsIgnoreCase(String.valueOf(ConstantManager.Profile.OracleEE))) {
             profileMessageLbl.setVisible(true);
@@ -418,10 +438,15 @@ public class ConnectToDbArea extends JDialog {
             profileMessageLbl.setVisible(false);
         }
 
+        if (!rawDataDaysRetainTF.isEnabled()) {
+            setTextRawDataDaysRetainTF();
+        }
     }
 
     private void saveData(){
         this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
+
+        connectionManager.setConnectionName(connNameTF.getText());
 
         storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
                 Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
@@ -447,6 +472,11 @@ public class ConnectToDbArea extends JDialog {
                 Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
                 Labels.getLabel("local.sql.metadata.connection.driver"),iProfile.getDriverName());
 
+        /*storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
+                Labels.getLabel("local.sql.metadata.connection"), connNameTF.getText(),
+                Labels.getLabel("local.sql.metadata.connection.other.raw"),rawDataDaysRetainTF.getText());*/
+        connectionManager.setRetentionDays(rawDataDaysRetainTF.getText());
+
         storeManager.syncRepo();
     }
 
@@ -464,9 +494,10 @@ public class ConnectToDbArea extends JDialog {
 
         storeManager.getRepositoryDAO()
                 .getModuleMetadata(moduleName)
-                .stream()
-                .forEach(m -> modelConn.addRow(new Object[]
-                        {m.getConnName()}));
+                .forEach(m -> {
+                    modelConn.addRow(new Object[]{m.getConnName()});
+                    connectionManager.setConnectionName(m.getConnName());
+                });
 
         try {
             tableConn.setRowSelectionInterval(0, 0);
@@ -484,6 +515,8 @@ public class ConnectToDbArea extends JDialog {
                             .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
                             .findFirst()
                             .get();
+
+            connectionManager.setConnectionName(connNameTF.getText());
 
             getFromRemoteAndStore.initConnection(connection); //
             getFromRemoteAndStore.initProfile(iProfile); //
@@ -521,6 +554,8 @@ public class ConnectToDbArea extends JDialog {
                             .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
                             .findFirst()
                             .get();
+
+            connectionManager.setConnectionName(connNameTF.getText());
 
             getFromRemoteAndStore.initProfile(iProfile); //
 
@@ -562,7 +597,6 @@ public class ConnectToDbArea extends JDialog {
                     }
                 }
             }
-            //output.setCaretPosition(output.getDocument().getLength());
         }
     }
 
@@ -591,10 +625,37 @@ public class ConnectToDbArea extends JDialog {
         @Override public void componentMoved(ComponentEvent e) { }
         @Override public void componentShown(ComponentEvent e) { }
         @Override public void componentHidden(ComponentEvent e) {
-            //mainTabbedPane.setSelectedIndex(mainTabbedPane.getTabCount()-1);
             mainTabbedPane.requestFocus();
         }
     }
 
+    private int getNumForRawDataDaysRetainTF(){
+        int curValue = 101;
+
+        try {
+            curValue = Integer.parseInt(rawDataDaysRetainTF.getText());
+        } catch (NumberFormatException ex) {
+            log.info("Raw data days retain text field contains char data or empty");
+            return  curValue;
+        }
+
+        return  curValue;
+    }
+
+    private void setNumForRawDataDaysRetainTF() {
+        if (rawDataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainRawData.Never))){
+            rawDataDaysRetainTF.setText(String.valueOf(DAYS_RETAIN_MIN));
+        } else if (rawDataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainRawData.Always))) {
+            rawDataDaysRetainTF.setText(String.valueOf(DAYS_RETAIN_MAX));
+        }
+    }
+
+    private void setTextRawDataDaysRetainTF(){
+        if (getNumForRawDataDaysRetainTF() <= DAYS_RETAIN_MIN) {
+            rawDataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainRawData.Never));
+        } else if (getNumForRawDataDaysRetainTF() >= DAYS_RETAIN_MAX) {
+            rawDataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainRawData.Always));
+        }
+    }
 
 }

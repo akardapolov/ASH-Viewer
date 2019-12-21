@@ -1,7 +1,7 @@
 package gui;
 
 import config.Labels;
-import core.ColorManager;
+import core.manager.ColorManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.chart.CategoryTableXYDatasetRDA;
 import gui.chart.ChartDatasetManager;
@@ -244,9 +244,6 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
     @Override
     public void LoadDataToDetail(GanttParam ganttParam) {
-        /*ProgressBarUtil.runProgressDialog(()
-                -> LoadDataToDetail0(ganttParam), jFrame, "Loading data ..");*/
-
         ProgressBarUtil.loadProgressBar(this, this.detailJPanel, "Loading, please wait...");
         Thread t = new Thread() {
             @Override
@@ -262,9 +259,6 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
     }
 
     public void LoadDataToDetail0(GanttParam ganttParam) {
-        //detailJPanel = new JPanel();
-        //detailJPanel.setLayout(new BorderLayout());
-
         JTabbedPane tabsTopActAndDetails = new JTabbedPane();
 
         JSplitPane topASplitPane = new JSplitPane();
@@ -288,8 +282,5 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         detailJPanel.add(tabsTopActAndDetails, BorderLayout.CENTER);
         detailJPanel.repaint();
         detailJPanel.validate();
-
-        /*mainHistoryJPanel.revalidate();
-        mainHistoryJPanel.repaint();*/
     }
 }

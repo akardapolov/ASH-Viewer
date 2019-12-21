@@ -2,7 +2,7 @@ package store;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.*;
-import core.ConstantManager;
+import core.manager.ConstantManager;
 import gui.chart.CategoryTableXYDatasetRDA;
 import gui.chart.panel.NameChartDataset;
 import gui.chart.panel.StackChartPanel;
