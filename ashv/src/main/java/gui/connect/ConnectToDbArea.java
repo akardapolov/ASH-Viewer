@@ -590,19 +590,6 @@ public class ConnectToDbArea extends JDialog {
         }
     }
 
-    private int getNumForRawDataDaysRetainTF(){
-        int curValue = 101;
-
-        try {
-            curValue = Integer.parseInt(rawDataDaysRetainTF.getText());
-        } catch (NumberFormatException ex) {
-            log.info("Raw data days retain text field contains char data or empty");
-            return  curValue;
-        }
-
-        return  curValue;
-    }
-
     private void setNumForRawDataDaysRetainTF() {
         if (rawDataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainRawData.Never))){
             rawDataDaysRetainTF.setText(String.valueOf(DAYS_RETAIN_MIN));
@@ -612,9 +599,9 @@ public class ConnectToDbArea extends JDialog {
     }
 
     private void setTextRawDataDaysRetainTF(){
-        if (getNumForRawDataDaysRetainTF() <= DAYS_RETAIN_MIN) {
+        if (connectionManager.getRetainDays() <= DAYS_RETAIN_MIN) {
             rawDataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainRawData.Never));
-        } else if (getNumForRawDataDaysRetainTF() >= DAYS_RETAIN_MAX) {
+        } else if (connectionManager.getRetainDays() >= DAYS_RETAIN_MAX) {
             rawDataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainRawData.Always));
         }
     }
