@@ -1,6 +1,7 @@
 package core.thread;
 
 import core.manager.ConnectionManager;
+import core.manager.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import lombok.extern.slf4j.Slf4j;
 import store.OlapCacheManager;
@@ -26,8 +27,6 @@ public class ClearDatabaseThread {
     private ConnectionManager connectionManager;
 
     private Timer timer = new Timer();
-
-    private int DAYS_RETAIN_MAX = 101;
 
     @Inject
     public ClearDatabaseThread(StoreManager storeManager,
@@ -57,7 +56,7 @@ public class ClearDatabaseThread {
             long start = 0L;
             long end = getFromRemoteAndStore.getCurrServerTime() - TimeUnit.DAYS.toMillis(intDays); ;
 
-            if (intDays > 0 & intDays < DAYS_RETAIN_MAX) {
+            if (intDays > 0 & intDays < ConstantManager.RETAIN_DAYS_MAX) {
                 Instant startedAt = Instant.now();
                 log.info("Clear of database procedure started ..");
 
