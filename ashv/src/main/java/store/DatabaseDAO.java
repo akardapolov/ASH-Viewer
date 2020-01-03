@@ -4,7 +4,6 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityIndex;
 import config.Labels;
-import core.manager.ConstantManager;
 import core.parameter.Parameters;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,17 +94,16 @@ public class DatabaseDAO {
 
                             SqlColMetadata sColMetaD = sqlColMetadataStream.findFirst().get();
 
-                            String tmp = (String) convertManager.getMatrixDataForJTable(sColMetaD.getColDbTypeName(),
+                            String waitVal = (String) convertManager.getMatrixDataForJTable(sColMetaD.getColDbTypeName(),
                                     sColMetaD.getColId(), sl, row);
 
-                            if (!tmp.isEmpty()
-                                    & !tmp.equalsIgnoreCase(waitClassValue)){
+                            if (!waitVal.isEmpty() & !waitVal.equalsIgnoreCase(waitClassValue)){
                                 continue;
                             }
 
-                            // CPU used - oracle specific
-                            if (tmp.isEmpty()
-                                    & !waitClassValue.equalsIgnoreCase(ConstantManager.getWaitClass((byte) 0))){
+                            // CPU used - oracle/pg specific
+                            if (waitVal.isEmpty()
+                                    & !waitClassValue.equalsIgnoreCase(getOlapDAO().getIProfile().getWaitClass((byte) 0))){
                                 continue;
                             }
                         }
