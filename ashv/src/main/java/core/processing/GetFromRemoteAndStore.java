@@ -135,11 +135,8 @@ public class GetFromRemoteAndStore {
                 this.loadUsername();
 
                 // For main chart
-                iProfile.getUniqueTreeEventListByWaitClass().forEach(e-> {
-                    System.out.println(e);
-                    chartDatasetManager.getMainNameChartDataset()
-                            .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e);
-                });
+                iProfile.getUniqueTreeEventListByWaitClass().forEach(e-> chartDatasetManager.getMainNameChartDataset()
+                        .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e));
             }
 
             log.info("Start loading olap");
