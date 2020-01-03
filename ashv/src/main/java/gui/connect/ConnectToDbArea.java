@@ -93,7 +93,8 @@ public class ConnectToDbArea extends JDialog {
     private JLabel offlineLbl = new JLabel(Labels.getLabel("gui.connection.offline"));
 
     private JLabel separatorRetainLbl = new JLabel(Labels.getLabel("gui.connection.retain"));
-    private JLabel retainRawData = new JLabel(Labels.getLabel("gui.connection.retain.raw"));
+    private JLabel retainRawDataLbl = new JLabel(Labels.getLabel("gui.connection.retain.raw"));
+    private JLabel retainOlapDataLbl = new JLabel(Labels.getLabel("gui.connection.retain.olap"));
 
     private JTextField connNameTF = new JTextField();
     private JTextField usernameTF = new JTextField();
@@ -104,9 +105,7 @@ public class ConnectToDbArea extends JDialog {
     private JComboBox<String> profileBox = new JComboBox<>();
     private JCheckBox isOffline = new JCheckBox();
     private JXTextField rawDataDaysRetainTF = new JXTextField();
-
-    private int DAYS_RETAIN_MIN = 0;
-    private int DAYS_RETAIN_MAX = 101;
+    private JXTextField olapDataDaysRetainTF = new JXTextField();
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -248,9 +247,13 @@ public class ConnectToDbArea extends JDialog {
         connOtherJPanel.add(separatorRetainLbl, "gapbottom 1, span, split 2, aligny center");
         connOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
 
-        connOtherJPanel.add(retainRawData,   "skip");
+        connOtherJPanel.add(retainRawDataLbl,   "skip");
         connOtherJPanel.add(rawDataDaysRetainTF,    "span, growx");
         rawDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.raw.tooltip"));
+
+        connOtherJPanel.add(retainOlapDataLbl,   "skip");
+        connOtherJPanel.add(olapDataDaysRetainTF,    "span, growx");
+        olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
             this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
@@ -306,7 +309,8 @@ public class ConnectToDbArea extends JDialog {
             executor.submit(() -> {
                 try {
                     setDetailEditable(true);
-                    setNumForRawDataDaysRetainTF();
+                    setNumForDataDaysRetainTF(rawDataDaysRetainTF);
+                    setNumForDataDaysRetainTF(olapDataDaysRetainTF);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -325,7 +329,8 @@ public class ConnectToDbArea extends JDialog {
                     this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                     this.setDetailEditable(false);
 
-                    setTextRawDataDaysRetainTF();
+                    setTextDataDaysRetainTF(rawDataDaysRetainTF, connectionManager.getRawRetainDays());
+                    setOlapDataDaysRetainTF(olapDataDaysRetainTF, connectionManager.getOlapRetainDays());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -343,7 +348,8 @@ public class ConnectToDbArea extends JDialog {
                 this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                 this.setDetailEditable(false);
 
-                setTextRawDataDaysRetainTF();
+                setTextDataDaysRetainTF(rawDataDaysRetainTF, connectionManager.getRawRetainDays());
+                setOlapDataDaysRetainTF(olapDataDaysRetainTF, connectionManager.getOlapRetainDays());
             });
             /** cancel **/
         });
@@ -384,6 +390,7 @@ public class ConnectToDbArea extends JDialog {
         jarTF.setEnabled(bParameter);
         openFileButton.setEnabled(bParameter);
         rawDataDaysRetainTF.setEnabled(bParameter);
+        olapDataDaysRetainTF.setEnabled(bParameter);
 
         jButtonConnect.setEnabled(!bParameter);
         jButtonNewConn.setEnabled(!bParameter);
@@ -400,6 +407,7 @@ public class ConnectToDbArea extends JDialog {
         urlTF.setText("");
         jarTF.setText("");
         rawDataDaysRetainTF.setText("");
+        olapDataDaysRetainTF.setText("");
     }
     private void copyConnection(){
         connNameTF.setText("");
@@ -415,6 +423,7 @@ public class ConnectToDbArea extends JDialog {
         jarTF.setText(connParameters.getJar());
         profileBox.setSelectedItem(connParameters.getProfile());
         rawDataDaysRetainTF.setText(connParameters.getRawRetainDays());
+        olapDataDaysRetainTF.setText(connParameters.getOlapRetainDays());
 
         String selItem = (String) profileBox.getSelectedItem();
         if (selItem != null && selItem.equalsIgnoreCase(String.valueOf(ConstantManager.Profile.OracleEE))) {
@@ -424,7 +433,11 @@ public class ConnectToDbArea extends JDialog {
         }
 
         if (!rawDataDaysRetainTF.isEnabled()) {
-            setTextRawDataDaysRetainTF();
+            setTextDataDaysRetainTF(rawDataDaysRetainTF, connectionManager.getRawRetainDays());
+        }
+
+        if (!olapDataDaysRetainTF.isEnabled()) {
+            setOlapDataDaysRetainTF(olapDataDaysRetainTF, connectionManager.getOlapRetainDays());
         }
     }
 
@@ -439,6 +452,7 @@ public class ConnectToDbArea extends JDialog {
                 .profile(String.valueOf((profileBox.getSelectedItem())))
                 .driverName(iProfile.getDriverName())
                 .rawRetainDays(rawDataDaysRetainTF.getText())
+                .olapRetainDays(olapDataDaysRetainTF.getText())
                 .build();
 
         connectionManager.saveConnection(connParameters);
@@ -590,19 +604,26 @@ public class ConnectToDbArea extends JDialog {
         }
     }
 
-    private void setNumForRawDataDaysRetainTF() {
-        if (rawDataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainRawData.Never))){
-            rawDataDaysRetainTF.setText(String.valueOf(DAYS_RETAIN_MIN));
-        } else if (rawDataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainRawData.Always))) {
-            rawDataDaysRetainTF.setText(String.valueOf(DAYS_RETAIN_MAX));
+    private void setNumForDataDaysRetainTF(JXTextField dataDaysRetainTF) {
+        if (dataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainData.Never))){
+            dataDaysRetainTF.setText(String.valueOf(ConstantManager.RETAIN_DAYS_MIN));
+        } else if (dataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainData.Always))) {
+            dataDaysRetainTF.setText(String.valueOf(ConstantManager.RETAIN_DAYS_MAX));
         }
     }
 
-    private void setTextRawDataDaysRetainTF(){
-        if (connectionManager.getRetainDays() <= DAYS_RETAIN_MIN) {
-            rawDataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainRawData.Never));
-        } else if (connectionManager.getRetainDays() >= DAYS_RETAIN_MAX) {
-            rawDataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainRawData.Always));
+    private void setTextDataDaysRetainTF(JXTextField dataDaysRetainTF, int retainDays){
+        if (retainDays <= ConstantManager.RETAIN_DAYS_MIN) {
+            dataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainData.Never));
+        } else if (retainDays >= ConstantManager.RETAIN_DAYS_MAX) {
+            dataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainData.Always));
+        }
+    }
+
+    private void setOlapDataDaysRetainTF(JXTextField dataDaysRetainTF, int retainDays){
+        if ((retainDays <= ConstantManager.RETAIN_DAYS_MIN)
+                | (retainDays >= ConstantManager.RETAIN_DAYS_MAX)) {
+            dataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainData.Always));
         }
     }
 

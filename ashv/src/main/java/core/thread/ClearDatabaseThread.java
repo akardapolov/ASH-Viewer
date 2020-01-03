@@ -4,7 +4,6 @@ import core.manager.ConnectionManager;
 import core.manager.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import lombok.extern.slf4j.Slf4j;
-import store.OlapCacheManager;
 import store.StoreManager;
 
 import javax.inject.Inject;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class ClearDatabaseThread {
     private StoreManager storeManager;
-    private OlapCacheManager olapCacheManager;
 
     private GetFromRemoteAndStore getFromRemoteAndStore;
     private ConnectionManager connectionManager;
@@ -30,11 +28,9 @@ public class ClearDatabaseThread {
 
     @Inject
     public ClearDatabaseThread(StoreManager storeManager,
-                               OlapCacheManager olapCacheManager,
                                GetFromRemoteAndStore getFromRemoteAndStore,
                                ConnectionManager connectionManager) {
         this.storeManager = storeManager;
-        this.olapCacheManager = olapCacheManager;
         this.getFromRemoteAndStore = getFromRemoteAndStore;
         this.connectionManager = connectionManager;
     }
@@ -51,16 +47,21 @@ public class ClearDatabaseThread {
 
     class clearDatabase extends TimerTask {
         public void run() {
-            int intDays = connectionManager.getRetainDays();
+            int intRawDays = connectionManager.getRawRetainDays();
+            int intOlapDays = connectionManager.getOlapRetainDays();
 
             long start = 0L;
-            long end = getFromRemoteAndStore.getCurrServerTime() - TimeUnit.DAYS.toMillis(intDays); ;
+            long endRaw = getFromRemoteAndStore.getCurrServerTime() - TimeUnit.DAYS.toMillis(intRawDays);
+            long endOlap = getFromRemoteAndStore.getCurrServerTime() - TimeUnit.DAYS.toMillis(intOlapDays);
 
-            if (intDays > 0 & intDays < ConstantManager.RETAIN_DAYS_MAX) {
+            boolean isRawDataClean = (intRawDays > 0) & (intRawDays < ConstantManager.RETAIN_DAYS_MAX);
+            boolean isOlapDataClean = (intOlapDays > 0) & (intOlapDays < ConstantManager.RETAIN_DAYS_MAX);
+
+            if (isRawDataClean) {
                 Instant startedAt = Instant.now();
-                log.info("Clear of database procedure started ..");
+                log.info("Clearing of raw data started ..");
 
-                storeManager.getDatabaseDAO().deleteMainData(start, end);
+                storeManager.getDatabaseDAO().deleteMainData(start, endRaw);
 
                 Instant endedAt = Instant.now();
                 Duration duration = Duration.between(startedAt , endedAt);
@@ -70,7 +71,24 @@ public class ClearDatabaseThread {
                         duration.toMinutes(),
                         duration.toMillis()/1000);
 
-                log.info("Clear of database takes " + hms);
+                log.info("Clearing of raw data takes " + hms);
+            }
+
+            if (isOlapDataClean) {
+                Instant startedAt = Instant.now();
+                log.info("Clearing of OLAP data started ..");
+
+                storeManager.getDatabaseDAO().getOlapDAO().deleteOlapData(start, endOlap);
+
+                Instant endedAt = Instant.now();
+                Duration duration = Duration.between(startedAt , endedAt);
+
+                String hms = String.format("%d hour %02d min %02d sec",
+                        duration.toHours(),
+                        duration.toMinutes(),
+                        duration.toMillis()/1000);
+
+                log.info("Clearing of OLAP data takes " + hms);
             }
 
         }

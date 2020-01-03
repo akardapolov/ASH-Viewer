@@ -40,8 +40,8 @@ import org.jfree.data.time.Month;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.LinkedHashSet;
 import java.util.TimeZone;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -60,7 +60,7 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
     private LegendTitle legendTitle;
     private RectangularHeightRegionSelectionHandler selectionHandler;
 
-    private TreeSet<String> listLinkedEventLst;
+    private LinkedHashSet<String> listLinkedEventLst;
     private AtomicInteger counter;
 
     private ColorManager colorManager;
@@ -81,7 +81,7 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
 
     public void initialize(){
         this.counter = new AtomicInteger(0);
-        this.listLinkedEventLst = new TreeSet<>();
+        this.listLinkedEventLst = new LinkedHashSet<>();
 
         this.datasetExtension = new XYDatasetSelectionExtension(this.categoryTableXYDataset);
         this.datasetExtension.addChangeListener(this);
@@ -124,8 +124,8 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
             double hDnew = 0;
             double hDnewD = 0;
             int hDnewI = 0;
-            double oldHD = (double) oldH;
-            double newHD = (double) newH;
+            double oldHD =  oldH;
+            double newHD =  newH;
             if (oldH<newH){
                 hDnew = (((newHD-oldHD)/newHD));
                 hDnewI = (int) ((shape.getBounds().getHeight())*hDnew*1.5

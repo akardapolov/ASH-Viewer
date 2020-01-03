@@ -45,6 +45,9 @@ public class ConnectionManager {
                 .rawRetainDays(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
                         Labels.getLabel("local.sql.metadata.connection"),
                         connName, Labels.getLabel("local.sql.metadata.connection.other.raw")))
+                .olapRetainDays(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
+                        Labels.getLabel("local.sql.metadata.connection"),
+                        connName, Labels.getLabel("local.sql.metadata.connection.other.olap")))
         .build();
     }
 
@@ -73,14 +76,33 @@ public class ConnectionManager {
         storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
                 Labels.getLabel("local.sql.metadata.connection"), connParameters.getConnectionName(),
                 Labels.getLabel("local.sql.metadata.connection.other.raw"), connParameters.getRawRetainDays());
+        storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
+                Labels.getLabel("local.sql.metadata.connection"), connParameters.getConnectionName(),
+                Labels.getLabel("local.sql.metadata.connection.other.olap"), connParameters.getOlapRetainDays());
     }
 
-    public int getRetainDays(){
+    public int getRawRetainDays(){
         int intDays = ConstantManager.RETAIN_DAYS_MAX;
 
         String strDays = storeManager.getRepositoryDAO().getMetaDataAttributeValue(
                 Labels.getLabel("local.sql.metadata.connection"),
                 connectionName, Labels.getLabel("local.sql.metadata.connection.other.raw"));
+
+        try {
+            intDays = Integer.parseInt(strDays);
+        } catch (NumberFormatException ex) {
+            log.info("Raw data days retain text field contains char data or empty");
+        }
+
+        return intDays;
+    }
+
+    public int getOlapRetainDays(){
+        int intDays = ConstantManager.RETAIN_DAYS_MAX;
+
+        String strDays = storeManager.getRepositoryDAO().getMetaDataAttributeValue(
+                Labels.getLabel("local.sql.metadata.connection"),
+                connectionName, Labels.getLabel("local.sql.metadata.connection.other.olap"));
 
         try {
             intDays = Integer.parseInt(strDays);

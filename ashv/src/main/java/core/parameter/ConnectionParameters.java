@@ -9,6 +9,7 @@ public class ConnectionParameters {
     private final String profile;
     private final String driverName;
     private final String rawRetainDays;
+    private final String olapRetainDays;
 
     public String getConnectionName() { return connectionName; }
     public String getUserName() { return userName; }
@@ -18,6 +19,7 @@ public class ConnectionParameters {
     public String getProfile() { return profile; }
     public String getDriverName() { return driverName; }
     public String getRawRetainDays() { return rawRetainDays; }
+    public String getOlapRetainDays() { return olapRetainDays; }
 
     public static class Builder {
         private final String connectionName;
@@ -28,6 +30,7 @@ public class ConnectionParameters {
         private String profile;
         private String driverName;
         private String rawRetainDays;
+        private String olapRetainDays;
 
         public Builder(String connectionName) {
             this.connectionName = connectionName;
@@ -40,6 +43,7 @@ public class ConnectionParameters {
         public Builder profile(String pr) { profile = pr; return this; }
         public Builder driverName(String dr) { driverName = dr; return this; }
         public Builder rawRetainDays(String raw) { rawRetainDays = raw; return this; }
+        public Builder olapRetainDays(String raw) { olapRetainDays = raw; return this; }
 
         public ConnectionParameters build() {
             return new ConnectionParameters(this);
@@ -55,6 +59,7 @@ public class ConnectionParameters {
         profile = builder.profile;
         driverName = builder.driverName;
         rawRetainDays = builder.rawRetainDays;
+        olapRetainDays = builder.olapRetainDays;
     }
 
 }

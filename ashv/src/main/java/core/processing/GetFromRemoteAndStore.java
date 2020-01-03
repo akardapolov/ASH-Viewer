@@ -126,18 +126,21 @@ public class GetFromRemoteAndStore {
 
     public void loadDataFromRemoteToLocalStore() {
         this.loadConvertManager();
-
         this.loadSqlsMetadata();
-
-        // For main chart
-        iProfile.getUniqueTreeEventListByWaitClass()
-                .stream().forEach(e->chartDatasetManager.getMainNameChartDataset()
-                .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e));
 
         log.info("Start loading");
 
         try {
-            if (!this.isFirstRun) this.loadUsername();
+            if (!this.isFirstRun) {
+                this.loadUsername();
+
+                // For main chart
+                iProfile.getUniqueTreeEventListByWaitClass().forEach(e-> {
+                    System.out.println(e);
+                    chartDatasetManager.getMainNameChartDataset()
+                            .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e);
+                });
+            }
 
             log.info("Start loading olap");
             this.loadDataToOlap();
@@ -424,7 +427,7 @@ public class GetFromRemoteAndStore {
                     }
                 }
 
-                if (connectionManager.getRetainDays() > 0){
+                if (connectionManager.getRawRetainDays() > 0){
                     rows.add(columns);
                 }
 

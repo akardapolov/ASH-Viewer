@@ -8,6 +8,7 @@ import gui.chart.panel.NameChartDataset;
 import gui.chart.panel.StackChartPanel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.util.GanttParam;
 import profile.IProfile;
 import store.dao.olap.*;
@@ -16,6 +17,7 @@ import store.entity.olap.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class OlapDAO {
     private BerkleyDB berkleyDB;
     private EntityStore store;
@@ -435,4 +437,31 @@ public class OlapDAO {
             });
         });
     }
+
+    public void deleteOlapData(long start, long end){
+        try (EntityCursor<AshAggrMinData> cursor = this.ashAggrMinDataDAO.getAshAggrEntityCursorRangeQuery(start, end)) {
+            for (AshAggrMinData entity = cursor.first(); entity != null; entity = cursor.next()) {
+                cursor.delete();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        try (EntityCursor<AshAggrMinData15Sec> cursor = this.ashAggrMinData15SecDAO.getAshAggrEntityCursorRangeQuery(start, end)) {
+            for (AshAggrMinData15Sec entity = cursor.first(); entity != null; entity = cursor.next()) {
+                cursor.delete();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        try (EntityCursor<AshAggrMinData1Min> cursor = this.ashAggrMinData1MinDAO.getAshAggrEntityCursorRangeQuery(start, end)) {
+            for (AshAggrMinData1Min entity = cursor.first(); entity != null; entity = cursor.next()) {
+                cursor.delete();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
 }

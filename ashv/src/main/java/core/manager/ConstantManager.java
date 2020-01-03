@@ -14,14 +14,14 @@ public final class ConstantManager extends LinkedHashMap {
 
     public static String NULL_VALUE = "Null";
 
-    public enum Function { None, AsIs, Sum, Count, Delta}
+    public enum Function {None, AsIs, Sum, Count, Delta}
 
     // Add profile implementation to src/profile
     public enum Profile {OracleEE, OracleSE, Postgres, Postgres96}
 
     public enum History {Hour8, Hour12, Day1, Week, Month, Custom}
 
-    public enum RetainRawData {Never, Always};
+    public enum RetainData {Never, Always};
 
     public static int RETAIN_DAYS_MIN = 0;
     public static int RETAIN_DAYS_MAX = 101;
