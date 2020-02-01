@@ -8,7 +8,6 @@ public class Main {
     public static void main(String... args) {
         System.getProperties().setProperty("oracle.jdbc.J2EE13Compliant", "true");
 
-        long startTime = System.currentTimeMillis();
         log.info("Start application");
 
         MainComponent mainComponent = DaggerMainComponent.create();

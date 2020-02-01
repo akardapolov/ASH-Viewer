@@ -89,8 +89,9 @@ public class MonitorDbPanel {
     public void initializeGui(){
         topActivitySplitPane = new JSplitPane();
         topActivitySplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        topActivitySplitPane.setOneTouchExpandable(true);
         topActivitySplitPane.setDividerSize(10);
-        topActivitySplitPane.setDividerLocation(400);
+        topActivitySplitPane.setDividerLocation(300);
 
         mainGanttAndRaw = new JTabbedPane();
         mainGanttAndRaw.add("Top sql & sessions", chartDatasetManager.getMainNameChartDataset().getMonitorGantt2());
@@ -132,8 +133,9 @@ public class MonitorDbPanel {
 
         detailSplitPane = new JSplitPane();
         detailSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        detailSplitPane.setOneTouchExpandable(true);
         detailSplitPane.setDividerSize(10);
-        detailSplitPane.setDividerLocation(400);
+        detailSplitPane.setDividerLocation(300);
 
         JPanel controlStackedChartInner = new JPanel();
         controlStackedChartInner.setLayout(new BorderLayout());

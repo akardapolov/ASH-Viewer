@@ -91,8 +91,9 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         mainSplitPane = new JSplitPane();
         mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        mainSplitPane.setOneTouchExpandable(true);
         mainSplitPane.setDividerSize(10);
-        mainSplitPane.setDividerLocation(300);
+        mainSplitPane.setDividerLocation(200);
 
         mainSplitPane.add(mainStackChartPanel.getStackedChart().getChartPanel(), JSplitPane.TOP);
         mainSplitPane.add(detailJPanel, JSplitPane.BOTTOM);
@@ -139,7 +140,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         detailSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         detailSplitPane.setDividerSize(10);
-        detailSplitPane.setDividerLocation(300);
+        detailSplitPane.setDividerLocation(200);
 
         JPanel controlStackedChartInner = new JPanel();
         controlStackedChartInner.setLayout(new BorderLayout());
@@ -263,15 +264,17 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         JSplitPane topASplitPane = new JSplitPane();
         topASplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        topASplitPane.setOneTouchExpandable(true);
         topASplitPane.setDividerSize(10);
-        topASplitPane.setDividerLocation(300);
+        topASplitPane.setDividerLocation(200);
 
         loadDataToDetailTA(ganttParam, topASplitPane);
 
         JSplitPane detailSplitPane = new JSplitPane();
         detailSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        detailSplitPane.setOneTouchExpandable(true);
         detailSplitPane.setDividerSize(10);
-        detailSplitPane.setDividerLocation(300);
+        detailSplitPane.setDividerLocation(200);
 
         loadDataToDetail(ganttParam, detailSplitPane);
 
