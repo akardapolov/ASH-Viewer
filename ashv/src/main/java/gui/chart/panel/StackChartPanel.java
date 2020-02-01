@@ -22,6 +22,7 @@ public class StackChartPanel extends JPanel {
     @Getter @Setter private CategoryTableXYDatasetRDA xyDatasetRDA;
     @Getter @Setter private String xAxisLabel;
     @Getter @Setter private String yAxisLabel;
+    @Getter @Setter private int legendFontSize = 12;
 
     private JFreeChart jFreeChart;
     private DateAxis dateAxis;
@@ -38,6 +39,7 @@ public class StackChartPanel extends JPanel {
 
     public void initialize() {
         stackedChart = new StackedChart(this.colorManager, getChartPanel(xyDatasetRDA));
+        stackedChart.setLegendFontSize(this.getLegendFontSize());
         stackedChart.initialize();
 
         this.setLayout(new BorderLayout());

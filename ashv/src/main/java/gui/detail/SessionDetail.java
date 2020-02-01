@@ -102,6 +102,7 @@ public class SessionDetail extends JFrame implements ActionListener {
         categoryTableXYDatasetRTV = new CategoryTableXYDatasetRDA();
         stackedChartPanel = new StackChartPanel(sessionTitle, colorManager);
         stackedChartPanel.setXyDatasetRDA(categoryTableXYDatasetRTV);
+        stackedChartPanel.setLegendFontSize(10);
         stackedChartPanel.initialize();
 
         monitorGantt = new MonitorGantt3(this.ganttParam, jFrame, storeManager, getFromRemoteAndStore, colorManager);

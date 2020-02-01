@@ -113,6 +113,7 @@ public class SqlDetail extends JFrame implements ActionListener {
         categoryTableXYDatasetRTV = new CategoryTableXYDatasetRDA();
         stackedChartPanel = new StackChartPanel("SQL_ID: " + this.valueAtSqlId, colorManager);
         stackedChartPanel.setXyDatasetRDA(categoryTableXYDatasetRTV);
+        stackedChartPanel.setLegendFontSize(10);
         stackedChartPanel.initialize();
 
         monitorGantt = new MonitorGantt3(new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime())

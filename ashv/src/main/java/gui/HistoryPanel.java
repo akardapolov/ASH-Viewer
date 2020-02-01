@@ -76,6 +76,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         mainStackChartPanel = new StackChartPanel(Labels.getLabel("chart.main.name"), colorManager);
         mainStackChartPanel.setXyDatasetRDA(mainXyDatasetRDA);
         mainStackChartPanel.setXAxisLabel(" ");
+        mainStackChartPanel.setLegendFontSize(8);
         mainStackChartPanel.initialize();
 
         double diff = ganttParam.getBeginTime() - ganttParam.getEndTime();
@@ -108,6 +109,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         StackChartPanel mainStackChartPanelTA = new StackChartPanel(Labels.getLabel("chart.main.name"), colorManager);
         mainStackChartPanelTA.setXyDatasetRDA(mainXyDatasetRDA);
+        mainStackChartPanelTA.setLegendFontSize(8);
         mainStackChartPanelTA.setXAxisLabel(" ");
         mainStackChartPanelTA.initialize();
 
@@ -174,6 +176,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             CategoryTableXYDatasetRDA xyDatasetRDA = new CategoryTableXYDatasetRDA();
             StackChartPanel stackChartPanel = new StackChartPanel(e, colorManager);
             stackChartPanel.setXyDatasetRDA(xyDatasetRDA);
+            stackChartPanel.setLegendFontSize(8);
             stackChartPanel.setXAxisLabel(" ");
             stackChartPanel.initialize();
             stackChartPanel.getStackedChart().setChartTitle(Labels.getLabel("chart.main.ta"));

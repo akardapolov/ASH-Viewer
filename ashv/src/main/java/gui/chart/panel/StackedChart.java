@@ -58,6 +58,7 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
     private BlockContainer blockContainerParent;
     private BlockContainer legendItemContainer;
     private LegendTitle legendTitle;
+    @Getter @Setter private int legendFontSize;
     private RectangularHeightRegionSelectionHandler selectionHandler;
 
     private LinkedHashSet<String> listLinkedEventLst;
@@ -74,10 +75,6 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
         this.dateAxis = (DateAxis) this.xyPlot.getDomainAxis();
         this.categoryTableXYDataset = (CategoryTableXYDatasetRDA) this.xyPlot.getDataset();
     }
-
-    /*
-    public boolean isProfile(String profileName){ return this.connectionMetadata.getName().equalsIgnoreCase(profileName); }
-    */
 
     public void initialize(){
         this.counter = new AtomicInteger(0);
@@ -159,7 +156,6 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
                 ee.printStackTrace();
             }
         }
-
     }
 
     public void setDateAxisWeekAndMore(){
@@ -200,6 +196,9 @@ public class StackedChart implements SelectionChangeListener<XYCursor> {
 
         this.blockContainerParent.add(this.legendItemContainer);
         this.legendTitle.setWrapper(this.blockContainerParent);
+
+        this.legendTitle.setItemFont(new Font(LegendTitle.DEFAULT_ITEM_FONT.getFontName(),
+                LegendTitle.DEFAULT_ITEM_FONT.getStyle(), this.getLegendFontSize()));
 
         this.legendTitle.setPosition(RectangleEdge.RIGHT);
         this.legendTitle.setHorizontalAlignment(HorizontalAlignment.LEFT);
