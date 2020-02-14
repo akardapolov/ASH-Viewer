@@ -131,35 +131,32 @@ public class OlapCacheManager {
     }
 
     public void unloadCacheToDB15(long currentDbSysdate){
-        if (hashmap15SecCache.entrySet()
-                .stream()
-                .max(Map.Entry.comparingByKey())
-                .isPresent()){
+            if ((long) hashmap15SecCache.entrySet().size() > 1) {
+                if (hashmap15SecCache.entrySet().stream().max(Map.Entry.comparingByKey()).isPresent()) {
+                    Map<CompositeKeyCache, Map<Integer, Integer>> hashMapTmp = new HashMap<>();
+                    long maxV = hashmap15SecCache.entrySet().stream().max(Map.Entry.comparingByKey()).get().getKey().getDateId();
 
-            long maxV = hashmap15SecCache.entrySet()
-                    .stream()
-                    .max(Map.Entry.comparingByKey())
-                    .get()
-                    .getKey().getDateId();
+                    hashmap15SecCache.entrySet().stream()
+                            .filter(s -> s.getKey().getDateId() == maxV)
+                            .forEach(e -> hashMapTmp.putIfAbsent(e.getKey(), e.getValue()));
 
-            Map<CompositeKeyCache, Map<Integer, Integer>> hashmap15SecCacheTmp = new HashMap<>();
+                    hashmap15SecCache.keySet().removeIf(val -> val.getDateId() == maxV);
 
-            long marker = currentDbSysdate - maxV;
+                    this.loadDataToLocalDb(hashmap15SecCache, String.valueOf(AggregationTime.FifteenSecond));//load data to bdb
+                    hashmap15SecCache.clear();
 
-            if (marker != 0) {
-                hashmap15SecCache.entrySet()
-                        .stream()
-                        .filter(s -> s.getKey().getDateId() == maxV)
-                        .forEach(e -> hashmap15SecCacheTmp.putIfAbsent(e.getKey(), e.getValue()));
+                    hashmap15SecCache = hashMapTmp;
+                }
+            } else if ((long) hashmap15SecCache.entrySet().size() == 1) {
+                if (hashmap15SecCache.entrySet().stream().max(Map.Entry.comparingByKey()).isPresent()) {
+                    long maxV = hashmap15SecCache.entrySet().stream().max(Map.Entry.comparingByKey()).get().getKey().getDateId();
 
-                hashmap15SecCache.keySet().removeIf(val -> val.getDateId() == maxV);
-
-                this.loadDataToLocalDb(hashmap15SecCache, String.valueOf(AggregationTime.FifteenSecond));//load data to bdb
-                hashmap15SecCache.clear();
-
-                hashmap15SecCache = hashmap15SecCacheTmp;
+                    if ((currentDbSysdate - maxV) > 15000) {
+                        this.loadDataToLocalDb(hashmap15SecCache, String.valueOf(AggregationTime.FifteenSecond));//load data to bdb
+                        hashmap15SecCache.clear();
+                    }
+                }
             }
-        }
     }
 
     private void updateCacheData(Map<CompositeKeyCache, Map<Integer,Integer>> hashmapCache,
