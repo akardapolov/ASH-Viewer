@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class OracleSE extends OracleEE{
+    String profileName = "OracleSE";
+
     String sqlTextMin = "SELECT sysdate FROM dual";
 
     private String sqlTextAsh = "SELECT * FROM (SELECT sysdate SAMPLE_TIME, vs.sid SESSION_ID, vs.state SESSION_STATE, "
@@ -21,13 +23,16 @@ public class OracleSE extends OracleEE{
             + "and vs.sid = vss.sid and vs.command = au.action(+) "
             + "and vss.statistic# = 12 and (vs.wait_class != 'Idle' or vs.wait_time != 0) )";
 
-    long interval = 1000; // 1 sec
+    long interval = 3000; // 1 sec
 
     List<String> SqlIdAddColName = new LinkedList<>();
 
     public OracleSE() {
         SqlIdAddColName.add("COMMAND");
     }
+
+    @Override
+    public String getProfileName() { return profileName; }
 
     @Override
     public String getSqlTextAsh() { return sqlTextAsh; }
