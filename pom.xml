@@ -3,7 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.ash</groupId>
     <artifactId>ASH-Viewer</artifactId>
     <version>4.0-SNAPSHOT</version>
@@ -16,7 +15,6 @@
     </modules>
 
     <dependencies>
-        <!-- Dagger 2 -->
         <dependency>
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger</artifactId>
@@ -28,7 +26,6 @@
             <version>2.11</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -39,13 +36,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
         </dependency>
-        <!-- logback-classic -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
         </dependency>
-        <!-- miglayout -->
         <dependency>
             <groupId>com.miglayout</groupId>
             <artifactId>miglayout-core</artifactId>
@@ -56,23 +51,16 @@
             <artifactId>miglayout-swing</artifactId>
             <version>4.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.swinglabs/swingx -->
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
             <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>1.4.9</version>
         </dependency>
         <dependency>
             <groupId>com.google.auto.factory</groupId>
@@ -80,7 +68,6 @@
             <version>1.0-beta5</version>
             <optional>true</optional>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.sleepycat/je -->
         <dependency>
             <groupId>com.sleepycat</groupId>
             <artifactId>je</artifactId>
@@ -102,25 +89,16 @@
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.greenrobot</groupId>
-            <artifactId>eventbus</artifactId>
-            <version>3.1.1</version>
-        </dependency>
-
         <dependency>
             <groupId>com.github.lgooddatepicker</groupId>
             <artifactId>LGoodDatePicker</artifactId>
             <version>10.3.1</version>
         </dependency>
-
         <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
             <version>1.6</version>
         </dependency>
-
     </dependencies>
     <build>
         <resources>
