@@ -1,32 +1,114 @@
 package core.manager;
 
 import config.Labels;
-import core.parameter.ConnectionParameters;
+import config.profile.ConfigProfile;
+import config.profile.ConnProfile;
+import config.profile.SqlColProfile;
+import config.yaml.YamlConfig;
+import core.parameter.ConnectionBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import profile.*;
 import store.StoreManager;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Singleton
-public class ConnectionManager {
+public class ConfigurationManager {
     private StoreManager storeManager;
+    private YamlConfig yamlConfig;
+    private HashMap<String, ConfigProfile> configList;
+
+    @Getter @Setter
+    private ConfigProfile currentConfiguration;
+
+    @Getter @Setter
+    private String configurationName;
 
     @Getter @Setter
     private String connectionName;
 
+    @Getter @Setter
+    private IProfile iProfile;
+
     @Inject
-    public ConnectionManager(StoreManager storeManager) {
+    public ConfigurationManager(StoreManager storeManager,
+                                YamlConfig yamlConfig,
+                                @Named("ConfigList") HashMap<String, ConfigProfile> configList) {
         this.storeManager = storeManager;
+        this.yamlConfig = yamlConfig;
+        this.configList = configList;
     }
 
-    public ConnectionParameters getConnectionParameters(String connName){
+    public void loadCurrentConfiguration(String configurationName, ConnProfile connection){
+        ConfigProfile configProfile = new ConfigProfile();
+        configProfile.setConnProfile(connection);
+        loadProfile(connection.getProfileName());
+
+        configProfile.setConfigName(configurationName);
+        setCurrentConfiguration(configProfile);
+
+        loadConfigToFile(configProfile);
+    }
+
+    public void loadSqlColumnMetadata(List<SqlColProfile> columnPojos){
+        getCurrentConfiguration().setSqlColProfileList(columnPojos);
+        loadConfigToFile(getCurrentConfiguration());
+    }
+
+    public void loadConfigToFile(ConfigProfile configuration) {
+        yamlConfig.loadConfigToFile(configuration);
+    }
+
+    public void loadProfile(String profileName){
+        switch (profileName) {
+            case "OracleEE":
+                setIProfile(new OracleEE());
+                break;
+            case "OracleSE":
+                setIProfile(new OracleSE());
+                break;
+            case "Postgres":
+                setIProfile(new Postgres());
+                break;
+            case "Postgres96":
+                setIProfile(new Postgres96());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid profile name");
+        }
+    }
+
+    /**
+     * For migration purposes (from BDB store to yaml configs)
+     * Delete in future release
+     * @param list
+     */
+    public void unloadConfigFromBdbToFile(List<ConnProfile> list){
+        list.stream().forEach(e -> {
+            Optional<Map.Entry<String, ConfigProfile>> in = configList.entrySet().stream()
+                    .filter(m -> m.getValue().getConfigName()
+                            .equalsIgnoreCase(e.getConnName())).findFirst();
+
+            if (!in.isPresent()){
+                loadCurrentConfiguration(e.getConnName(), e);
+            }
+
+        });
+    }
+
+    public ConnectionBuilder getConnectionParameters(String connName){
         connectionName = connName;
 
-        return new ConnectionParameters.Builder(connName)
+        return new ConnectionBuilder.Builder(connName)
                 .userName(this.storeManager.getRepositoryDAO().getMetaDataAttributeValue(
                         Labels.getLabel("local.sql.metadata.connection"),
                         connName, Labels.getLabel("local.sql.metadata.connection.username")))
@@ -51,7 +133,7 @@ public class ConnectionManager {
         .build();
     }
 
-    public void saveConnection(ConnectionParameters connParameters) {
+    public void saveConnection(ConnectionBuilder connParameters) {
         storeManager.getRepositoryDAO().metadataEAVDAO.putMainDataEAVWithCheck(
                 Labels.getLabel("local.sql.metadata.connection"), connParameters.getConnectionName(),
                 Labels.getLabel("local.sql.metadata.connection.name"), connParameters.getConnectionName());

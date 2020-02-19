@@ -6,7 +6,7 @@ import com.github.lgooddatepicker.components.TimePickerSettings;
 import config.Labels;
 import core.manager.ColorManager;
 import core.manager.ConstantManager;
-import core.parameter.Parameters;
+import core.parameter.ParameterBuilder;
 import core.processing.GetFromRemoteAndStore;
 import gui.chart.ChartDatasetManager;
 import gui.gantt.MonitorGantt2;
@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 import org.jfree.chart.util.GanttParam;
-import pojo.ConnectionMetadata;
+import config.profile.ConnProfile;
 import profile.IProfile;
 import store.StoreManager;
 
@@ -56,7 +56,7 @@ public class MonitorDbPanel {
     private MonitorGantt2 monitorGantt20;
     private RawDataTable rawDataTable20;
 
-    @Getter @Setter private ConnectionMetadata connectionMetadata;
+    @Getter @Setter private ConnProfile connProfile;
     @Getter @Setter private IProfile iProfile;
 
     @Getter @Setter private HistoryPanel historyPanel;
@@ -78,7 +78,7 @@ public class MonitorDbPanel {
 
     public void initialize() {
         try {
-            storeManager.setUpBDBAndDAO(connectionMetadata.getConnName());
+            storeManager.setUpBDBAndDAO(connProfile.getConnName());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,7 +117,7 @@ public class MonitorDbPanel {
     }
 
     private void initializeChartDataset(){
-        chartDatasetManager.setConnectionMetadata(this.connectionMetadata);
+        chartDatasetManager.setConnProfile(this.connProfile);
         chartDatasetManager.initialize();
     }
 
@@ -326,7 +326,6 @@ public class MonitorDbPanel {
                 .filter(e -> e.getKey().equalsIgnoreCase(String.valueOf(ConstantManager.History.Hour8)))
                 .get().getValue().doClick();
 
-
         startEndDateTimePicker.add(new JLabel(), ""); // empty
         startEndDateTimePicker.add(buttonPanel, "gap 1");
         startEndDateTimePicker.add(new JLabel(), ""); // empty
@@ -348,7 +347,7 @@ public class MonitorDbPanel {
     }
 
     private GanttParam getGanttParam(int numberOfHour){
-        Parameters param = new Parameters.Builder(0L, Long.MAX_VALUE).build();
+        ParameterBuilder param = new ParameterBuilder.Builder(0L, Long.MAX_VALUE).build();
         long timeStampMillis = storeManager.getDatabaseDAO().getMax(param);
 
         long currServerOrClientTime = getFromRemoteAndStore.getCurrServerTime() == 0L ?
@@ -406,7 +405,6 @@ public class MonitorDbPanel {
         }
 
         private GanttParam getParameters(){
-
             LocalDateTime beginDt = dtpStart.getDateTimePermissive();
             LocalDateTime endDt = dtpEnd.getDateTimePermissive();
 
@@ -415,7 +413,6 @@ public class MonitorDbPanel {
 
             return new GanttParam.Builder(start, end).build();
         }
-
     }
 
 }

@@ -3,7 +3,7 @@ package store;
 import config.Labels;
 import core.manager.ConstantManager;
 import lombok.extern.slf4j.Slf4j;
-import pojo.SqlColMetadata;
+import config.profile.SqlColProfile;
 import store.entity.database.MainData;
 import utility.BinaryDisplayConverter;
 
@@ -85,9 +85,9 @@ public class ConvertManager {
                 BinaryDisplayConverter.HEX, false);
     }
 
-    public int convertFromRawToInt(SqlColMetadata sqlColMetadata, Object obj){
+    public int convertFromRawToInt(SqlColProfile sqlColProfile, Object obj){
 
-        switch (OracleType.valueOf(sqlColMetadata.getColDbTypeName())) {
+        switch (OracleType.valueOf(sqlColProfile.getColDbTypeName())) {
             case OID: // PG
                 return storeManager.getDatabaseDAO()
                         .getParameterStringDAO().getCheckOrLoadParameter (obj == null ? Labels.getLabel("local.null") : valueOf(obj));

@@ -11,7 +11,7 @@ import gui.table.RawDataTable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import pojo.ConnectionMetadata;
+import config.profile.ConnProfile;
 import profile.IProfile;
 import store.StoreManager;
 
@@ -28,7 +28,7 @@ public class ChartDatasetManager {
 
     @Getter @Setter private GetFromRemoteAndStore getFromRemoteAndStore;
 
-    @Getter @Setter private ConnectionMetadata connectionMetadata;
+    @Getter @Setter private ConnProfile connProfile;
 
     @Getter @Setter private NameChartDataset mainNameChartDataset;
 
@@ -38,10 +38,12 @@ public class ChartDatasetManager {
     @Inject
     public ChartDatasetManager(BasicFrame jFrame,
                                ColorManager colorManager,
-                               StoreManager storeManager){
+                               StoreManager storeManager/*,
+                               GetFromRemoteAndStore getFromRemoteAndStore*/){
         this.jFrame = jFrame;
         this.colorManager = colorManager;
         this.storeManager = storeManager;
+        /*this.getFromRemoteAndStore = getFromRemoteAndStore;*/
     }
 
     public void initialize(){

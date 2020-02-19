@@ -1,9 +1,9 @@
-package pojo;
+package config.profile;
 
 import lombok.Data;
 
 @Data
-public class SqlColMetadata {
+public class SqlColProfile {
     private int colId;
     private String colName;
     private String colDbTypeName;

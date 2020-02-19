@@ -1,10 +1,9 @@
-package pojo;
-
+package config.profile;
 
 import lombok.Data;
 
 @Data
-public class ConnectionMetadata {
+public class ConnProfile {
     private String connName;
     private String userName;
     private String password;
@@ -12,5 +11,4 @@ public class ConnectionMetadata {
     private String jar;
     private String driver;
     private String profileName;
-
 }

@@ -9,9 +9,7 @@ import javax.inject.Singleton;
 
 @Component(modules = {
         ModuleConfig.class,
-        ModuleComponent.class,
-        /*GUIModuleProfile.class,
-        ModuleStackedChartPanel.class*/
+        ModuleComponent.class
 })
 
 @Singleton

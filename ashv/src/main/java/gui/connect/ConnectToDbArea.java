@@ -2,10 +2,11 @@ package gui.connect;
 
 import config.GUIConfig;
 import config.Labels;
+import config.profile.ConnProfile;
 import core.manager.ColorManager;
-import core.manager.ConnectionManager;
+import core.manager.ConfigurationManager;
 import core.manager.ConstantManager;
-import core.parameter.ConnectionParameters;
+import core.parameter.ConnectionBuilder;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.MainTabbedPane;
@@ -17,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTextField;
-import pojo.ConnectionMetadata;
-import profile.*;
 import store.StoreManager;
 import utility.StackTraceUtil;
 
@@ -33,7 +32,6 @@ import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.io.File;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,7 +44,7 @@ public class ConnectToDbArea extends JDialog {
     private StoreManager storeManager;
     private GetFromRemoteAndStore getFromRemoteAndStore;
     private ColorManager colorManager;
-    private ConnectionManager connectionManager;
+    private ConfigurationManager configurationManager;
     private MonitorDbPanel monitorDbPanel;
     private ChartDatasetManager chartDatasetManager;
     private MainTabbedPane mainTabbedPane;
@@ -109,15 +107,13 @@ public class ConnectToDbArea extends JDialog {
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private IProfile iProfile;
-
     @Inject
     public ConnectToDbArea(BasicFrame jFrame,
                            GUIConfig guiConfig,
                            StoreManager storeManager,
                            GetFromRemoteAndStore getFromRemoteAndStore,
                            ColorManager colorManager,
-                           ConnectionManager connectionManager,
+                           ConfigurationManager configurationManager,
                            MonitorDbPanel monitorDbPanel,
                            ChartDatasetManager chartDatasetManager,
                            @Named("startStopButton") JButton startStopButton,
@@ -130,7 +126,7 @@ public class ConnectToDbArea extends JDialog {
         this.storeManager = storeManager;
         this.getFromRemoteAndStore = getFromRemoteAndStore;
         this.colorManager = colorManager;
-        this.connectionManager = connectionManager;
+        this.configurationManager = configurationManager;
         this.monitorDbPanel = monitorDbPanel;
         this.chartDatasetManager = chartDatasetManager;
         this.startStopButton = startStopButton;
@@ -256,7 +252,8 @@ public class ConnectToDbArea extends JDialog {
         olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
-            this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
+            //this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
+            configurationManager.loadProfile(String.valueOf((profileBox.getSelectedItem())));
 
             if (isOffline.isSelected()){
                 ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionNameOffline,
@@ -329,8 +326,8 @@ public class ConnectToDbArea extends JDialog {
                     this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                     this.setDetailEditable(false);
 
-                    setTextDataDaysRetainTF(rawDataDaysRetainTF, connectionManager.getRawRetainDays());
-                    setOlapDataDaysRetainTF(olapDataDaysRetainTF, connectionManager.getOlapRetainDays());
+                    setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
+                    setOlapDataDaysRetainTF(olapDataDaysRetainTF, configurationManager.getOlapRetainDays());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(jFrame, ex.getMessage());
@@ -348,8 +345,8 @@ public class ConnectToDbArea extends JDialog {
                 this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
                 this.setDetailEditable(false);
 
-                setTextDataDaysRetainTF(rawDataDaysRetainTF, connectionManager.getRawRetainDays());
-                setOlapDataDaysRetainTF(olapDataDaysRetainTF, connectionManager.getOlapRetainDays());
+                setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
+                setOlapDataDaysRetainTF(olapDataDaysRetainTF, configurationManager.getOlapRetainDays());
             });
             /** cancel **/
         });
@@ -414,7 +411,7 @@ public class ConnectToDbArea extends JDialog {
     }
 
     private void selectFromDbAndSetInGui(String connName){
-        ConnectionParameters connParameters = connectionManager.getConnectionParameters(connName);
+        ConnectionBuilder connParameters = configurationManager.getConnectionParameters(connName);
 
         connNameTF.setText(connParameters.getConnectionName());
         usernameTF.setText(connParameters.getUserName());
@@ -433,29 +430,30 @@ public class ConnectToDbArea extends JDialog {
         }
 
         if (!rawDataDaysRetainTF.isEnabled()) {
-            setTextDataDaysRetainTF(rawDataDaysRetainTF, connectionManager.getRawRetainDays());
+            setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
         }
 
         if (!olapDataDaysRetainTF.isEnabled()) {
-            setOlapDataDaysRetainTF(olapDataDaysRetainTF, connectionManager.getOlapRetainDays());
+            setOlapDataDaysRetainTF(olapDataDaysRetainTF, configurationManager.getOlapRetainDays());
         }
     }
 
     private void saveData(){
-        this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
+        //this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
+        configurationManager.loadProfile(String.valueOf((profileBox.getSelectedItem())));
 
-        ConnectionParameters connParameters = new ConnectionParameters.Builder(connNameTF.getText())
+        ConnectionBuilder connParameters = new ConnectionBuilder.Builder(connNameTF.getText())
                 .userName(usernameTF.getText())
                 .password(passwordTF.getText())
                 .url(urlTF.getText())
                 .jar(jarTF.getText())
                 .profile(String.valueOf((profileBox.getSelectedItem())))
-                .driverName(iProfile.getDriverName())
+                .driverName(configurationManager.getIProfile().getDriverName())
                 .rawRetainDays(rawDataDaysRetainTF.getText())
                 .olapRetainDays(olapDataDaysRetainTF.getText())
                 .build();
 
-        connectionManager.saveConnection(connParameters);
+        configurationManager.saveConnection(connParameters);
 
         storeManager.syncRepo();
     }
@@ -487,34 +485,40 @@ public class ConnectToDbArea extends JDialog {
 
     private void loadObjectsByConnectionName() {
         try {
-            ConnectionMetadata connection =
+            //////////////////////// Delete it in future release ///////////////////
+            configurationManager.unloadConfigFromBdbToFile(
+                    this.storeManager.getRepositoryDAO()
+                            .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection")));
+            //////////////////////// Delete it in future release ///////////////////
+
+            ConnProfile connection =
                     this.storeManager.getRepositoryDAO()
                             .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection"))
-                            .stream()
-                            .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
-                            .findFirst()
-                            .get();
+                            .stream().filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
+                            .findFirst().get();
 
-            getFromRemoteAndStore.initConnection(connection); //
-            getFromRemoteAndStore.initProfile(iProfile); //
+            configurationManager.loadCurrentConfiguration(connNameTF.getText(), connection);
 
-            chartDatasetManager.setIProfile(iProfile);
+            getFromRemoteAndStore.initConnection(connection);
+            getFromRemoteAndStore.initProfile(configurationManager.getIProfile());
 
-            monitorDbPanel.setConnectionMetadata(connection);
+            chartDatasetManager.setIProfile(configurationManager.getIProfile());
+
+            monitorDbPanel.setConnProfile(connection);
             monitorDbPanel.initialize();
 
-            getFromRemoteAndStore.loadDataFromRemoteToLocalStore(); //
+            getFromRemoteAndStore.loadDataFromRemoteToLocalStore();
 
             monitorDbPanel.initializeGui();
 
-            monitorDbPanel.setProfile(iProfile);
+            monitorDbPanel.setProfile(configurationManager.getIProfile());
 
             startStopButton.setEnabled(true);
             startStopButton.doClick();
 
             monitorDbPanel.adddGui();
 
-        } catch (SQLException sqlEx) {
+        } catch (Exception sqlEx) {
             log.error(StackTraceUtil.getCustomStackTrace(sqlEx));
             JOptionPane.showMessageDialog(jFrame, StackTraceUtil.getCustomStackTrace(sqlEx));
         }
@@ -524,7 +528,7 @@ public class ConnectToDbArea extends JDialog {
 
     private void loadObjectsByConnectionNameOffline(){
         try {
-            ConnectionMetadata connection =
+            ConnProfile connection =
                     this.storeManager.getRepositoryDAO()
                             .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection"))
                             .stream()
@@ -532,20 +536,22 @@ public class ConnectToDbArea extends JDialog {
                             .findFirst()
                             .get();
 
-            getFromRemoteAndStore.initProfile(iProfile); //
+            configurationManager.loadCurrentConfiguration(connNameTF.getText(), connection);
 
-            chartDatasetManager.setIProfile(iProfile);
+            getFromRemoteAndStore.initProfile(configurationManager.getIProfile()); //
 
-            monitorDbPanel.setConnectionMetadata(connection);
+            chartDatasetManager.setIProfile(configurationManager.getIProfile());
+
+            monitorDbPanel.setConnProfile(connection);
             monitorDbPanel.initialize();
             getFromRemoteAndStore.loadConvertManager(); //
 
-            storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
+            storeManager.getDatabaseDAO().getOlapDAO().setIProfile(configurationManager.getIProfile());
 
             monitorDbPanel.loadHistory();
 
-            monitorDbPanel.setIProfile(iProfile);
-            monitorDbPanel.getHistoryPanel().setIProfile(iProfile);
+            monitorDbPanel.setIProfile(configurationManager.getIProfile());
+            monitorDbPanel.getHistoryPanel().setIProfile(configurationManager.getIProfile());
 
             monitorDbPanel.addGuiHistory();
 
@@ -572,26 +578,6 @@ public class ConnectToDbArea extends JDialog {
                     }
                 }
             }
-        }
-    }
-
-    // Add to ConstantManager
-    private void loadProfile(String profileName){
-        switch (profileName) {
-            case "OracleEE":
-                iProfile = new OracleEE();
-                break;
-            case "OracleSE":
-                iProfile = new OracleSE();
-                break;
-            case "Postgres":
-                iProfile = new Postgres();
-                break;
-            case "Postgres96":
-                iProfile = new Postgres96();
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid profile name");
         }
     }
 

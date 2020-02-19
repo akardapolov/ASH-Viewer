@@ -3,7 +3,7 @@ package store;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import pojo.SqlColMetadata;
+import config.profile.SqlColProfile;
 import store.entity.database.MainData;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ public class RawStoreManager {
     private StoreManager storeManager;
     private ConvertManager convertManager;
 
-    @Getter @Setter private List<SqlColMetadata> sqlColMetadata;
+    @Getter @Setter private List<SqlColProfile> sqlColMetadatumPojos;
 
     @Inject
     public RawStoreManager(StoreManager storeManager,
@@ -47,7 +47,7 @@ public class RawStoreManager {
 
             try {
                 for (int i = 0; i < e.entrySet().size(); i++) {
-                    rowOut[i] = this.convertManager.convertFromRawToInt(sqlColMetadata.get(i), e.get(i));
+                    rowOut[i] = this.convertManager.convertFromRawToInt(sqlColMetadatumPojos.get(i), e.get(i));
                 }
             } catch (Exception err) {
                 log.error(err.getMessage());

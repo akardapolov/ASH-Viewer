@@ -3,25 +3,32 @@ package config;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class FileConfig {
     public static String FILE_SEPARATOR = System.getProperty("file.separator");
     private static String ABS_DIR = Paths.get(".").toAbsolutePath().normalize().toString();
 
+    public static String CONFIGURATION_DIR = ABS_DIR + FILE_SEPARATOR + "configuration";
     public static String REPOSITORY_DIR = ABS_DIR + FILE_SEPARATOR + "repository";
     public static String DATABASE_DIR = ABS_DIR + FILE_SEPARATOR + "database";
 
     public FileConfig() {
         try {
-            setUpDirectory(DATABASE_DIR);
+            setUpDirectory(CONFIGURATION_DIR);
             setUpDirectory(REPOSITORY_DIR);
+            setUpDirectory(DATABASE_DIR);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
+            log.error(String.valueOf(e.getStackTrace()));
         }
     }
 
@@ -34,6 +41,17 @@ public class FileConfig {
         if (!Files.exists(newFilePath)) {
             Files.createFile(newFilePath);
         }
+    }
+
+    public List<Path> listFilesInDirectory(String dirName) throws IOException {
+        try (Stream<Path> paths = Files.walk(Paths.get(dirName))) {
+            return paths.filter(Files::isRegularFile)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    public FileWriter getFileWriter(String dirName, String fileName) throws IOException {
+        return new FileWriter(dirName + FILE_SEPARATOR + fileName);
     }
 
     public void removeFile(String fileName) throws IOException {

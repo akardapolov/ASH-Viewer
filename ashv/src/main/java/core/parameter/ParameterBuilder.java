@@ -3,7 +3,7 @@ package core.parameter;
 import java.util.List;
 import java.util.Map;
 
-public class Parameters {
+public class ParameterBuilder {
 
     private final double beginTime;
     private final double endTime;
@@ -37,12 +37,12 @@ public class Parameters {
         public Builder dbaFilesIdList(Map<String, List<String>> val) { dbaFilesIdList = val; return this; }
         public Builder sqlName(String val) { sqlName = val; return this; }
         public Builder colNameFilter(String val) { colNameFilter = val; return this; }
-        public Parameters build() {
-            return new Parameters(this);
+        public ParameterBuilder build() {
+            return new ParameterBuilder(this);
         }
     }
 
-    private Parameters(Builder builder){
+    private ParameterBuilder(Builder builder){
         beginTime = builder.beginTime;
         endTime = builder.endTime;
         columnNameToData = builder.dbaFilesIdList;

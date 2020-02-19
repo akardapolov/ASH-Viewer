@@ -3,9 +3,9 @@ package core.processing;
 import com.sleepycat.persist.EntityCursor;
 import config.Labels;
 import core.manager.ColorManager;
-import core.manager.ConnectionManager;
+import core.manager.ConfigurationManager;
 import core.manager.ConstantManager;
-import core.parameter.Parameters;
+import core.parameter.ParameterBuilder;
 import gui.chart.CategoryTableXYDatasetRDA;
 import gui.chart.ChartDatasetManager;
 import gui.chart.panel.NameChartDataset;
@@ -18,8 +18,8 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.rtv.Options;
-import pojo.ConnectionMetadata;
-import pojo.SqlColMetadata;
+import config.profile.ConnProfile;
+import config.profile.SqlColProfile;
 import pojo.SqlPlanPojo;
 import pojo.SqlPojo;
 import profile.IProfile;
@@ -52,20 +52,21 @@ public class GetFromRemoteAndStore {
     private ConvertManager convertManager;
     private ChartDatasetManager chartDatasetManager;
     private RawStoreManager rawStoreManager;
-    private ConnectionManager connectionManager;
+    private ConfigurationManager configurationManager;
 
     private OlapCacheManager olapCacheManager;
 
     private boolean isFirstRun = false;
     private long sampleTimeG = 0L;
-    @Getter private long currServerTime = 0L;
+    @Getter
+    private long currServerTime = 0L;
 
     @Getter
-    private ConnectionMetadata connectionMetadata;
+    private ConnProfile connProfile;
 
     private Connection connection = null;
 
-    private Map<String, List<SqlColMetadata>> metadataMap = new HashMap<>();
+    private Map<String, List<SqlColProfile>> metadataMap = new HashMap<>();
 
     private String modNameSysdateSql;
     private String modNameAshSql;
@@ -86,7 +87,7 @@ public class GetFromRemoteAndStore {
                                  ConvertManager convertManager,
                                  ChartDatasetManager chartDatasetManager,
                                  RawStoreManager rawStoreManager,
-                                 ConnectionManager connectionManager) {
+                                 ConfigurationManager configurationManager) {
         this.colorManager = colorManager;
         this.remoteDBManager = remoteDBManagers;
         this.storeManager = storeManager;
@@ -94,14 +95,14 @@ public class GetFromRemoteAndStore {
         this.convertManager = convertManager;
         this.chartDatasetManager = chartDatasetManager;
         this.rawStoreManager = rawStoreManager;
-        this.connectionManager = connectionManager;
+        this.configurationManager = configurationManager;
     }
 
-    public void initConnection(ConnectionMetadata connectionMetadata) throws SQLException{
+    public void initConnection(ConnProfile connProfile) throws SQLException{
         this.chartDatasetManager.setGetFromRemoteAndStore(this);
 
-        this.connectionMetadata = connectionMetadata;
-        this.remoteDBManager.init(connectionMetadata);
+        this.connProfile = connProfile;
+        this.remoteDBManager.init(connProfile);
         this.initializeConnection();
     }
 
@@ -117,7 +118,7 @@ public class GetFromRemoteAndStore {
             this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.loadMetadata();
 
-            this.rawStoreManager.setSqlColMetadata(metadataMap.get(modNameAshSql));
+            this.rawStoreManager.setSqlColMetadatumPojos(metadataMap.get(modNameAshSql));
 
             iProfile.getSqlIdAddColName().stream().forEach(e -> SqlIdAddColName.add(this.getColumnIdForCol(e)));
             iProfile.getSessAddColName().stream().forEach(e -> SessAddColName.add(this.getColumnIdForCol(e)));
@@ -272,7 +273,6 @@ public class GetFromRemoteAndStore {
     }
 
     private void generateDataUpToMinForDetail(NameChartDataset nameChartDataset, String key, long min, long dd, int range) {
-
         nameChartDataset.getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(key);
 
         if (dd > min) {
@@ -290,8 +290,11 @@ public class GetFromRemoteAndStore {
             metadataMap.put(modNameSysdateSql, loadSqlMetaData(modNameSysdateSql, iProfile.getSqlTextSysdate()));
             metadataMap.put(modNameAshSql, loadSqlMetaData(modNameAshSql, iProfile.getSqlTextAshOneRow()));
 
-            List<SqlColMetadata> metadataMapFromLocalDB =
+            List<SqlColProfile> metadataMapFromLocalDB =
                     this.storeManager.getRepositoryDAO().getSqlColDbTypeMetadata(modNameAshSql);
+
+            // Store metadata in local config file
+            configurationManager.loadSqlColumnMetadata(metadataMapFromLocalDB);
 
             // Store metadata in local store
             metadataMap.get(modNameAshSql).forEach(x -> {
@@ -424,7 +427,7 @@ public class GetFromRemoteAndStore {
                     }
                 }
 
-                if (connectionManager.getRawRetainDays() > 0){
+                if (configurationManager.getRawRetainDays() > 0){
                     rows.add(columns);
                 }
 
@@ -513,7 +516,7 @@ public class GetFromRemoteAndStore {
                 sqlText = sqlText + where + orderBy;
                 s = connection.prepareStatement(sqlText);
 
-                Parameters param = new Parameters.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime).build();
+                ParameterBuilder param = new ParameterBuilder.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime).build();
                 s.setTimestamp(1, new java.sql.Timestamp(this.storeManager.getDatabaseDAO().getMax(param)));
 
             } else {
@@ -539,10 +542,10 @@ public class GetFromRemoteAndStore {
         this.connection = this.remoteDBManager.getConnection();
     }
 
-    private List<SqlColMetadata> loadSqlMetaData(String sqlName, String sqlText) {
+    private List<SqlColProfile> loadSqlMetaData(String sqlName, String sqlText) {
         Statement s = null;
         ResultSet rs = null;
-        List<SqlColMetadata> sqlColMetadataList = new ArrayList<>();
+        List<SqlColProfile> sqlColProfileList = new ArrayList<>();
 
         try {
             s = connection.createStatement();
@@ -551,19 +554,15 @@ public class GetFromRemoteAndStore {
             ResultSetMetaData rsmd = rs.getMetaData();
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 
-                SqlColMetadata sqlColMetadata = new SqlColMetadata();
-                sqlColMetadata.setColId(i);
-                sqlColMetadata.setColName(rsmd.getColumnName(i).toUpperCase()); //PG bug here resolved :: lower-upper case
-                sqlColMetadata.setColDbTypeName(rsmd.getColumnTypeName(i).toUpperCase()); //PG bug here resolved :: lower-upper case
+                SqlColProfile columnPojo = new SqlColProfile();
+                columnPojo.setColId(i);
+                columnPojo.setColName(rsmd.getColumnName(i).toUpperCase()); //PG bug here resolved :: lower-upper case
+                columnPojo.setColDbTypeName(rsmd.getColumnTypeName(i).toUpperCase()); //PG bug here resolved :: lower-upper case
+                columnPojo.setSqlAndColName(sqlName + rsmd.getColumnName(i).toUpperCase());
+                columnPojo.setColSizeDisplay(rsmd.getColumnDisplaySize(i));
+                columnPojo.setColSizeSqlType(rsmd.getColumnType(i));
 
-                /****!!!!!!!!!!!!!! ***/
-                sqlColMetadata.setSqlAndColName(sqlName + rsmd.getColumnName(i).toUpperCase());
-                /****!!!!!!!!!!!!!! ***/
-
-                sqlColMetadata.setColSizeDisplay(rsmd.getColumnDisplaySize(i));
-                sqlColMetadata.setColSizeSqlType(rsmd.getColumnType(i));
-
-                sqlColMetadataList.add(i - 1, sqlColMetadata);
+                sqlColProfileList.add(i - 1, columnPojo);
             }
             rs.close();
             s.close();
@@ -587,7 +586,7 @@ public class GetFromRemoteAndStore {
             }
         }
 
-        return sqlColMetadataList;
+        return sqlColProfileList;
     }
 
     private long getOneRowOutputDateFromDB(String statement){

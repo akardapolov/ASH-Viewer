@@ -3,12 +3,16 @@ package config.dagger.module;
 import config.FileConfig;
 import config.GUIConfig;
 import config.dagger.Config;
+import config.profile.ConfigProfile;
 import dagger.Module;
 import dagger.Provides;
 import gui.events.GlobalKeyBindings;
+import org.yaml.snakeyaml.Yaml;
 import store.BerkleyDB;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.HashMap;
 
 @Module
 public class ModuleConfig {
@@ -18,13 +22,6 @@ public class ModuleConfig {
     @Provides @Singleton BerkleyDB bdbForRepository() { return getConfig().getBdbForRepository(); }
     @Provides @Singleton GlobalKeyBindings getGlobalKeyBindings() { return getConfig().getGlobalKeyBindings(); }
 
-    /*@Provides @Singleton ProfileConfig forProfile() { return getConfig().getProfileConfig(); }
-    @Provides @Singleton XstreamSerializer forXstreamSerializer() { return getConfig().getXstreamSerializer(); }
-    @Provides @Singleton CacheManager forCacheManager() { return getConfig().getCacheManager(); }
-    @Provides @Singleton ColorManager forColorManager() { return getConfig().getColorManager(); }
-
-    @Provides @Singleton EnvironmentConfig forEnvironmentConfig() { return getConfig().getEnvConfig(); }
-    @Provides @Singleton Environment forEnvironment() { return getConfig().getEnv(); }
-    @Provides @Singleton StoreConfig forStoreConfig() { return getConfig().getStoreConfig(); }
-    @Provides @Singleton EntityStore forStore() { return getConfig().getStore(); }*/
+    @Provides @Singleton Yaml getYaml() { return getConfig().getYaml(); }
+    @Provides @Singleton @Named("ConfigList") HashMap<String, ConfigProfile> getConfigList() { return getConfig().getConfigHashMap(); }
 }

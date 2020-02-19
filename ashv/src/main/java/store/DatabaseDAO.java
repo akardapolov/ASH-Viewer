@@ -4,11 +4,11 @@ import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityIndex;
 import config.Labels;
-import core.parameter.Parameters;
+import core.parameter.ParameterBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import pojo.SqlColMetadata;
+import config.profile.SqlColProfile;
 import store.dao.database.*;
 import store.entity.database.MainData;
 
@@ -52,10 +52,10 @@ public class DatabaseDAO {
         this.olapDAO = new OlapDAO(berkleyDB);
     }
 
-    public long getMax(Parameters parameters) {
+    public long getMax(ParameterBuilder parameterBuilder) {
         long out = 0;
-        long start = (long) parameters.getBeginTime();
-        long end = (long) parameters.getEndTime();
+        long start = (long) parameterBuilder.getBeginTime();
+        long end = (long) parameterBuilder.getEndTime();
 
         EntityCursor<Long> cursor
                 = this.mainDataDAO.getPrimaryIndex().keys(start, true, end, true);
@@ -73,7 +73,7 @@ public class DatabaseDAO {
 
     public List<Object[][]> getMatrixDataForJTable(long begin, long end,
                                                         String waitClassColName, String waitClassValue,
-                                                                List<SqlColMetadata> colMetadataList){
+                                                                List<SqlColProfile> colMetadataList){
 
         List<Object[][]> out = new ArrayList<>();
 
@@ -89,10 +89,10 @@ public class DatabaseDAO {
                     for (int row = 0; row < sl.getMainMatrix().length; row++) {
                         if (!waitClassValue.isEmpty()){
 
-                            Stream<SqlColMetadata> sqlColMetadataStream
+                            Stream<SqlColProfile> sqlColMetadataStream
                                     = colMetadataList.stream().filter(x -> x.getColName().equalsIgnoreCase(waitClassColName));
 
-                            SqlColMetadata sColMetaD = sqlColMetadataStream.findFirst().get();
+                            SqlColProfile sColMetaD = sqlColMetadataStream.findFirst().get();
 
                             String waitVal = (String) convertManager.getMatrixDataForJTable(sColMetaD.getColDbTypeName(),
                                     sColMetaD.getColId(), sl, row);

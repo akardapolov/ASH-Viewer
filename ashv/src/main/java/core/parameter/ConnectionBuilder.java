@@ -1,6 +1,6 @@
 package core.parameter;
 
-public class ConnectionParameters {
+public class ConnectionBuilder {
     private final String connectionName;
     private final String userName;
     private final String password;
@@ -45,12 +45,12 @@ public class ConnectionParameters {
         public Builder rawRetainDays(String raw) { rawRetainDays = raw; return this; }
         public Builder olapRetainDays(String raw) { olapRetainDays = raw; return this; }
 
-        public ConnectionParameters build() {
-            return new ConnectionParameters(this);
+        public ConnectionBuilder build() {
+            return new ConnectionBuilder(this);
         }
     }
 
-    private ConnectionParameters(Builder builder){
+    private ConnectionBuilder(Builder builder){
         connectionName = builder.connectionName;
         userName = builder.userName;
         password = builder.password;

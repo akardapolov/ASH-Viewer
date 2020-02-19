@@ -5,8 +5,8 @@ import com.sleepycat.persist.EntityCursor;
 import config.Labels;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import pojo.ConnectionMetadata;
-import pojo.SqlColMetadata;
+import config.profile.ConnProfile;
+import config.profile.SqlColProfile;
 import store.dao.repository.IMetadataEAVDAO;
 import store.dao.repository.MetadataEAVDAO;
 import store.entity.repository.MetadataEAV;
@@ -31,8 +31,8 @@ public class RepositoryDAO {
         this.metadataEAVDAO = new MetadataEAVDAO(this.berkleyDB.getStore());
     }
 
-    public List<ConnectionMetadata> getModuleMetadata(String moduleName){
-        List<ConnectionMetadata> out = new ArrayList<>();
+    public List<ConnProfile> getModuleMetadata(String moduleName){
+        List<ConnProfile> out = new ArrayList<>();
         Set<String> list = new HashSet<>();
 
         EntityCursor<MetadataEAV> mainDataEAV =
@@ -50,7 +50,7 @@ public class RepositoryDAO {
         }
 
         list.stream().forEach(e -> {
-            ConnectionMetadata sqlColMetadata = new ConnectionMetadata();
+            ConnProfile sqlColMetadata = new ConnProfile();
             sqlColMetadata.setConnName(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.connection.name")));
             sqlColMetadata.setUserName(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.connection.username")));
             sqlColMetadata.setPassword(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.connection.password")));
@@ -87,8 +87,8 @@ public class RepositoryDAO {
     }
 
 
-    public List<SqlColMetadata> getSqlColDbTypeMetadata(String moduleName){
-        List<SqlColMetadata> out = new ArrayList<>();
+    public List<SqlColProfile> getSqlColDbTypeMetadata(String moduleName){
+        List<SqlColProfile> out = new ArrayList<>();
         Set<String> list = new HashSet<>();
 
         EntityCursor<MetadataEAV> mainDataEAV =
@@ -107,11 +107,11 @@ public class RepositoryDAO {
 
         list.forEach(e -> {
 
-            SqlColMetadata sqlColMetadata = new SqlColMetadata();
-            sqlColMetadata.setColId(Integer.parseInt(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnId")))); sqlColMetadata.setColName(e);
-            sqlColMetadata.setColDbTypeName(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnType")));
+            SqlColProfile sqlColProfile = new SqlColProfile();
+            sqlColProfile.setColId(Integer.parseInt(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnId")))); sqlColProfile.setColName(e);
+            sqlColProfile.setColDbTypeName(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnType")));
 
-            out.add(sqlColMetadata);
+            out.add(sqlColProfile);
         });
 
         return out;

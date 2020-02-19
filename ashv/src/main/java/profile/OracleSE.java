@@ -23,7 +23,7 @@ public class OracleSE extends OracleEE{
             + "and vs.sid = vss.sid and vs.command = au.action(+) "
             + "and vss.statistic# = 12 and (vs.wait_class != 'Idle' or vs.wait_time != 0) )";
 
-    long interval = 3000; // 1 sec
+    long interval = 1000; // 1 sec
 
     List<String> SqlIdAddColName = new LinkedList<>();
 

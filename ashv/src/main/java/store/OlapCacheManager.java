@@ -23,9 +23,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Singleton
 public class OlapCacheManager {
-
     @Getter @Setter private OlapDAO olapDAO;
-
     @Getter @Setter private IProfile iProfile;
 
     // cache
@@ -41,6 +39,7 @@ public class OlapCacheManager {
 
     @Inject
     public OlapCacheManager (){}
+
     /**
      *<pre>
      *{@code Load RAW data from ASH online to aggregate set of tables.
@@ -57,7 +56,6 @@ public class OlapCacheManager {
      */
     public void loadAshRawData(LocalDateTime dt, String parameter,
                                String[] additionalParams, String waitEvent, byte waitClass){
-
         // Check directory
         int paramIdSec = olapDAO.getCheckOrLoadParameter(parameter, additionalParams); // 1 sec/min
 

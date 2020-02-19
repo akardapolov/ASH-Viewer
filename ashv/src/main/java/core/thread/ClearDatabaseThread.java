@@ -1,6 +1,6 @@
 package core.thread;
 
-import core.manager.ConnectionManager;
+import core.manager.ConfigurationManager;
 import core.manager.ConstantManager;
 import core.processing.GetFromRemoteAndStore;
 import lombok.extern.slf4j.Slf4j;
@@ -22,17 +22,17 @@ public class ClearDatabaseThread {
     private StoreManager storeManager;
 
     private GetFromRemoteAndStore getFromRemoteAndStore;
-    private ConnectionManager connectionManager;
+    private ConfigurationManager configurationManager;
 
     private Timer timer = new Timer();
 
     @Inject
     public ClearDatabaseThread(StoreManager storeManager,
                                GetFromRemoteAndStore getFromRemoteAndStore,
-                               ConnectionManager connectionManager) {
+                               ConfigurationManager configurationManager) {
         this.storeManager = storeManager;
         this.getFromRemoteAndStore = getFromRemoteAndStore;
-        this.connectionManager = connectionManager;
+        this.configurationManager = configurationManager;
     }
 
     public void schedulerTimer(){
@@ -47,8 +47,8 @@ public class ClearDatabaseThread {
 
     class clearDatabase extends TimerTask {
         public void run() {
-            int intRawDays = connectionManager.getRawRetainDays();
-            int intOlapDays = connectionManager.getOlapRetainDays();
+            int intRawDays = configurationManager.getRawRetainDays();
+            int intOlapDays = configurationManager.getOlapRetainDays();
 
             long start = 0L;
             long endRaw = getFromRemoteAndStore.getCurrServerTime() - TimeUnit.DAYS.toMillis(intRawDays);

@@ -3,7 +3,7 @@ package remote;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
-import pojo.ConnectionMetadata;
+import config.profile.ConnProfile;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -16,21 +16,21 @@ import java.sql.SQLException;
 @Slf4j
 public class RemoteDBManager {
 
-    private ConnectionMetadata connectionMetadata;
+    private ConnProfile connProfile;
     @Getter private BasicDataSource basicDataSource;
 
     @Inject
     public RemoteDBManager(){ }
 
-    public void init(ConnectionMetadata connectionMetadata) {
+    public void init(ConnProfile connProfile) {
         try {
-            this.connectionMetadata = connectionMetadata;
+            this.connProfile = connProfile;
             this.basicDataSource = new BasicDataSource();
             this.basicDataSource.setDriverClassLoader(getClassLoader());
-            this.basicDataSource.setDriverClassName(this.connectionMetadata.getDriver());
-            this.basicDataSource.setUrl(this.connectionMetadata.getUrl());
-            this.basicDataSource.setUsername(this.connectionMetadata.getUserName());
-            this.basicDataSource.setPassword(this.connectionMetadata.getPassword());
+            this.basicDataSource.setDriverClassName(this.connProfile.getDriver());
+            this.basicDataSource.setUrl(this.connProfile.getUrl());
+            this.basicDataSource.setUsername(this.connProfile.getUserName());
+            this.basicDataSource.setPassword(this.connProfile.getPassword());
             this.basicDataSource.setInitialSize(2);
 
         } catch (ClassNotFoundException e) {
@@ -49,8 +49,8 @@ public class RemoteDBManager {
         return connection;
     }
 
-    private ClassLoader getClassLoader()throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException {
-        URL url = new File(this.connectionMetadata.getJar().trim()).toURI().toURL();
+    private ClassLoader getClassLoader() throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException {
+        URL url = new File(this.connProfile.getJar().trim()).toURI().toURL();
         URLClassLoader ucl = new URLClassLoader(new URL[]{url});
         return ucl;
     }
