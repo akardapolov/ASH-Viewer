@@ -201,10 +201,11 @@ public class RawDataTable extends JPanel implements IDetailPanel {
         String moduleName = "ash" + "_" + iProfile.getProfileName();
 
         AtomicInteger at = new AtomicInteger(0);
-        String[] out = new String[this.storeManager.getRepositoryDAO().getSqlColDbTypeMetadata(moduleName).size()];
+        String[] out = new String[this.storeManager.getConfigurationManager().getCurrentConfiguration().getSqlColProfileList().size()];
 
-        this.storeManager.getRepositoryDAO()
-                .getSqlColDbTypeMetadata(moduleName)
+        this.storeManager.getConfigurationManager()
+                .getCurrentConfiguration()
+                .getSqlColProfileList()
                 .stream()
                 .sorted((o1, o2) -> o1.getColId() - o2.getColId())
                 .forEach(e->out[at.getAndIncrement()]= e.getColName());
@@ -218,7 +219,7 @@ public class RawDataTable extends JPanel implements IDetailPanel {
 
         this.storeManager.getDatabaseDAO()
                 .getMatrixDataForJTable(begin, end, waitClassColName, waitClassValue,
-                        this.storeManager.getRepositoryDAO().getSqlColDbTypeMetadata(moduleName))
+                        this.storeManager.getConfigurationManager().getCurrentConfiguration().getSqlColProfileList())
                 .forEach(e -> {
                     for(int row = 0; row < e.length; row++){
                         if (e[row][0] != null) {

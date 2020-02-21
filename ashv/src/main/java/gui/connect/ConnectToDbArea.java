@@ -147,6 +147,12 @@ public class ConnectToDbArea extends JDialog {
         connOtherJPanel = new JPanel(lmConnOther);
         buttonPanel = new JPanel(lmButtonPanel);
 
+        //////////////////////// Delete it in future release ///////////////////
+        configurationManager.unloadConfigFromBdbToFile(
+                this.storeManager.getRepositoryDAO()
+                        .getConnProfileList(Labels.getLabel("local.sql.metadata.connection")));
+        //////////////////////// Delete it in future release ///////////////////
+
         this.init_gui();
 
         this.add(mainJPanel);
@@ -290,7 +296,7 @@ public class ConnectToDbArea extends JDialog {
                 jButtonDeleteConn.setEnabled(false);
 
                 this.deleteData();
-                this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
+                this.loadConfigProfileToGui();
 
                 jButtonConnect.setEnabled(true);
                 jButtonNewConn.setEnabled(true);
@@ -323,7 +329,7 @@ public class ConnectToDbArea extends JDialog {
                     jButtonCancel.setEnabled(false);
 
                     this.saveData();
-                    this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
+                    this.loadConfigProfileToGui();
                     this.setDetailEditable(false);
 
                     setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
@@ -342,7 +348,7 @@ public class ConnectToDbArea extends JDialog {
                 jButtonSaveConn.setEnabled(false);
                 jButtonCancel.setEnabled(false);
 
-                this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
+                this.loadConfigProfileToGui();
                 this.setDetailEditable(false);
 
                 setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
@@ -351,13 +357,10 @@ public class ConnectToDbArea extends JDialog {
             /** cancel **/
         });
 
-        /******/
         this.setDetailEditable(false);
-        /******/
 
-        this.loadDataToMetadataMapping(Labels.getLabel("local.sql.metadata.connection"));
+        this.loadConfigProfileToGui();
 
-        /******/
         buttonPanel.add(jButtonConnect, "gap 1");
         buttonPanel.add(jButtonNewConn, "gap 1");
         buttonPanel.add(jButtonCopyConn, "gap 1");
@@ -365,7 +368,6 @@ public class ConnectToDbArea extends JDialog {
         buttonPanel.add(jButtonEditConn, "gap 1");
         buttonPanel.add(jButtonSaveConn, "gap 1");
         buttonPanel.add(jButtonCancel, "gap 1");
-        /******/
 
         connJTabbedPane.add(connMainJPanel, Labels.getLabel("gui.connection.connection.main"));
         connJTabbedPane.add(connOtherJPanel, Labels.getLabel("gui.connection.connection.other"));
@@ -386,8 +388,8 @@ public class ConnectToDbArea extends JDialog {
         profileBox.setEnabled(bParameter);
         jarTF.setEnabled(bParameter);
         openFileButton.setEnabled(bParameter);
-        rawDataDaysRetainTF.setEnabled(bParameter);
-        olapDataDaysRetainTF.setEnabled(bParameter);
+        //rawDataDaysRetainTF.setEnabled(bParameter);
+        //olapDataDaysRetainTF.setEnabled(bParameter);
 
         jButtonConnect.setEnabled(!bParameter);
         jButtonNewConn.setEnabled(!bParameter);
@@ -430,16 +432,15 @@ public class ConnectToDbArea extends JDialog {
         }
 
         if (!rawDataDaysRetainTF.isEnabled()) {
-            setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
+            setTextDataDaysRetainTF(rawDataDaysRetainTF, Integer.parseInt(connParameters.getRawRetainDays()));
         }
 
         if (!olapDataDaysRetainTF.isEnabled()) {
-            setOlapDataDaysRetainTF(olapDataDaysRetainTF, configurationManager.getOlapRetainDays());
+            setOlapDataDaysRetainTF(olapDataDaysRetainTF, Integer.parseInt(connParameters.getOlapRetainDays()));
         }
     }
 
     private void saveData(){
-        //this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
         configurationManager.loadProfile(String.valueOf((profileBox.getSelectedItem())));
 
         ConnectionBuilder connParameters = new ConnectionBuilder.Builder(connNameTF.getText())
@@ -454,27 +455,24 @@ public class ConnectToDbArea extends JDialog {
                 .build();
 
         configurationManager.saveConnection(connParameters);
-
-        storeManager.syncRepo();
     }
 
     private void deleteData(){
+        configurationManager.deleteConfig(connNameTF.getText());
+
+        //////////////////////// Delete it in future release ///////////////////
         this.storeManager.getRepositoryDAO().metadataEAVDAO.deleteMainDataEAVWithCheck(
                 Labels.getLabel("local.sql.metadata.connection"),
                 connNameTF.getText()
         );
-
-        storeManager.syncRepo();
     }
 
-    private void loadDataToMetadataMapping(String moduleName){
+    private void loadConfigProfileToGui(){
         while (modelConn.getRowCount()>0) modelConn.removeRow(0);
 
-        storeManager.getRepositoryDAO()
-                .getModuleMetadata(moduleName)
-                .forEach(m -> {
-                    modelConn.addRow(new Object[]{m.getConnName()});
-                });
+        configurationManager.getConnProfileList().forEach(e -> {
+            modelConn.addRow(new Object[]{e.getConfigName()});
+        });
 
         try {
             tableConn.setRowSelectionInterval(0, 0);
@@ -485,19 +483,11 @@ public class ConnectToDbArea extends JDialog {
 
     private void loadObjectsByConnectionName() {
         try {
-            //////////////////////// Delete it in future release ///////////////////
-            configurationManager.unloadConfigFromBdbToFile(
-                    this.storeManager.getRepositoryDAO()
-                            .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection")));
-            //////////////////////// Delete it in future release ///////////////////
+            ConnProfile connection = configurationManager.getConnProfileList().stream()
+                    .filter(e -> e.getConfigName().equalsIgnoreCase(connNameTF.getText()))
+                    .findAny().get().getConnProfile();
 
-            ConnProfile connection =
-                    this.storeManager.getRepositoryDAO()
-                            .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection"))
-                            .stream().filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
-                            .findFirst().get();
-
-            configurationManager.loadCurrentConfiguration(connNameTF.getText(), connection);
+            configurationManager.loadCurrentConfiguration(connNameTF.getText());
 
             getFromRemoteAndStore.initConnection(connection);
             getFromRemoteAndStore.initProfile(configurationManager.getIProfile());
@@ -528,15 +518,11 @@ public class ConnectToDbArea extends JDialog {
 
     private void loadObjectsByConnectionNameOffline(){
         try {
-            ConnProfile connection =
-                    this.storeManager.getRepositoryDAO()
-                            .getModuleMetadata(Labels.getLabel("local.sql.metadata.connection"))
-                            .stream()
-                            .filter(k -> k.getConnName().equalsIgnoreCase(connNameTF.getText()))
-                            .findFirst()
-                            .get();
+            ConnProfile connection = configurationManager.getConnProfileList().stream()
+                    .filter(e -> e.getConfigName().equalsIgnoreCase(connNameTF.getText()))
+                    .findAny().get().getConnProfile();
 
-            configurationManager.loadCurrentConfiguration(connNameTF.getText(), connection);
+            configurationManager.loadCurrentConfiguration(connNameTF.getText());
 
             getFromRemoteAndStore.initProfile(configurationManager.getIProfile()); //
 
@@ -596,6 +582,8 @@ public class ConnectToDbArea extends JDialog {
         } else if (dataDaysRetainTF.getText().equalsIgnoreCase(String.valueOf(ConstantManager.RetainData.Always))) {
             dataDaysRetainTF.setText(String.valueOf(ConstantManager.RETAIN_DAYS_MAX));
         }
+
+        dataDaysRetainTF.setEnabled(false);
     }
 
     private void setTextDataDaysRetainTF(JXTextField dataDaysRetainTF, int retainDays){
@@ -604,6 +592,8 @@ public class ConnectToDbArea extends JDialog {
         } else if (retainDays >= ConstantManager.RETAIN_DAYS_MAX) {
             dataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainData.Always));
         }
+
+        dataDaysRetainTF.setEnabled(false);
     }
 
     private void setOlapDataDaysRetainTF(JXTextField dataDaysRetainTF, int retainDays){
@@ -611,6 +601,8 @@ public class ConnectToDbArea extends JDialog {
                 | (retainDays >= ConstantManager.RETAIN_DAYS_MAX)) {
             dataDaysRetainTF.setText(String.valueOf(ConstantManager.RetainData.Always));
         }
+
+        dataDaysRetainTF.setEnabled(false);
     }
 
 }

@@ -30,6 +30,7 @@ import store.*;
 import store.entity.database.SqlPlan;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshUser;
+import utility.StackTraceUtil;
 import utility.Utils;
 
 import javax.inject.Inject;
@@ -146,7 +147,7 @@ public class GetFromRemoteAndStore {
             this.loadToMainStackedChart();
             log.info("Stop loading olap");
 
-            if (!this.isFirstRun) { // resolve the issue with the gap for big data in ASV
+            if (!this.isFirstRun) { // resolve the issue with the gap for big data in ASH
                 this.isFirstRun = true;
                 this.loadDataToOlap();
                 this.loadToMainStackedChart();
@@ -290,26 +291,12 @@ public class GetFromRemoteAndStore {
             metadataMap.put(modNameSysdateSql, loadSqlMetaData(modNameSysdateSql, iProfile.getSqlTextSysdate()));
             metadataMap.put(modNameAshSql, loadSqlMetaData(modNameAshSql, iProfile.getSqlTextAshOneRow()));
 
-            List<SqlColProfile> metadataMapFromLocalDB =
-                    this.storeManager.getRepositoryDAO().getSqlColDbTypeMetadata(modNameAshSql);
-
             // Store metadata in local config file
-            configurationManager.loadSqlColumnMetadata(metadataMapFromLocalDB);
+            configurationManager.loadSqlColumnMetadata(loadSqlMetaData(modNameAshSql, iProfile.getSqlTextAshOneRow()));
 
-            // Store metadata in local store
-            metadataMap.get(modNameAshSql).forEach(x -> {
-
-                if (metadataMapFromLocalDB.stream().noneMatch(e -> e.getColId() == x.getColId())){
-                    this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(modNameAshSql, x.getColName(),
-                            Labels.getLabel("local.sql.metadata.columnId"), String.valueOf(x.getColId()));
-                    this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(modNameAshSql, x.getColName(),
-                            Labels.getLabel("local.sql.metadata.columnName"), x.getColName().toUpperCase()); // PG bug here resolved :: lower-upper case
-                    this.storeManager.getRepositoryDAO().getMetadataEAVDAO().putMainDataEAVWithCheck(modNameAshSql, x.getColName(),
-                            Labels.getLabel("local.sql.metadata.columnType"), x.getColDbTypeName().toUpperCase()); // PG bug here resolved :: lower-upper case
-
-                }});
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
+            log.error(StackTraceUtil.getCustomStackTrace(e));
         }
     }
 

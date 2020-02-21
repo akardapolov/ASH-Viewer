@@ -3,10 +3,9 @@ package store;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.EntityCursor;
 import config.Labels;
+import config.profile.ConnProfile;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import config.profile.ConnProfile;
-import config.profile.SqlColProfile;
 import store.dao.repository.IMetadataEAVDAO;
 import store.dao.repository.MetadataEAVDAO;
 import store.entity.repository.MetadataEAV;
@@ -31,7 +30,7 @@ public class RepositoryDAO {
         this.metadataEAVDAO = new MetadataEAVDAO(this.berkleyDB.getStore());
     }
 
-    public List<ConnProfile> getModuleMetadata(String moduleName){
+    public List<ConnProfile> getConnProfileList(String moduleName){
         List<ConnProfile> out = new ArrayList<>();
         Set<String> list = new HashSet<>();
 
@@ -85,37 +84,5 @@ public class RepositoryDAO {
 
         return out;
     }
-
-
-    public List<SqlColProfile> getSqlColDbTypeMetadata(String moduleName){
-        List<SqlColProfile> out = new ArrayList<>();
-        Set<String> list = new HashSet<>();
-
-        EntityCursor<MetadataEAV> mainDataEAV =
-                this.metadataEAVDAO.getModuleSecondaryIndex().subIndex(moduleName).entities();
-
-        try {
-            for (MetadataEAV metaEAV : mainDataEAV) {
-                if (metaEAV.getModuleName().equalsIgnoreCase(moduleName) &&
-                        metaEAV.getAttribute().equalsIgnoreCase(Labels.getLabel("local.sql.metadata.columnId"))) {
-                    list.add(metaEAV.getEntity());
-                }
-            }
-        } finally {
-            mainDataEAV.close();
-        }
-
-        list.forEach(e -> {
-
-            SqlColProfile sqlColProfile = new SqlColProfile();
-            sqlColProfile.setColId(Integer.parseInt(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnId")))); sqlColProfile.setColName(e);
-            sqlColProfile.setColDbTypeName(this.getMetaDataAttributeValue(moduleName, e, Labels.getLabel("local.sql.metadata.columnType")));
-
-            out.add(sqlColProfile);
-        });
-
-        return out;
-    }
-
 
 }

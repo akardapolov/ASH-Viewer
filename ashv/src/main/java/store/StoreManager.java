@@ -2,6 +2,7 @@ package store;
 
 import com.sleepycat.je.DatabaseException;
 import config.FileConfig;
+import core.manager.ConfigurationManager;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class StoreManager {
     @Getter private DatabaseDAO databaseDAO;
 
     @Getter private OlapCacheManager olapCacheManager;
+    @Getter private ConfigurationManager configurationManager;
 
     @Getter @Setter private long lastLoadTimeMark;
 
@@ -29,12 +31,14 @@ public class StoreManager {
     public StoreManager(FileConfig fileConfig,
                         BerkleyDB berkleyRepo,
                         RepositoryDAO repositoryDAO,
-                        OlapCacheManager olapCacheManager) {
+                        OlapCacheManager olapCacheManager,
+                        ConfigurationManager configurationManager) {
         try {
             this.fileConfig = fileConfig;
             this.berkleyRepo = berkleyRepo;
             this.repositoryDAO = repositoryDAO;
             this.olapCacheManager = olapCacheManager;
+            this.configurationManager = configurationManager;
         } catch (DatabaseException e) {
             e.printStackTrace();
             System.exit(-1);
@@ -50,7 +54,6 @@ public class StoreManager {
 
         databaseDAO = new DatabaseDAO(berkleyDB);
     }
-
 
     public void syncRepo(){
         this.berkleyRepo.getStore().sync();
