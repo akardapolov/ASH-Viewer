@@ -45,8 +45,6 @@ public class SqlPlanDAO implements ISqlPlan{
     }
 
     @Override
-    public EntityCursor<SqlPlan> getEntityCursorPrimary() { return mainDataPrimaryIndex.entities(); }
-    @Override
     public SecondaryIndex<String, Long, SqlPlan> getEnityCurSqlId() { return sqlIdSecIndex; }
     @Override
     public SecondaryIndex<Long, Long, SqlPlan> getEnityCurPlanHashValue() { return planHashValueSecIndex; }

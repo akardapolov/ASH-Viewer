@@ -1,7 +1,6 @@
 package store.cache;
 
 public class TripleValueCache {
-
     public final int waitEventId;
     public final byte waitClassId;
     public int sum;

@@ -145,24 +145,4 @@ public class ConfigurationManager {
         return ConstantManager.RETAIN_DAYS_MAX;
     }
 
-    /**
-     * For migration purposes (from BDB store to yaml configs)
-     * Delete in future release
-     *
-     * @param list
-     */
-    public void unloadConfigFromBdbToFile(List<ConnProfile> list) {
-        list.forEach(e -> {
-            Optional<Map.Entry<String, ConfigProfile>> in = configList.entrySet().stream()
-                    .filter(m -> m.getValue().getConfigName()
-                            .equalsIgnoreCase(e.getConnName())).findFirst();
-
-            if (!in.isPresent()) {
-                ConfigProfile configProfile = new ConfigProfile();
-                configProfile.setConfigName(e.getConnName());
-                configProfile.setConnProfile(e);
-                loadConfigToFile(configProfile);
-            }
-        });
-    }
 }

@@ -46,5 +46,4 @@ public class BerkleyDB {
         this.store = new EntityStore(this.env, "ash.db", this.storeConfig);
     }
 
-
 }

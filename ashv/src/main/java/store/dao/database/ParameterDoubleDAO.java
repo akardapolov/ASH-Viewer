@@ -1,6 +1,5 @@
 package store.dao.database;
 
-import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.SecondaryIndex;
@@ -30,6 +29,5 @@ public class ParameterDoubleDAO implements IParameterDoubleDAO {
     }
 
     @Override public double getParameterStrById(int id) { return this.rdaStringParameterPrimIndex.get(id).getParamDValue(); }
-    @Override public EntityCursor<ParameterDouble> getEntityCursorPrimary() { return this.rdaStringParameterPrimIndex.entities(); }
 
 }

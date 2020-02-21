@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class OlapDAO {
+public class OlapDAO extends QueryService {
     private BerkleyDB berkleyDB;
     private EntityStore store;
 
@@ -120,35 +120,6 @@ public class OlapDAO {
         }
     }
 
-    public <K, V> EntityCursor<V> doRangeQuery(EntityIndex<K, V> index,
-                                               K fromKey,
-                                               boolean fromInclusive,
-                                               K toKey,
-                                               boolean toInclusive)
-            throws DatabaseException {
-
-        assert (index != null);
-
-        return index.entities(fromKey,
-                fromInclusive,
-                toKey,
-                toInclusive);
-    }
-
-    @Deprecated
-    public boolean isParameterExist(String parameter){
-        return this.ashParameterSecondaryIndexStrValue.contains(parameter);
-    }
-
-    @Deprecated
-    public boolean isWaitEventExist(String waitEvent){
-        return this.ashWaitEventSecondaryIndexStrValue.contains(waitEvent);
-    }
-
-    public void close() {
-        this.store.close();
-    }
-
     public void loadDataToCategoryTableXYDatasetRTVBySqlSessionID(GanttParam ganttParam,
                                                                   CategoryTableXYDatasetRDA categoryTableXYDatasetRDA,
                                                                   StackChartPanel stackChartPanel) {
@@ -172,7 +143,6 @@ public class OlapDAO {
 
             long end0 = d + Math.round(range);
 
-            /****/
             EntityCursor<AshAggrMinData15Sec> cursor =
                     getAshAggrMinData15SecDAO().getAshAggrEntityCursorRangeQuery(d, end0);
             Iterator<AshAggrMinData15Sec> iterator = cursor.iterator();
@@ -212,9 +182,7 @@ public class OlapDAO {
             }
             /////////////////////////////////////////////
 
-            /***/
             cursor.close();
-            /***/
         }
 
         LinkedHashMap<Integer, String> uniqueLHashSetEventLstStr = new LinkedHashMap<>();
@@ -386,9 +354,7 @@ public class OlapDAO {
                     }
             }
 
-            /***/
             cursor.close();
-            /***/
         }
 
         HashMap<Integer, LinkedHashMap<Integer, String>> uniqueLHashSetEventLstStr0 = new HashMap<>();
@@ -410,7 +376,6 @@ public class OlapDAO {
                             .findAny().get().getValue();
 
             uniqueLHashSetEventLstStr.entrySet()
-                    .stream()
                     .forEach(u -> {
                         e.getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(u.getValue());
                     });
@@ -421,7 +386,6 @@ public class OlapDAO {
                 final double finalD = k.getKey();
 
                 uniqueLHashSetEventLstStr.entrySet()
-                        .stream()
                         .forEach(kk -> {
 
                             catTabXYDtstRTVId.addSeriesValue(finalD,

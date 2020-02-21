@@ -1,6 +1,5 @@
 package store.dao.database;
 
-import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.SecondaryIndex;
@@ -42,7 +41,4 @@ public class ParamStringStringDAO implements IParamStringStringDAO {
              return false;
          }
     }
-
-    @Override
-    public EntityCursor<ParamStringString> getEntityCursorPrimary() { return this.rdaStringParameterPrimIndex.entities(); }
 }

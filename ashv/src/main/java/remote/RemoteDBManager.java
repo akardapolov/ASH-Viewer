@@ -15,7 +15,6 @@ import java.sql.SQLException;
 
 @Slf4j
 public class RemoteDBManager {
-
     private ConnProfile connProfile;
     @Getter private BasicDataSource basicDataSource;
 
