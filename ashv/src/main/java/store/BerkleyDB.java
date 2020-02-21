@@ -30,7 +30,7 @@ public class BerkleyDB {
         this.envConfig = new EnvironmentConfig();
         this.envConfig.setAllowCreate(true);
         this.envConfig.setTransactional(false);
-        //this.envConfig.setCachePercent(25);
+        this.envConfig.setCachePercent(50);
     }
 
     private void setupEnvironment(){

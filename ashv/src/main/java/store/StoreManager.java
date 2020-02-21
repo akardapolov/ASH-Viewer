@@ -44,7 +44,6 @@ public class StoreManager {
         fileConfig.setUpDirectory(connNameDir);
 
         berkleyDB = new BerkleyDB(connNameDir);
-        berkleyDB.getEnvConfig().setCachePercent(30);
 
         databaseDAO = new DatabaseDAO(berkleyDB);
     }
