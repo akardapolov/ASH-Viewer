@@ -9,6 +9,7 @@ import store.cache.CompositeKeyCache;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshAggrMinData15Sec;
 import store.entity.olap.AshAggrMinData1Min;
+import store.service.OlapDAO;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

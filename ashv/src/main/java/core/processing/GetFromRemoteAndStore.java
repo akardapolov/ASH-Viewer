@@ -30,6 +30,7 @@ import store.*;
 import store.entity.database.SqlPlan;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshUser;
+import store.service.OlapDAO;
 import utility.StackTraceUtil;
 import utility.Utils;
 

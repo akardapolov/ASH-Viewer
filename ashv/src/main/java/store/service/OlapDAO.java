@@ -1,4 +1,4 @@
-package store;
+package store.service;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.*;
@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.util.GanttParam;
 import profile.IProfile;
+import store.BerkleyDB;
 import store.dao.olap.*;
 import store.entity.olap.*;
 

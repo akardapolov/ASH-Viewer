@@ -5,7 +5,7 @@ import com.sleepycat.persist.EntityCursor;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.SecondaryIndex;
-import store.OlapDAO;
+import store.service.OlapDAO;
 import store.entity.olap.AshAggrMinData15Sec;
 import store.entity.olap.CompositeKey;
 

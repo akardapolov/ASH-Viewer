@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jfree.chart.util.GanttParam;
 import profile.IProfile;
-import store.OlapDAO;
+import store.service.OlapDAO;
 import store.StoreManager;
 import store.cache.CompositeKeyCache2;
 import store.cache.TripleValueCache;

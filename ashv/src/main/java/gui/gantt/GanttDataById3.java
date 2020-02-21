@@ -9,7 +9,7 @@ import ext.egantt.drawing.module.BasicPainterModule;
 import ext.egantt.swing.GanttDrawingPartHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.jfree.chart.util.GanttParam;
-import store.OlapDAO;
+import store.service.OlapDAO;
 import store.StoreManager;
 import store.cache.CompositeKeyCache2;
 import store.cache.TripleValueCache;

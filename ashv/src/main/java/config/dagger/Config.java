@@ -7,7 +7,6 @@ import core.manager.ColorManager;
 import gui.events.GlobalKeyBindings;
 import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
-import store.BerkleyDB;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -17,28 +16,17 @@ public final class Config {
     private Preferences preferences;
     public String language = "en";
 
-    @Getter
-    private GUIConfig guiConfig;
-    @Getter
-    private FileConfig fileConfig;
-    @Getter
-    private BerkleyDB bdbForRepository;
-    @Getter
-    private GlobalKeyBindings globalKeyBindings;
-    @Getter
-    private ColorManager colorManager;
-    @Getter
-    private Yaml yaml;
-    @Getter
-    private HashMap<String, ConfigProfile> configHashMap;
+    @Getter private GUIConfig guiConfig;
+    @Getter private FileConfig fileConfig;
+    @Getter private GlobalKeyBindings globalKeyBindings;
+    @Getter private ColorManager colorManager;
+    @Getter private Yaml yaml;
+    @Getter private HashMap<String, ConfigProfile> configHashMap;
 
     public Config() {
         preferences = Preferences.userRoot().node("ASHViewer");
         guiConfig = new GUIConfig(preferences);
         fileConfig = new FileConfig();
-
-        bdbForRepository = new BerkleyDB(FileConfig.REPOSITORY_DIR);
-        bdbForRepository.getEnvConfig().setCachePercent(10);
 
         globalKeyBindings = new GlobalKeyBindings();
         colorManager = new ColorManager();
@@ -55,5 +43,4 @@ public final class Config {
     public Locale getLocale() {
         return new Locale(language);
     }
-
 }

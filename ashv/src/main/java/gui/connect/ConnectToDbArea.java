@@ -147,12 +147,6 @@ public class ConnectToDbArea extends JDialog {
         connOtherJPanel = new JPanel(lmConnOther);
         buttonPanel = new JPanel(lmButtonPanel);
 
-        //////////////////////// Delete it in future release ///////////////////
-        configurationManager.unloadConfigFromBdbToFile(
-                this.storeManager.getRepositoryDAO()
-                        .getConnProfileList(Labels.getLabel("local.sql.metadata.connection")));
-        //////////////////////// Delete it in future release ///////////////////
-
         this.init_gui();
 
         this.add(mainJPanel);
@@ -459,12 +453,6 @@ public class ConnectToDbArea extends JDialog {
 
     private void deleteData(){
         configurationManager.deleteConfig(connNameTF.getText());
-
-        //////////////////////// Delete it in future release ///////////////////
-        this.storeManager.getRepositoryDAO().metadataEAVDAO.deleteMainDataEAVWithCheck(
-                Labels.getLabel("local.sql.metadata.connection"),
-                connNameTF.getText()
-        );
     }
 
     private void loadConfigProfileToGui(){
