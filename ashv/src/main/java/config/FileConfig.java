@@ -18,13 +18,11 @@ public class FileConfig {
     private static String ABS_DIR = Paths.get(".").toAbsolutePath().normalize().toString();
 
     public static String CONFIGURATION_DIR = ABS_DIR + FILE_SEPARATOR + "configuration";
-    public static String REPOSITORY_DIR = ABS_DIR + FILE_SEPARATOR + "repository";
     public static String DATABASE_DIR = ABS_DIR + FILE_SEPARATOR + "database";
 
     public FileConfig() {
         try {
             setUpDirectory(CONFIGURATION_DIR);
-            setUpDirectory(REPOSITORY_DIR);
             setUpDirectory(DATABASE_DIR);
         } catch (IOException e) {
             log.error(e.getMessage());
