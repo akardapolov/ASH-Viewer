@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Singleton
 public class OlapCacheManager {
-    @Getter @Setter private OlapDAO olapDAO;
+    private OlapDAO olapDAO;
     @Getter @Setter private IProfile iProfile;
 
     // cache
@@ -39,7 +39,9 @@ public class OlapCacheManager {
     private Map<CompositeKeyCache, Map<Integer,Integer>> hashmap1MinCache = new HashMap<>();
 
     @Inject
-    public OlapCacheManager (){}
+    public OlapCacheManager (OlapDAO olapDAO){
+        this.olapDAO = olapDAO;
+    }
 
     /**
      *<pre>

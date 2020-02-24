@@ -12,14 +12,19 @@ import store.ConvertManager;
 import store.dao.database.*;
 import store.entity.database.MainData;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
+@Singleton
 public class DatabaseDAO extends QueryService {
     private BerkleyDB berkleyDB;
+    private OlapDAO olapDAO;
+
     @Getter @Setter private ConvertManager convertManager;
 
     @Getter public IMainDataDAO mainDataDAO;
@@ -28,18 +33,19 @@ public class DatabaseDAO extends QueryService {
     @Getter public IParamStringStringDAO paramStringStringDAO;
     @Getter public ISqlPlan iSqlPlan;
 
-    @Getter public OlapDAO olapDAO;
-
-    public DatabaseDAO (BerkleyDB berkleyDB) throws DatabaseException {
+    @Inject
+    public DatabaseDAO (BerkleyDB berkleyDB,
+                        OlapDAO olapDAO) {
         this.berkleyDB = berkleyDB;
+        this.olapDAO = olapDAO;
+    }
 
+    public void init () throws DatabaseException {
         this.mainDataDAO = new MainDataDAO(berkleyDB.getStore());
         this.parameterStringDAO = new ParameterStringDAO(berkleyDB.getStore());
         this.parameterDoubleDAO = new ParameterDoubleDAO(berkleyDB.getStore());
         this.paramStringStringDAO = new ParamStringStringDAO(berkleyDB.getStore());
         this.iSqlPlan = new SqlPlanDAO(berkleyDB.getStore());
-
-        this.olapDAO = new OlapDAO(berkleyDB);
     }
 
     public long getMax(ParameterBuilder parameterBuilder) {
@@ -93,7 +99,7 @@ public class DatabaseDAO extends QueryService {
 
                             // CPU used - oracle/pg specific
                             if (waitVal.isEmpty()
-                                    & !waitClassValue.equalsIgnoreCase(getOlapDAO().getIProfile().getWaitClass((byte) 0))){
+                                    & !waitClassValue.equalsIgnoreCase(this.olapDAO.getIProfile().getWaitClass((byte) 0))){
                                 continue;
                             }
                         }

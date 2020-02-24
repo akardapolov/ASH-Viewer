@@ -78,7 +78,7 @@ public class ClearDatabaseThread {
                 Instant startedAt = Instant.now();
                 log.info("Clearing of OLAP data started ..");
 
-                storeManager.getDatabaseDAO().getOlapDAO().deleteOlapData(start, endOlap);
+                storeManager.getOlapDAO().deleteOlapData(start, endOlap);
 
                 Instant endedAt = Instant.now();
                 Duration duration = Duration.between(startedAt , endedAt);

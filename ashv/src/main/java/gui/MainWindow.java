@@ -1,7 +1,5 @@
 package gui;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import config.GUIConfig;
 import gui.actions.ConnectToDbAction;
 import gui.actions.StartStopAction;
@@ -9,13 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 @Slf4j
-@AutoFactory
+@Singleton
 public class MainWindow {
     private final BasicFrame jFrame;
     private final GUIConfig guiConfig;
@@ -35,11 +34,11 @@ public class MainWindow {
                       GUIConfig guiConfig,
                       ConnectToDbAction connectToDbAction,
                       StartStopAction startStopAction,
-                      @Provided @Named("mainJToolBar") JToolBar mainToolBar,
-                      @Provided @Named("connectToDbButton") JButton connectButton,
-                      @Provided @Named("startStopButton") JButton startStopButton,
-                      @Provided @Named("mainTabPane") MainTabbedPane mainTabPane,
-                      @Provided @Named("mainStatusBar") StatusBar mainStatusBar){
+                      @Named("mainJToolBar") JToolBar mainToolBar,
+                      @Named("connectToDbButton") JButton connectButton,
+                      @Named("startStopButton") JButton startStopButton,
+                      @Named("mainTabPane") MainTabbedPane mainTabPane,
+                      @Named("mainStatusBar") StatusBar mainStatusBar){
         this.jFrame = jFrame;
         this.guiConfig = guiConfig;
         this.connectToDbAction = connectToDbAction;
@@ -54,7 +53,6 @@ public class MainWindow {
         this.mainStatusBar = mainStatusBar;
 
         this.mainToolBar.add(connectButton);
-        //this.mainToolBar.add(startStopButton);
 
         this.jFrame.addProfileArea(this.mainToolBar, BorderLayout.NORTH);
         this.jFrame.addProfileArea(this.mainTabPane, BorderLayout.CENTER);
@@ -67,7 +65,6 @@ public class MainWindow {
     }
 
     private void initJFrame(final BasicFrame jFrame){
-        //jFrame.setLayout(new MigLayout("", "[fill, grow]", "[fill, grow]"));
         jFrame.setTitle("ASH Viewer");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
@@ -78,7 +75,7 @@ public class MainWindow {
             public void windowClosing(WindowEvent e)
             {
                 guiConfig.setMainWindowSize(jFrame.getSize());
-                //////storeManager.close();
+                //storeManager.close();
                 System.exit(0);
             }
         });

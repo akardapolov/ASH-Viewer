@@ -55,6 +55,7 @@ public class GetFromRemoteAndStore {
     private ChartDatasetManager chartDatasetManager;
     private RawStoreManager rawStoreManager;
     private ConfigurationManager configurationManager;
+    private OlapDAO olapDAO;
 
     private OlapCacheManager olapCacheManager;
 
@@ -89,7 +90,8 @@ public class GetFromRemoteAndStore {
                                  ConvertManager convertManager,
                                  ChartDatasetManager chartDatasetManager,
                                  RawStoreManager rawStoreManager,
-                                 ConfigurationManager configurationManager) {
+                                 ConfigurationManager configurationManager,
+                                 OlapDAO olapDAO) {
         this.colorManager = colorManager;
         this.remoteDBManager = remoteDBManagers;
         this.storeManager = storeManager;
@@ -98,6 +100,7 @@ public class GetFromRemoteAndStore {
         this.chartDatasetManager = chartDatasetManager;
         this.rawStoreManager = rawStoreManager;
         this.configurationManager = configurationManager;
+        this.olapDAO = olapDAO;
     }
 
     public void initConnection(ConnProfile connProfile) throws SQLException{
@@ -115,9 +118,10 @@ public class GetFromRemoteAndStore {
     public void loadSqlsMetadata() {
         if (!this.isFirstRun) {
             this.olapCacheManager.setIProfile(this.iProfile);
-            this.storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
+            this.olapDAO.setIProfile(this.iProfile);
+            //this.storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
 
-            this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
+            //this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.loadMetadata();
 
             this.rawStoreManager.setSqlColMetadatumPojos(metadataMap.get(modNameAshSql));
@@ -204,9 +208,7 @@ public class GetFromRemoteAndStore {
                 continue;
             }
 
-            OlapDAO olapDAO = storeManager.getDatabaseDAO().getOlapDAO();
-
-            EntityCursor<AshAggrMinData> cursor = olapDAO.getAshAggrMinDataDAO().getAshAggrEntityCursorRangeQuery(d, (d + range));
+            EntityCursor<AshAggrMinData> cursor = this.olapDAO.getAshAggrMinDataDAO().getAshAggrEntityCursorRangeQuery(d, (d + range));
             Iterator<AshAggrMinData> iterator = cursor.iterator();
 
             hashMap.putIfAbsent(d, new long[waitClassCount]);
@@ -428,7 +430,7 @@ public class GetFromRemoteAndStore {
                             .sorted(Map.Entry.comparingByKey()).forEach(e -> sqlAddParam[e.getKey()] = e.getValue());
 
                     /** Additional dimension for sql detail **/
-                    storeManager.getDatabaseDAO().getOlapDAO().getCheckOrLoadParameter(sqlId, sqlAddParam);
+                    this.olapDAO.getCheckOrLoadParameter(sqlId, sqlAddParam);
                 }
 
                 // Sqltext (for postgres db only)
@@ -451,7 +453,7 @@ public class GetFromRemoteAndStore {
                         addParamSqlSess, waitEvent, iProfile.getWaitClassId(waitClass));
 
                 /** Additional dimension for session detail **/
-                storeManager.getDatabaseDAO().getOlapDAO().getCheckOrLoadParameter(sessionId + "_" + seriailId, sessAddParam);
+                this.olapDAO.getCheckOrLoadParameter(sessionId + "_" + seriailId, sessAddParam);
 
                 sampleTimeG = sampleTime;
 
@@ -626,8 +628,7 @@ public class GetFromRemoteAndStore {
             s = connection.prepareStatement(statement);
             rs = s.executeQuery();
             while (rs.next()) {
-                storeManager.getDatabaseDAO().getOlapDAO()
-                        .putUserIdUsername(new AshUser(rs.getInt(1), rs.getString(2)));
+                this.olapDAO.putUserIdUsername(new AshUser(rs.getInt(1), rs.getString(2)));
             }
 
             rs.close();

@@ -15,10 +15,13 @@ import store.BerkleyDB;
 import store.dao.olap.*;
 import store.entity.olap.*;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@Singleton
 public class OlapDAO extends QueryService {
     private BerkleyDB berkleyDB;
     private EntityStore store;
@@ -40,8 +43,12 @@ public class OlapDAO extends QueryService {
 
     private SecondaryIndex<String, Integer, AshUser> ashUserSecondaryIndexStrValue;
 
+    @Inject
     public OlapDAO(BerkleyDB berkleyDB) throws DatabaseException {
         this.berkleyDB = berkleyDB;
+    }
+
+    public void init () throws DatabaseException {
         this.store = this.berkleyDB.getStore();
 
         this.ashAggrMinDataDAO = new AshAggrMinDataDAO(this.store, this);

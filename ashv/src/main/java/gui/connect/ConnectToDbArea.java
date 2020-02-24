@@ -520,7 +520,7 @@ public class ConnectToDbArea extends JDialog {
             monitorDbPanel.initialize();
             getFromRemoteAndStore.loadConvertManager(); //
 
-            storeManager.getDatabaseDAO().getOlapDAO().setIProfile(configurationManager.getIProfile());
+            storeManager.getOlapDAO().setIProfile(configurationManager.getIProfile());
 
             monitorDbPanel.loadHistory();
 

@@ -87,7 +87,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
 
         mainStackChartPanel.addChartListenerReleaseMouse(this);
 
-        this.storeManager.getDatabaseDAO()
+        this.storeManager
                 .getOlapDAO().loadDataToCategoryTableXYDatasetRTVHistoryTA(ganttParam, mainXyDatasetRDA, mainStackChartPanel);
 
         mainSplitPane = new JSplitPane();
@@ -129,7 +129,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
         mainStackChartPanelTA.addChartListenerReleaseMouse(monitorGantt20);
         mainStackChartPanelTA.addChartListenerReleaseMouse(rawDataTable20);
 
-        this.storeManager.getDatabaseDAO()
+        this.storeManager
                 .getOlapDAO().loadDataToCategoryTableXYDatasetRTVHistoryTA(ganttParam, mainXyDatasetRDA, mainStackChartPanelTA);
 
         topASplitPane.add(mainStackChartPanelTA.getStackedChart().getChartPanel(), JSplitPane.TOP);
@@ -188,8 +188,8 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             nameChartDatasetDetail.add(nameChartDataset);
         });
 
-        this.storeManager.getDatabaseDAO()
-                .getOlapDAO().loadDataToCategoryTableXYDatasetRTVHistoryDetail(ganttParam, nameChartDatasetDetail);
+        this.storeManager.getOlapDAO()
+                .loadDataToCategoryTableXYDatasetRTVHistoryDetail(ganttParam, nameChartDatasetDetail);
 
         nameChartDatasetDetail.stream().forEach(e -> {
             String strChartPanel = "cell 0 0, hidemode 3";

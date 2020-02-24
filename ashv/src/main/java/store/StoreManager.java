@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import store.service.DatabaseDAO;
+import store.service.OlapDAO;
 import utility.StackTraceUtil;
 
 import javax.inject.Inject;
@@ -22,17 +23,24 @@ public class StoreManager {
 
     @Getter private BerkleyDB berkleyDB;
     @Getter private DatabaseDAO databaseDAO;
+    @Getter private OlapDAO olapDAO;
 
     @Getter @Setter private long lastLoadTimeMark;
 
     @Inject
     public StoreManager(FileConfig fileConfig,
                         OlapCacheManager olapCacheManager,
-                        ConfigurationManager configurationManager) {
+                        ConfigurationManager configurationManager,
+                        BerkleyDB berkleyDB,
+                        DatabaseDAO databaseDAO,
+                        OlapDAO olapDAO) {
         try {
             this.fileConfig = fileConfig;
             this.olapCacheManager = olapCacheManager;
             this.configurationManager = configurationManager;
+            this.berkleyDB = berkleyDB;
+            this.databaseDAO = databaseDAO;
+            this.olapDAO = olapDAO;
         } catch (DatabaseException e) {
             log.error(StackTraceUtil.getCustomStackTrace(e));
             System.exit(-1);
@@ -41,11 +49,12 @@ public class StoreManager {
 
     public void setUpBDBAndDAO(String connName) throws IOException {
         String connNameDir = FileConfig.DATABASE_DIR + FileConfig.FILE_SEPARATOR + connName;
+
         fileConfig.setUpDirectory(connNameDir);
 
-        berkleyDB = new BerkleyDB(connNameDir);
-
-        databaseDAO = new DatabaseDAO(berkleyDB);
+        berkleyDB.init(connNameDir);
+        databaseDAO.init();
+        olapDAO.init();
     }
 
     public void syncBdb(){

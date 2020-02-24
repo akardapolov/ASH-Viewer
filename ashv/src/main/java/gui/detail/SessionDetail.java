@@ -144,8 +144,7 @@ public class SessionDetail extends JFrame implements ActionListener {
     }
 
     private void loadData(){
-        storeManager.getDatabaseDAO()
-                .getOlapDAO().loadDataToCategoryTableXYDatasetRTVBySqlSessionID(
+        storeManager.getOlapDAO().loadDataToCategoryTableXYDatasetRTVBySqlSessionID(
                 new GanttParam.Builder(ganttParam.getBeginTime(), ganttParam.getEndTime())
                         .sessionId(ganttParam.getSessionId()).serial(ganttParam.getSerial()).build(),
                 categoryTableXYDatasetRTV, stackedChartPanel

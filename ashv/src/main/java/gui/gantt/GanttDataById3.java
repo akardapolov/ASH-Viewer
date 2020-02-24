@@ -42,7 +42,7 @@ public class GanttDataById3 {
 
     public GanttDataById3(StoreManager storeManager, byte parameterGroupId){
         this.storeManager = storeManager;
-        this.olapDAO = storeManager.getDatabaseDAO().getOlapDAO();
+        this.olapDAO = storeManager.getOlapDAO();
         this.parameterGroupId = parameterGroupId;
     }
 
@@ -223,7 +223,7 @@ public class GanttDataById3 {
             }
 
             data[rowNumber][atomicIntegerInter.getAndIncrement()] =
-                    storeManager.getDatabaseDAO().getOlapDAO().getUsername(userId);
+                    storeManager.getOlapDAO().getUsername(userId);
             data[rowNumber][atomicIntegerInter.getAndIncrement()] =
                     addParam[1].equalsIgnoreCase(ConstantManager.NULL_VALUE) ? "" : addParam[1];
 

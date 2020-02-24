@@ -5,10 +5,17 @@ import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.persist.EntityStore;
 import com.sleepycat.persist.StoreConfig;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 
+@Slf4j
+@Singleton
 public class BerkleyDB {
+    @Getter @Setter
     String directory;
     @Getter
     private EnvironmentConfig envConfig;
@@ -19,7 +26,10 @@ public class BerkleyDB {
     @Getter
     private EntityStore store;
 
-    public BerkleyDB(String directory) {
+    @Inject
+    public BerkleyDB() {}
+
+    public void init(String directory){
         this.directory = directory;
         this.setupEnvConfig();
         this.setupEnvironment();
