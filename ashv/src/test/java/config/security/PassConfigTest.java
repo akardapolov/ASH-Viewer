@@ -17,10 +17,9 @@ public class PassConfigTest {
 
     @Test
     @SneakyThrows
-    public void encodeToBytes() {
-        String secretKey = "Skey";
-        String passEncode = passConfig.encrypt(secretKey, passwordStr);
-        String passDecode = passConfig.decrypt(secretKey, passEncode);
+    public void encryptDecryptForLocal() {
+        String passEncode = passConfig.encrypt(passwordStr);
+        String passDecode = passConfig.decrypt(passEncode);
 
         assertEquals(passwordStr, passDecode);
     }

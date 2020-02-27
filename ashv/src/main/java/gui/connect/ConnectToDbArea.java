@@ -147,6 +147,10 @@ public class ConnectToDbArea extends JDialog {
         connOtherJPanel = new JPanel(lmConnOther);
         buttonPanel = new JPanel(lmButtonPanel);
 
+        //////////////////////// Delete it in future release ///////////////////
+        configurationManager.updatePassword();
+        //////////////////////// Delete it in future release ///////////////////
+
         this.init_gui();
 
         this.add(mainJPanel);
@@ -471,11 +475,9 @@ public class ConnectToDbArea extends JDialog {
 
     private void loadObjectsByConnectionName() {
         try {
-            ConnProfile connection = configurationManager.getConnProfileList().stream()
-                    .filter(e -> e.getConfigName().equalsIgnoreCase(connNameTF.getText()))
-                    .findAny().get().getConnProfile();
-
             configurationManager.loadCurrentConfiguration(connNameTF.getText());
+
+            ConnProfile connection = configurationManager.getCurrentConfiguration().getConnProfile();
 
             getFromRemoteAndStore.initConnection(connection);
             getFromRemoteAndStore.initProfile(configurationManager.getIProfile());
@@ -506,13 +508,11 @@ public class ConnectToDbArea extends JDialog {
 
     private void loadObjectsByConnectionNameOffline(){
         try {
-            ConnProfile connection = configurationManager.getConnProfileList().stream()
-                    .filter(e -> e.getConfigName().equalsIgnoreCase(connNameTF.getText()))
-                    .findAny().get().getConnProfile();
-
             configurationManager.loadCurrentConfiguration(connNameTF.getText());
 
-            getFromRemoteAndStore.initProfile(configurationManager.getIProfile()); //
+            ConnProfile connection = configurationManager.getCurrentConfiguration().getConnProfile();
+
+            getFromRemoteAndStore.initProfile(configurationManager.getIProfile());
 
             chartDatasetManager.setIProfile(configurationManager.getIProfile());
 

@@ -3,6 +3,7 @@ package core.manager;
 import config.profile.ConfigProfile;
 import config.profile.ConnProfile;
 import config.profile.SqlColProfile;
+import config.security.PassConfig;
 import config.yaml.YamlConfig;
 import core.parameter.ConnectionBuilder;
 import excp.SqlColMetadataException;
@@ -20,6 +21,7 @@ import java.util.*;
 @Singleton
 public class ConfigurationManager {
     private YamlConfig yamlConfig;
+    private PassConfig passConfig;
     private HashMap<String, ConfigProfile> configList;
 
     @Getter @Setter private ConfigProfile currentConfiguration;
@@ -28,8 +30,10 @@ public class ConfigurationManager {
 
     @Inject
     public ConfigurationManager(YamlConfig yamlConfig,
+                                PassConfig passConfig,
                                 @Named("ConfigList") HashMap<String, ConfigProfile> configList) {
         this.yamlConfig = yamlConfig;
+        this.passConfig = passConfig;
         this.configList = configList;
     }
 
@@ -37,6 +41,9 @@ public class ConfigurationManager {
         ConfigProfile configProfile = getConnProfileList().stream()
                 .filter(e -> e.getConfigName().equalsIgnoreCase(configurationName))
                 .findAny().get();
+
+        String password = configProfile.getConnProfile().getPassword();
+        configProfile.getConnProfile().setPassword(passConfig.decrypt(password));
 
         loadProfile(configProfile.getConnProfile().getProfileName());
 
@@ -104,7 +111,7 @@ public class ConfigurationManager {
 
         return new ConnectionBuilder.Builder(connName)
                 .userName(connOut.getUserName())
-                .password(connOut.getPassword())
+                .password(passConfig.decrypt(connOut.getPassword()))
                 .url(connOut.getUrl())
                 .jar(connOut.getJar())
                 .profile(connOut.getProfileName())
@@ -125,7 +132,7 @@ public class ConfigurationManager {
 
         connOut.setConnName(connIn.getConnectionName());
         connOut.setUserName(connIn.getUserName());
-        connOut.setPassword(connIn.getPassword());
+        connOut.setPassword(passConfig.encrypt(connIn.getPassword()));
         connOut.setUrl(connIn.getUrl());
         connOut.setJar(connIn.getJar());
         connOut.setProfileName(connIn.getProfile());
@@ -143,6 +150,33 @@ public class ConfigurationManager {
 
     public int getOlapRetainDays() {
         return ConstantManager.RETAIN_DAYS_MAX;
+    }
+
+    /**
+     * For migration purposes (encrypt passwords in yaml config)
+     * Delete in future release
+     */
+    @Deprecated
+    public void updatePassword() {
+        configList.entrySet().stream().forEach(e -> {
+            String pass = e.getValue().getConnProfile().getPassword();
+            try {
+                passConfig.decrypt(pass);
+            } catch (Exception e1){
+                log.error(e1.getLocalizedMessage());
+                e.getValue().getConnProfile().setPassword(passConfig.encrypt(pass));
+            }
+        });
+
+        HashMap<String, ConfigProfile> shCopy = new HashMap<>(configList);
+
+        synchronized (shCopy) {
+            Iterator<Map.Entry<String, ConfigProfile>>
+                    i = shCopy.entrySet().iterator();
+            while (i.hasNext()) {
+                loadConfigToFile(i.next().getValue());
+            }
+        }
     }
 
 }

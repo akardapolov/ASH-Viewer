@@ -1,5 +1,7 @@
 package config.security;
 
+import excp.PasswordConfigException;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.*;
@@ -9,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -17,6 +20,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
+import java.util.Map;
 
 /** Encryption and Decryption of String data;
  *  PBE(Password Based Encryption and Decryption)
@@ -41,6 +45,24 @@ public class PassConfig {
     @Inject
     public PassConfig() { }
 
+    @SneakyThrows
+    public String encrypt(String plainText){
+        if (plainText == null)
+            throw new PasswordConfigException("Text for encryption could not be null.. " +
+                "Check password field of connProfile entity in configuration!");
+
+        return encrypt(getComputerName(), plainText);
+    }
+
+    @SneakyThrows
+    public String decrypt(String encryptedText){
+        if (encryptedText == null)
+            throw new PasswordConfigException("Text for decryption could not be null.. " +
+                    "Check password field of connProfile entity in configuration!");
+
+        return decrypt(getComputerName(), encryptedText);
+    }
+
     /**
      * @param secretKey Key used to encrypt data
      * @param plainText Text input to be encrypted
@@ -54,7 +76,7 @@ public class PassConfig {
      * @throws javax.crypto.IllegalBlockSizeException
      * @throws javax.crypto.BadPaddingException
      */
-    public String encrypt(String secretKey, String plainText)
+    private String encrypt(String secretKey, String plainText)
             throws NoSuchAlgorithmException,
             InvalidKeySpecException,
             NoSuchPaddingException,
@@ -91,7 +113,7 @@ public class PassConfig {
      * @throws javax.crypto.IllegalBlockSizeException
      * @throws javax.crypto.BadPaddingException
      */
-    public String decrypt(String secretKey, String encryptedText)
+    private String decrypt(String secretKey, String encryptedText)
             throws NoSuchAlgorithmException,
             InvalidKeySpecException,
             NoSuchPaddingException,
@@ -113,5 +135,17 @@ public class PassConfig {
         byte[] utf8 = dcipher.doFinal(enc);
         String plainStr = new String(utf8, StandardCharsets.UTF_8);
         return plainStr;
+    }
+
+    @SneakyThrows
+    private String getComputerName()
+    {
+        Map<String, String> env = System.getenv();
+        if (env.containsKey("COMPUTERNAME"))
+            return env.get("COMPUTERNAME");
+        else if (env.containsKey("HOSTNAME"))
+            return env.get("HOSTNAME");
+        else
+            return InetAddress.getLocalHost().toString();
     }
 }
