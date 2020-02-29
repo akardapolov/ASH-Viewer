@@ -295,7 +295,11 @@ public class ConnectToDbArea extends JDialog {
                 jButtonCopyConn.setEnabled(false);
                 jButtonDeleteConn.setEnabled(false);
 
-                this.deleteData();
+                int input = JOptionPane.showConfirmDialog(this, // 0=yes, 1=no, 2=cancel
+                        "Do you want to delete profile: " + connNameTF.getText() +"?");
+                if (input == 0)
+                    this.deleteData();
+
                 this.loadConfigProfileToGui();
 
                 jButtonConnect.setEnabled(true);
@@ -436,9 +440,10 @@ public class ConnectToDbArea extends JDialog {
                 jButtonConnect.setEnabled(true);
             } else {
                 jButtonConnect.setEnabled(false);
+                jButtonDeleteConn.setEnabled(false);
+                jButtonEditConn.setEnabled(false);
             }
-            jButtonDeleteConn.setEnabled(false);
-            jButtonEditConn.setEnabled(false);
+
             jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect"));
         }
 
@@ -477,7 +482,7 @@ public class ConnectToDbArea extends JDialog {
     }
 
     private void loadConfigProfileToGui(){
-        while (modelConn.getRowCount()>0) modelConn.removeRow(0);
+        modelConn.setRowCount(0);
 
         configurationManager.getConnProfileList().forEach(e -> {
             modelConn.addRow(new Object[]{e.getConfigName()});

@@ -74,6 +74,7 @@ public class ConfigurationManager {
     }
 
     public void deleteConfig(String configurationName) {
+        configList.remove(configurationName);
         yamlConfig.deleteConfig(configurationName);
         yamlConfig.loadConfigsFromFs();
     }
@@ -102,6 +103,7 @@ public class ConfigurationManager {
                 new AbstractMap.SimpleImmutableEntry<>(connName, new ConfigProfile());
         orElseEntry.getValue().setConfigName(connName);
         orElseEntry.getValue().setConnProfile(new ConnProfile());
+        orElseEntry.getValue().getConnProfile().setPassword("");
 
         Map.Entry<String, ConfigProfile> cfg = configList.entrySet().stream()
                 .filter(e -> e.getValue().getConfigName().equalsIgnoreCase(connName))
