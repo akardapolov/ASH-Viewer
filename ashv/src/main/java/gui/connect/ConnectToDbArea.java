@@ -261,8 +261,6 @@ public class ConnectToDbArea extends JDialog {
         olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
-            configurationManager.loadProfile(String.valueOf((profileBox.getSelectedItem())));
-
             if (isOffline.isSelected()){
                 ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionNameOffline,
                         jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
@@ -454,9 +452,7 @@ public class ConnectToDbArea extends JDialog {
     }
 
     private void saveData(){
-        configurationManager.loadProfile(String.valueOf((profileBox.getSelectedItem())));
-
-        ConnectionBuilder connParameters = new ConnectionBuilder.Builder(connNameTF.getText())
+       ConnectionBuilder connParameters = new ConnectionBuilder.Builder(connNameTF.getText())
                 .userName(usernameTF.getText())
                 .password(passwordTF.getText())
                 .url(urlTF.getText())

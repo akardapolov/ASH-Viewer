@@ -78,7 +78,7 @@ public class ConfigurationManager {
         yamlConfig.loadConfigsFromFs();
     }
 
-    public void loadProfile(String profileName) {
+    private void loadProfile(String profileName) {
         switch (profileName) {
             case "OracleEE":
                 setIProfile(new OracleEE());
