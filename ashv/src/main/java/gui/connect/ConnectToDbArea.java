@@ -432,7 +432,13 @@ public class ConnectToDbArea extends JDialog {
             jButtonConnect.setEnabled(false);
             jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect.running"));
         } else {
-            jButtonConnect.setEnabled(true);
+            if (configurationManager.getConfigurationName() == null){
+                jButtonConnect.setEnabled(true);
+            } else {
+                jButtonConnect.setEnabled(false);
+            }
+            jButtonDeleteConn.setEnabled(false);
+            jButtonEditConn.setEnabled(false);
             jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect"));
         }
 
