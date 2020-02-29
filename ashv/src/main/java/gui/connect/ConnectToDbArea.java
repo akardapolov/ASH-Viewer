@@ -256,13 +256,14 @@ public class ConnectToDbArea extends JDialog {
         olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
-            //this.loadProfile(String.valueOf((profileBox.getSelectedItem())));
             configurationManager.loadProfile(String.valueOf((profileBox.getSelectedItem())));
 
             if (isOffline.isSelected()){
                 ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionNameOffline,
                         jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
                 jButtonConnect.setEnabled(false);
+                rawDataDaysRetainTF.setEnabled(false);
+                olapDataDaysRetainTF.setEnabled(false);
 
                 String oldTitle = jFrame.getTitle();
                 jFrame.setTitle("Offline: " + oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());
@@ -270,6 +271,8 @@ public class ConnectToDbArea extends JDialog {
                 ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionName,
                         jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
                 jButtonConnect.setEnabled(false);
+                rawDataDaysRetainTF.setEnabled(false);
+                olapDataDaysRetainTF.setEnabled(false);
 
                 String oldTitle = jFrame.getTitle();
                 jFrame.setTitle(oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());

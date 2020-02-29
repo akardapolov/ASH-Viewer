@@ -1,5 +1,6 @@
 package remote;
 
+import config.security.PassConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -15,11 +16,14 @@ import java.sql.SQLException;
 
 @Slf4j
 public class RemoteDBManager {
+    private PassConfig passConfig;
     private ConnProfile connProfile;
     @Getter private BasicDataSource basicDataSource;
 
     @Inject
-    public RemoteDBManager(){ }
+    public RemoteDBManager(PassConfig passConfig){
+        this.passConfig = passConfig;
+    }
 
     public void init(ConnProfile connProfile) {
         try {
@@ -29,7 +33,7 @@ public class RemoteDBManager {
             this.basicDataSource.setDriverClassName(this.connProfile.getDriver());
             this.basicDataSource.setUrl(this.connProfile.getUrl());
             this.basicDataSource.setUsername(this.connProfile.getUserName());
-            this.basicDataSource.setPassword(this.connProfile.getPassword());
+            this.basicDataSource.setPassword(passConfig.decrypt(this.connProfile.getPassword()));
             this.basicDataSource.setInitialSize(2);
 
         } catch (ClassNotFoundException e) {

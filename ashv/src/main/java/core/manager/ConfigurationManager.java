@@ -42,8 +42,8 @@ public class ConfigurationManager {
                 .filter(e -> e.getConfigName().equalsIgnoreCase(configurationName))
                 .findAny().get();
 
-        String password = configProfile.getConnProfile().getPassword();
-        configProfile.getConnProfile().setPassword(passConfig.decrypt(password));
+        configProfile.setRunning(true);
+        loadConfigToFile(configProfile);
 
         loadProfile(configProfile.getConnProfile().getProfileName());
 
@@ -150,6 +150,11 @@ public class ConfigurationManager {
 
     public int getOlapRetainDays() {
         return ConstantManager.RETAIN_DAYS_MAX;
+    }
+
+    public void closeCurrentProfile() {
+        getCurrentConfiguration().setRunning(false);
+        loadConfigToFile(getCurrentConfiguration());
     }
 
     /**

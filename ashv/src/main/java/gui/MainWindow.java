@@ -4,6 +4,7 @@ import config.GUIConfig;
 import gui.actions.ConnectToDbAction;
 import gui.actions.StartStopAction;
 import lombok.extern.slf4j.Slf4j;
+import store.StoreManager;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,6 +28,8 @@ public class MainWindow {
     private ConnectToDbAction connectToDbAction;
     private StartStopAction startStopAction;
 
+    private StoreManager storeManager;
+
     private StatusBar mainStatusBar;
 
     @Inject
@@ -34,6 +37,7 @@ public class MainWindow {
                       GUIConfig guiConfig,
                       ConnectToDbAction connectToDbAction,
                       StartStopAction startStopAction,
+                      StoreManager storeManager,
                       @Named("mainJToolBar") JToolBar mainToolBar,
                       @Named("connectToDbButton") JButton connectButton,
                       @Named("startStopButton") JButton startStopButton,
@@ -43,6 +47,7 @@ public class MainWindow {
         this.guiConfig = guiConfig;
         this.connectToDbAction = connectToDbAction;
         this.startStopAction = startStopAction;
+        this.storeManager = storeManager;
 
         this.initJFrame(this.jFrame);
 
@@ -75,7 +80,9 @@ public class MainWindow {
             public void windowClosing(WindowEvent e)
             {
                 guiConfig.setMainWindowSize(jFrame.getSize());
-                //storeManager.close();
+                connectToDbAction.closeConnection();
+                storeManager.syncBdb();
+                storeManager.closeDb();
                 System.exit(0);
             }
         });
