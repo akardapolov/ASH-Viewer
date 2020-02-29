@@ -153,8 +153,10 @@ public class ConfigurationManager {
     }
 
     public void closeCurrentProfile() {
-        getCurrentConfiguration().setRunning(false);
-        loadConfigToFile(getCurrentConfiguration());
+        if (currentConfiguration != null){
+            getCurrentConfiguration().setRunning(false);
+            loadConfigToFile(getCurrentConfiguration());
+        }
     }
 
     /**

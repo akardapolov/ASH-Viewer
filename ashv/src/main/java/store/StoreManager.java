@@ -58,7 +58,9 @@ public class StoreManager {
     }
 
     public void syncBdb(){
-        this.berkleyDB.getStore().sync();
+        if (this.berkleyDB.getStore() != null){
+            this.berkleyDB.getStore().sync();
+        }
     }
 
     public void closeDb() {

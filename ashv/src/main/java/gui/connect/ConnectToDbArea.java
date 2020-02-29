@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
@@ -193,12 +194,16 @@ public class ConnectToDbArea extends JDialog {
         tableConn = new JXTable(modelConn);
         tableConn.setColumnControlVisible(true);
         tableConn.setHorizontalScrollEnabled(true);
+        tableConn.setEditable(false);
         tableConn.setVisibleRowCount(10);
 
         TableSelectionHandler tableSelectionHandler = new TableSelectionHandler();
+        isActiveColumnCellRenderer isActiveColumnCellRenderer = new isActiveColumnCellRenderer();
 
         listSelectionModelForConn = tableConn.getSelectionModel();
         listSelectionModelForConn.addListSelectionListener(tableSelectionHandler);
+
+        tableConn.getColumnModel().getColumn(0).setCellRenderer(isActiveColumnCellRenderer);
 
         tableDataPaneConn =
                 new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -262,8 +267,6 @@ public class ConnectToDbArea extends JDialog {
                 ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionNameOffline,
                         jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
                 jButtonConnect.setEnabled(false);
-                rawDataDaysRetainTF.setEnabled(false);
-                olapDataDaysRetainTF.setEnabled(false);
 
                 String oldTitle = jFrame.getTitle();
                 jFrame.setTitle("Offline: " + oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());
@@ -271,8 +274,6 @@ public class ConnectToDbArea extends JDialog {
                 ProgressBarUtil.runProgressDialog(this::loadObjectsByConnectionName,
                         jFrame, Labels.getLabel("gui.connection.loading.label") + " " + connNameTF.getText());
                 jButtonConnect.setEnabled(false);
-                rawDataDaysRetainTF.setEnabled(false);
-                olapDataDaysRetainTF.setEnabled(false);
 
                 String oldTitle = jFrame.getTitle();
                 jFrame.setTitle(oldTitle + " ::: " + connNameTF.getText() + " ::: " + urlTF.getText());
@@ -389,8 +390,8 @@ public class ConnectToDbArea extends JDialog {
         profileBox.setEnabled(bParameter);
         jarTF.setEnabled(bParameter);
         openFileButton.setEnabled(bParameter);
-        //rawDataDaysRetainTF.setEnabled(bParameter);
-        //olapDataDaysRetainTF.setEnabled(bParameter);
+        rawDataDaysRetainTF.setEnabled(bParameter);
+        olapDataDaysRetainTF.setEnabled(bParameter);
 
         jButtonConnect.setEnabled(!bParameter);
         jButtonNewConn.setEnabled(!bParameter);
@@ -409,6 +410,7 @@ public class ConnectToDbArea extends JDialog {
         rawDataDaysRetainTF.setText("");
         olapDataDaysRetainTF.setText("");
     }
+
     private void copyConnection(){
         connNameTF.setText("");
     }
@@ -426,6 +428,16 @@ public class ConnectToDbArea extends JDialog {
         olapDataDaysRetainTF.setText(connParameters.getOlapRetainDays());
 
         String selItem = (String) profileBox.getSelectedItem();
+
+        if (configurationManager.getConnProfileList().stream().filter(e -> e.getConfigName()
+                        .equalsIgnoreCase(String.valueOf(connName))).findFirst().get().isRunning()){
+            jButtonConnect.setEnabled(false);
+            jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect.running"));
+        } else {
+            jButtonConnect.setEnabled(true);
+            jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect"));
+        }
+
         if (selItem != null && selItem.equalsIgnoreCase(String.valueOf(ConstantManager.Profile.OracleEE))) {
             profileMessageLbl.setVisible(true);
         } else {
@@ -499,6 +511,9 @@ public class ConnectToDbArea extends JDialog {
             startStopButton.setEnabled(true);
             startStopButton.doClick();
 
+            jButtonConnect.setEnabled(false);
+            jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect.running"));
+
             monitorDbPanel.adddGui();
 
         } catch (Exception sqlEx) {
@@ -530,6 +545,9 @@ public class ConnectToDbArea extends JDialog {
             monitorDbPanel.setIProfile(configurationManager.getIProfile());
             monitorDbPanel.getHistoryPanel().setIProfile(configurationManager.getIProfile());
 
+            jButtonConnect.setEnabled(false);
+            jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect.running"));
+
             monitorDbPanel.addGuiHistory();
 
         } catch (Exception ex) {
@@ -555,6 +573,14 @@ public class ConnectToDbArea extends JDialog {
                     }
                 }
             }
+        }
+    }
+
+    private class isActiveColumnCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+            JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+            return l;
         }
     }
 
