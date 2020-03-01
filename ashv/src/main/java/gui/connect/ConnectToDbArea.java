@@ -389,7 +389,7 @@ public class ConnectToDbArea extends JDialog {
         usernameTF.setEnabled(bParameter);
         passwordTF.setEnabled(bParameter);
         urlTF.setEnabled(bParameter);
-        profileBox.setEnabled(bParameter);
+        profileBox.setEnabled(!bParameter); // Profile unchangeable to keep sqlColProfileList invariable too
         jarTF.setEnabled(bParameter);
         openFileButton.setEnabled(bParameter);
         rawDataDaysRetainTF.setEnabled(bParameter);
