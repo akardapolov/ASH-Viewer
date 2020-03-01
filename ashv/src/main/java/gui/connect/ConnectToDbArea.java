@@ -469,7 +469,8 @@ public class ConnectToDbArea extends JDialog {
                 .url(urlTF.getText())
                 .jar(jarTF.getText())
                 .profile(String.valueOf((profileBox.getSelectedItem())))
-                .driverName(configurationManager.getIProfile().getDriverName())
+                .driverName(configurationManager.getProfileImpl(
+                        String.valueOf((profileBox.getSelectedItem()))).getDriverName())
                 .rawRetainDays(rawDataDaysRetainTF.getText())
                 .olapRetainDays(olapDataDaysRetainTF.getText())
                 .build();

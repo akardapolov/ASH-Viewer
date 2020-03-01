@@ -45,7 +45,7 @@ public class ConfigurationManager {
         configProfile.setRunning(true);
         loadConfigToFile(configProfile);
 
-        loadProfile(configProfile.getConnProfile().getProfileName());
+        setIProfile(getProfileImpl(configProfile.getConnProfile().getProfileName()));
 
         setConfigurationName(configurationName);
         setCurrentConfiguration(configProfile);
@@ -77,25 +77,6 @@ public class ConfigurationManager {
         configList.remove(configurationName);
         yamlConfig.deleteConfig(configurationName);
         yamlConfig.loadConfigsFromFs();
-    }
-
-    private void loadProfile(String profileName) {
-        switch (profileName) {
-            case "OracleEE":
-                setIProfile(new OracleEE());
-                break;
-            case "OracleSE":
-                setIProfile(new OracleSE());
-                break;
-            case "Postgres":
-                setIProfile(new Postgres());
-                break;
-            case "Postgres96":
-                setIProfile(new Postgres96());
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid profile name");
-        }
     }
 
     public ConnectionBuilder getConnectionParameters(String connName) {
@@ -158,6 +139,21 @@ public class ConfigurationManager {
         if (currentConfiguration != null){
             getCurrentConfiguration().setRunning(false);
             loadConfigToFile(getCurrentConfiguration());
+        }
+    }
+
+    public IProfile getProfileImpl(String profileName) {
+        switch (profileName) {
+            case "OracleEE":
+                return new OracleEE();
+            case "OracleSE":
+                return new OracleSE();
+            case "Postgres":
+                return new Postgres();
+            case "Postgres96":
+                return new Postgres96();
+            default:
+                throw new IllegalArgumentException("Invalid profile name");
         }
     }
 
