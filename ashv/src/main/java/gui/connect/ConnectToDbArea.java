@@ -52,16 +52,16 @@ public class ConnectToDbArea extends JDialog {
 
     private JPanel mainJPanel;
     private JTabbedPane connJTabbedPane;
-    private JPanel connMainJPanel;
-    private JPanel connOtherJPanel;
+    private JPanel configMainJPanel;
+    private JPanel configOtherJPanel;
     private JPanel buttonPanel;
 
     private JButton jButtonConnect;
-    private JButton jButtonNewConn;
-    private JButton jButtonCopyConn;
-    private JButton jButtonEditConn;
-    private JButton jButtonDeleteConn;
-    private JButton jButtonSaveConn;
+    private JButton jButtonNewConfig;
+    private JButton jButtonCopyConfig;
+    private JButton jButtonEditConfig;
+    private JButton jButtonDeleteConfig;
+    private JButton jButtonSaveConfig;
     private JButton jButtonCancel;
 
     private JButton openFileButton;
@@ -144,8 +144,8 @@ public class ConnectToDbArea extends JDialog {
 
         mainJPanel = new JPanel(lmMain);
         connJTabbedPane = new JTabbedPane();
-        connMainJPanel = new JPanel(lmConnMain);
-        connOtherJPanel = new JPanel(lmConnOther);
+        configMainJPanel = new JPanel(lmConnMain);
+        configOtherJPanel = new JPanel(lmConnOther);
         buttonPanel = new JPanel(lmButtonPanel);
 
         //////////////////////// Delete it in future release ///////////////////
@@ -163,16 +163,16 @@ public class ConnectToDbArea extends JDialog {
 
     private void init_gui(){
 
-        String[] colNameConnections = {Labels.getLabel("gui.connection.connection")};
-        modelConn = new DefaultTableModel(colNameConnections, 0);
+        String[] colNameConfig = {Labels.getLabel("gui.connection.configuration")};
+        modelConn = new DefaultTableModel(colNameConfig, 0);
 
         jButtonConnect = new JButton(Labels.getLabel("gui.connection.button.connect"));
-        jButtonNewConn = new JButton(Labels.getLabel("gui.connection.button.new"));
-        jButtonDeleteConn = new JButton(Labels.getLabel("gui.connection.button.delete"));
-        jButtonCopyConn = new JButton(Labels.getLabel("gui.connection.button.copy"));
-        jButtonEditConn = new JButton(Labels.getLabel("gui.connection.button.edit"));
-        jButtonSaveConn = new JButton(Labels.getLabel("gui.connection.button.save"));
-        jButtonSaveConn.setEnabled(false);
+        jButtonNewConfig = new JButton(Labels.getLabel("gui.connection.button.new"));
+        jButtonDeleteConfig = new JButton(Labels.getLabel("gui.connection.button.delete"));
+        jButtonCopyConfig = new JButton(Labels.getLabel("gui.connection.button.copy"));
+        jButtonEditConfig = new JButton(Labels.getLabel("gui.connection.button.edit"));
+        jButtonSaveConfig = new JButton(Labels.getLabel("gui.connection.button.save"));
+        jButtonSaveConfig.setEnabled(false);
         jButtonCancel = new JButton(Labels.getLabel("gui.connection.button.cancel"));
         jButtonCancel.setEnabled(false);
 
@@ -214,50 +214,50 @@ public class ConnectToDbArea extends JDialog {
 
         /******/
         separatorConnLbl.setForeground(LABEL_COLOR);
-        connMainJPanel.add(separatorConnLbl, "gapbottom 1, span, split 2, aligny center");
-        connMainJPanel.add(new JSeparator(), "gapleft rel, growx");
+        configMainJPanel.add(separatorConnLbl, "gapbottom 1, span, split 2, aligny center");
+        configMainJPanel.add(new JSeparator(), "gapleft rel, growx");
 
-        connMainJPanel.add(connNameLbl,   "skip");
-        connMainJPanel.add(connNameTF,    "span, growx");
+        configMainJPanel.add(connNameLbl,   "skip");
+        configMainJPanel.add(connNameTF,    "span, growx");
 
-        connMainJPanel.add(urlLbl,   "skip");
-        connMainJPanel.add(urlTF,    "span, growx");
+        configMainJPanel.add(urlLbl,   "skip");
+        configMainJPanel.add(urlTF,    "span, growx");
         urlTF.setToolTipText(Labels.getLabel("gui.connection.url.tooltip"));
 
-        connMainJPanel.add(usernameLbl,   "skip");
-        connMainJPanel.add(usernameTF,    "span, growx");
+        configMainJPanel.add(usernameLbl,   "skip");
+        configMainJPanel.add(usernameTF,    "span, growx");
 
-        connMainJPanel.add(passwordLbl,   "skip");
-        connMainJPanel.add(passwordTF,    "span, growx");
+        configMainJPanel.add(passwordLbl,   "skip");
+        configMainJPanel.add(passwordTF,    "span, growx");
 
         separatorProfileLbl.setForeground(LABEL_COLOR);
-        connMainJPanel.add(separatorProfileLbl, "gapbottom 1, span, split 2, aligny center");
-        connMainJPanel.add(new JSeparator(), "gapleft rel, growx");
+        configMainJPanel.add(separatorProfileLbl, "gapbottom 1, span, split 2, aligny center");
+        configMainJPanel.add(new JSeparator(), "gapleft rel, growx");
 
         Arrays.stream(ConstantManager.Profile.values()).forEach(k -> profileBox.addItem(k.name()));
-        connMainJPanel.add(profileNameLbl,   "skip");
-        connMainJPanel.add(profileBox,   "span, growx");
+        configMainJPanel.add(profileNameLbl,   "skip");
+        configMainJPanel.add(profileBox,   "span, growx");
 
-        connMainJPanel.add(profileDetailLbl, "skip");
-        connMainJPanel.add(profileMessageLbl,   "span, growx");
+        configMainJPanel.add(profileDetailLbl, "skip");
+        configMainJPanel.add(profileMessageLbl,   "span, growx");
 
-        connMainJPanel.add(openFileButton,    "skip, wmin 30");
-        connMainJPanel.add(jarTF,    "span, growx, wmin 150");
+        configMainJPanel.add(openFileButton,    "skip, wmin 30");
+        configMainJPanel.add(jarTF,    "span, growx, wmin 150");
 
-        connMainJPanel.add(offlineLbl,   "skip");
-        connMainJPanel.add(isOffline,   "span, growx");
+        configMainJPanel.add(offlineLbl,   "skip");
+        configMainJPanel.add(isOffline,   "span, growx");
         isOffline.setSelected(false);
 
         separatorRetainLbl.setForeground(LABEL_COLOR);
-        connOtherJPanel.add(separatorRetainLbl, "gapbottom 1, span, split 2, aligny center");
-        connOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
+        configOtherJPanel.add(separatorRetainLbl, "gapbottom 1, span, split 2, aligny center");
+        configOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
 
-        connOtherJPanel.add(retainRawDataLbl,   "skip");
-        connOtherJPanel.add(rawDataDaysRetainTF,    "span, growx");
+        configOtherJPanel.add(retainRawDataLbl,   "skip");
+        configOtherJPanel.add(rawDataDaysRetainTF,    "span, growx");
         rawDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.raw.tooltip"));
 
-        connOtherJPanel.add(retainOlapDataLbl,   "skip");
-        connOtherJPanel.add(olapDataDaysRetainTF,    "span, growx");
+        configOtherJPanel.add(retainOlapDataLbl,   "skip");
+        configOtherJPanel.add(olapDataDaysRetainTF,    "span, growx");
         olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
@@ -278,41 +278,41 @@ public class ConnectToDbArea extends JDialog {
             }
         });
 
-        jButtonNewConn.addActionListener(e ->{
+        jButtonNewConfig.addActionListener(e ->{
             this.setDetailEditable(true);
             this.clearProfileFields();
         });
 
-        jButtonCopyConn.addActionListener(e ->{
+        jButtonCopyConfig.addActionListener(e ->{
             this.setDetailEditable(true);
             this.copyConnection();
         });
 
-        jButtonDeleteConn.addActionListener(e -> executor.submit(() -> {
+        jButtonDeleteConfig.addActionListener(e -> executor.submit(() -> {
             try {
                 jButtonConnect.setEnabled(false);
-                jButtonNewConn.setEnabled(false);
-                jButtonCopyConn.setEnabled(false);
-                jButtonDeleteConn.setEnabled(false);
+                jButtonNewConfig.setEnabled(false);
+                jButtonCopyConfig.setEnabled(false);
+                jButtonDeleteConfig.setEnabled(false);
 
                 int input = JOptionPane.showConfirmDialog(this, // 0=yes, 1=no, 2=cancel
-                        "Do you want to delete profile: " + connNameTF.getText() +"?");
-                if (input == 0)
-                    this.deleteData();
-
-                this.loadConfigProfileToGui();
+                        "Do you want to delete configuration: " + connNameTF.getText() +"?");
+                if (input == 0) {
+                    this.deleteConfig();
+                    this.loadConfigToGui();
+                }
 
                 jButtonConnect.setEnabled(true);
-                jButtonNewConn.setEnabled(true);
-                jButtonCopyConn.setEnabled(true);
-                jButtonDeleteConn.setEnabled(true);
+                jButtonNewConfig.setEnabled(true);
+                jButtonCopyConfig.setEnabled(true);
+                jButtonDeleteConfig.setEnabled(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(jFrame, ex.getMessage());
             }
         }));
 
-        jButtonEditConn.addActionListener(e ->{
+        jButtonEditConfig.addActionListener(e ->{
             executor.submit(() -> {
                 try {
                     setDetailEditable(true);
@@ -325,15 +325,15 @@ public class ConnectToDbArea extends JDialog {
             });
         });
 
-        jButtonSaveConn.addActionListener(e ->{
+        jButtonSaveConfig.addActionListener(e ->{
             /** create and save data **/
             executor.submit(() -> {
                 try {
-                    jButtonSaveConn.setEnabled(false);
+                    jButtonSaveConfig.setEnabled(false);
                     jButtonCancel.setEnabled(false);
 
                     this.saveData();
-                    this.loadConfigProfileToGui();
+                    this.loadConfigToGui();
                     this.setDetailEditable(false);
 
                     setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
@@ -349,10 +349,10 @@ public class ConnectToDbArea extends JDialog {
         jButtonCancel.addActionListener(e ->{
             /** cancel **/
             executor.submit(() -> {
-                jButtonSaveConn.setEnabled(false);
+                jButtonSaveConfig.setEnabled(false);
                 jButtonCancel.setEnabled(false);
 
-                this.loadConfigProfileToGui();
+                this.loadConfigToGui();
                 this.setDetailEditable(false);
 
                 setTextDataDaysRetainTF(rawDataDaysRetainTF, configurationManager.getRawRetainDays());
@@ -363,18 +363,18 @@ public class ConnectToDbArea extends JDialog {
 
         this.setDetailEditable(false);
 
-        this.loadConfigProfileToGui();
+        this.loadConfigToGui();
 
         buttonPanel.add(jButtonConnect, "gap 1");
-        buttonPanel.add(jButtonNewConn, "gap 1");
-        buttonPanel.add(jButtonCopyConn, "gap 1");
-        buttonPanel.add(jButtonDeleteConn, "gap 1");
-        buttonPanel.add(jButtonEditConn, "gap 1");
-        buttonPanel.add(jButtonSaveConn, "gap 1");
+        buttonPanel.add(jButtonNewConfig, "gap 1");
+        buttonPanel.add(jButtonCopyConfig, "gap 1");
+        buttonPanel.add(jButtonDeleteConfig, "gap 1");
+        buttonPanel.add(jButtonEditConfig, "gap 1");
+        buttonPanel.add(jButtonSaveConfig, "gap 1");
         buttonPanel.add(jButtonCancel, "gap 1");
 
-        connJTabbedPane.add(connMainJPanel, Labels.getLabel("gui.connection.connection.main"));
-        connJTabbedPane.add(connOtherJPanel, Labels.getLabel("gui.connection.connection.other"));
+        connJTabbedPane.add(configMainJPanel, Labels.getLabel("gui.connection.connection.main"));
+        connJTabbedPane.add(configOtherJPanel, Labels.getLabel("gui.connection.connection.other"));
 
         mainJPanel.add(buttonPanel, "wrap, span 2, wmin 200");
         mainJPanel.add(tableDataPaneConn, "growy, span 1, wmin 150");
@@ -396,10 +396,10 @@ public class ConnectToDbArea extends JDialog {
         olapDataDaysRetainTF.setEnabled(bParameter);
 
         jButtonConnect.setEnabled(!bParameter);
-        jButtonNewConn.setEnabled(!bParameter);
-        jButtonCopyConn.setEnabled(!bParameter);
-        jButtonDeleteConn.setEnabled(!bParameter);
-        jButtonSaveConn.setEnabled(bParameter);
+        jButtonNewConfig.setEnabled(!bParameter);
+        jButtonCopyConfig.setEnabled(!bParameter);
+        jButtonDeleteConfig.setEnabled(!bParameter);
+        jButtonSaveConfig.setEnabled(bParameter);
         jButtonCancel.setEnabled(bParameter);
     }
 
@@ -440,8 +440,8 @@ public class ConnectToDbArea extends JDialog {
                 jButtonConnect.setEnabled(true);
             } else {
                 jButtonConnect.setEnabled(false);
-                jButtonDeleteConn.setEnabled(false);
-                jButtonEditConn.setEnabled(false);
+                jButtonDeleteConfig.setEnabled(false);
+                jButtonEditConfig.setEnabled(false);
             }
 
             jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect"));
@@ -478,11 +478,11 @@ public class ConnectToDbArea extends JDialog {
         configurationManager.saveConnection(connParameters);
     }
 
-    private void deleteData(){
+    private void deleteConfig(){
         configurationManager.deleteConfig(connNameTF.getText());
     }
 
-    private void loadConfigProfileToGui(){
+    private void loadConfigToGui(){
         modelConn.setRowCount(0);
 
         configurationManager.getConnProfileList().forEach(e -> {
