@@ -18,14 +18,21 @@ import java.io.IOException;
 @Singleton
 public class StoreManager {
     private FileConfig fileConfig;
-    @Getter private OlapCacheManager olapCacheManager;
-    @Getter private ConfigurationManager configurationManager;
+    @Getter
+    private OlapCacheManager olapCacheManager;
+    @Getter
+    private ConfigurationManager configurationManager;
 
-    @Getter private BerkleyDB berkleyDB;
-    @Getter private DatabaseDAO databaseDAO;
-    @Getter private OlapDAO olapDAO;
+    @Getter
+    private BerkleyDB berkleyDB;
+    @Getter
+    private DatabaseDAO databaseDAO;
+    @Getter
+    private OlapDAO olapDAO;
 
-    @Getter @Setter private long lastLoadTimeMark;
+    @Getter
+    @Setter
+    private long lastLoadTimeMark;
 
     @Inject
     public StoreManager(FileConfig fileConfig,
@@ -57,20 +64,21 @@ public class StoreManager {
         olapDAO.init();
     }
 
-    public void syncBdb(){
-        if (this.berkleyDB.getStore() != null){
+    public void syncBdb() {
+        if (this.berkleyDB.getStore() != null) {
             this.berkleyDB.getStore().sync();
         }
     }
 
     public void closeDb() {
         if (this.berkleyDB.getStore() != null) {
-            try {
-                this.berkleyDB.getStore().close();
-            } catch (DatabaseException dbe) { log.error("Error closing store: " + dbe.toString()); }
+            try {this.berkleyDB.getStore().close(); } catch (DatabaseException dbe) {
+                log.error("Error closing store: " + dbe.toString()); }
         }
-        /*if (env != null) {
-            try { env.close(); } catch (DatabaseException dbe) { log.error("Error closing env: " + dbe.toString()); }
-        }*/
+        if (this.berkleyDB.getEnv() != null) {
+            try { this.berkleyDB.getEnv().close(); } catch (DatabaseException dbe) {
+                log.error("Error closing env: " + dbe.toString());
+            }
+        }
     }
 }
