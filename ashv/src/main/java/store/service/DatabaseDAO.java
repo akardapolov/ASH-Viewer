@@ -3,6 +3,7 @@ package store.service;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.persist.EntityCursor;
 import config.profile.SqlColProfile;
+import core.manager.ConfigurationManager;
 import core.parameter.ParameterBuilder;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,7 @@ import java.util.stream.Stream;
 @Singleton
 public class DatabaseDAO extends QueryService {
     private BerkleyDB berkleyDB;
-    private OlapDAO olapDAO;
+    private ConfigurationManager configurationManager;
 
     @Getter @Setter private ConvertManager convertManager;
 
@@ -35,9 +36,9 @@ public class DatabaseDAO extends QueryService {
 
     @Inject
     public DatabaseDAO (BerkleyDB berkleyDB,
-                        OlapDAO olapDAO) {
+                        ConfigurationManager configurationManager) {
         this.berkleyDB = berkleyDB;
-        this.olapDAO = olapDAO;
+        this.configurationManager = configurationManager;
     }
 
     public void init () throws DatabaseException {
@@ -99,7 +100,7 @@ public class DatabaseDAO extends QueryService {
 
                             // CPU used - oracle/pg specific
                             if (waitVal.isEmpty()
-                                    & !waitClassValue.equalsIgnoreCase(this.olapDAO.getIProfile().getWaitClass((byte) 0))){
+                                    & !waitClassValue.equalsIgnoreCase(configurationManager.getIProfile().getWaitClass((byte) 0))){
                                 continue;
                             }
                         }
