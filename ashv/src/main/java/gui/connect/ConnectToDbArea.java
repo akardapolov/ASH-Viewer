@@ -316,6 +316,7 @@ public class ConnectToDbArea extends JDialog {
             executor.submit(() -> {
                 try {
                     setDetailEditable(true);
+                    profileBox.setEnabled(false); // Profile unchangeable to keep sqlColProfileList invariable too
                     setNumForDataDaysRetainTF(rawDataDaysRetainTF);
                     setNumForDataDaysRetainTF(olapDataDaysRetainTF);
                 } catch (Exception ex) {
@@ -389,7 +390,7 @@ public class ConnectToDbArea extends JDialog {
         usernameTF.setEnabled(bParameter);
         passwordTF.setEnabled(bParameter);
         urlTF.setEnabled(bParameter);
-        profileBox.setEnabled(!bParameter); // Profile unchangeable to keep sqlColProfileList invariable too
+        profileBox.setEnabled(bParameter);
         jarTF.setEnabled(bParameter);
         openFileButton.setEnabled(bParameter);
         rawDataDaysRetainTF.setEnabled(bParameter);
