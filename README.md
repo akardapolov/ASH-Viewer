@@ -10,6 +10,7 @@ Supported databases: Oracle, PostgreSQL
 
 - [Quick start](#quick-start)
 - [How it works](#how-it-works)
+- [Security](#security)
 - [Bugs and feature requests](#bugs-and-feature-requests)
 - [Downloads](#downloads)
 - [Based on](#based-on)
@@ -55,13 +56,17 @@ For Oracle standard edition and PostgreSQL, ASH Viewer emulate ASH, storing acti
   
 ** Please note that v$active_session_history is a part of the Oracle Diagnostic Pack and requires a purchase of the ODP license.**
   
+## Security  
+Passwords are stored in configuration file in encrypted form with secret key (computer name or hostname). So, when you run copied configuration on another host, you need to change password with a new secret key. 
+This is a minimal foolproof and for maximum protection it is necessary to store sensitive data using filesystem-level encryption or another way.
+  
 ## Bugs and feature requests
 Have a bug or a feature request? [Please open an issue](https://github.com/akardapolov/ASH-Viewer/issues)  
   
 ## Downloads
 - [Current version](https://github.com/akardapolov/ASH-Viewer/releases)
 - [Old release 3.5.1 on github.com](https://github.com/akardapolov/ASH-Viewer/releases/tag/v3.5.1)
-- [Old releases on sourceforge.net](https://sourceforge.net/projects/ashv/files/)   
+- [Mirror on sourceforge.net](https://sourceforge.net/projects/ashv/files/)   
   
 ## Based on
 - [JFreeChart by David Gilbert](http://www.jfree.org)
