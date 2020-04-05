@@ -58,14 +58,10 @@ public class Options {
     }
 
     /** Oracle main color */
-    public static LinkedHashMap getOracleMainColor(){
-        return seriesMainOracle;
-    }
+    public static LinkedHashMap<String, Color> getOracleMainColor() { return seriesMainOracle; }
 
     /** PG main color */
-    public static LinkedHashMap getPgMainColor(){
-        return seriesMainPg;
-    }
+    public static LinkedHashMap<String, Color> getPgMainColor(){ return seriesMainPg; }
 
     /** Contains all main and detail colors (oracle, pg too)*/
     public static Color getColor(String eventName){

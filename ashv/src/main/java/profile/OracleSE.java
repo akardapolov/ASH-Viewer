@@ -41,13 +41,7 @@ public class OracleSE extends OracleEE{
     public String getSqlTextAshOneRow() { return sqlTextAsh; }
 
     @Override
-    public String getSqlTextMin() { return sqlTextMin; }
-
-    @Override
-    public List getSqlIdAddColName() { return SqlIdAddColName; }
-
-    @Override
-    public boolean isDeleteOldDataOnStart(){return false;}
+    public List getSqlIdAdditionalColName() { return SqlIdAddColName; }
 
     @Override
     public long getInterval() {

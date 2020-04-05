@@ -126,8 +126,8 @@ public class GetFromRemoteAndStore {
 
             this.rawStoreManager.setSqlColMetadatumPojos(metadataMap.get(modNameAshSql));
 
-            iProfile.getSqlIdAddColName().stream().forEach(e -> SqlIdAddColName.add(this.getColumnIdForCol(e)));
-            iProfile.getSessAddColName().stream().forEach(e -> SessAddColName.add(this.getColumnIdForCol(e)));
+            iProfile.getSqlIdAdditionalColName().stream().forEach(e -> SqlIdAddColName.add(this.getColumnIdForCol(e)));
+            iProfile.getSessAdditionalColName().stream().forEach(e -> SessAddColName.add(this.getColumnIdForCol(e)));
         }
     }
 
@@ -390,7 +390,7 @@ public class GetFromRemoteAndStore {
                         String colType =
                                 metadataMap.get(modNameAshSql).stream().filter(e -> e.getColId() == kk.get()).findFirst().get().getColDbTypeName();
 
-                        sqlTmp.put(iProfile.getSqlIdAddColName().indexOf(colName),
+                        sqlTmp.put(iProfile.getSqlIdAdditionalColName().indexOf(colName),
                                 convertManager.convertFromRawToString(colType, rs.getObject(i+1)));
                         continue;
                     } else if (SessAddColName.contains(kk.get())){
@@ -399,7 +399,7 @@ public class GetFromRemoteAndStore {
                         String colType =
                                 metadataMap.get(modNameAshSql).stream().filter(e -> e.getColId() == kk.get()).findFirst().get().getColDbTypeName();
 
-                        sessTmp.put(iProfile.getSessAddColName().indexOf(colName),
+                        sessTmp.put(iProfile.getSessAdditionalColName().indexOf(colName),
                                     convertManager.convertFromRawToString(colType, rs.getObject(i+1)));
                         continue;
                     } else if ((iProfile instanceof Postgres)){

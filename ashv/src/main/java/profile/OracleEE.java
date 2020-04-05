@@ -99,16 +99,10 @@ public class OracleEE implements IProfile{
     public String getSqlTextSysdate() { return sqlTextSysdate; }
 
     @Override
-    public String getSqlTextSysdateCol() { return sqlTextSysdateCol; }
-
-    @Override
     public String getSqlTextAsh() { return sqlTextAsh; }
 
     @Override
     public String getSqlTextAshOneRow() { return sqlTextAshOneRow; }
-
-    @Override
-    public String getSqlTextMin() { return sqlTextMin; }
 
     @Override
     public String getSqlTextUserIdName() { return sqlTextUserIdName; }
@@ -126,7 +120,7 @@ public class OracleEE implements IProfile{
     public String getSqlIdColName() { return sqlIdColName; }
 
     @Override
-    public List getSqlIdAddColName() { return SqlIdAddColName; }
+    public List getSqlIdAdditionalColName() { return SqlIdAddColName; }
 
     @Override
     public String getSessColName() { return sessionIdColName; }
@@ -135,13 +129,10 @@ public class OracleEE implements IProfile{
     public String getSerialColName() { return sessionSerialIdColName; }
 
     @Override
-    public List getSessAddColName() { return SessAddColName; }
+    public List getSessAdditionalColName() { return SessAddColName; }
 
     @Override
     public LinkedHashMap<String, Color> getWaitClass(){ return Options.getInstance().getOracleMainColor(); }
-
-    @Override
-    public boolean isDeleteOldDataOnStart(){return true;}
 
     @Override
     public byte getWaitClassId(String waitClass) { return ConstantManager.getWaitClassId(waitClass); }
