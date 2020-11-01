@@ -3,10 +3,8 @@ package profile;
 import java.util.LinkedList;
 import java.util.List;
 
-public class OracleSE extends OracleEE{
+public class OracleSE extends OracleEE implements IProfile {
     String profileName = "OracleSE";
-
-    String sqlTextMin = "SELECT sysdate FROM dual";
 
     private String sqlTextAsh = "SELECT * FROM (SELECT sysdate SAMPLE_TIME, vs.sid SESSION_ID, vs.state SESSION_STATE, "
             + "vs.serial# SESSION_SERIAL#, vs.user# USER_ID, vs.sql_id SQL_ID, vs.type SESSION_TYPE, "
@@ -25,10 +23,10 @@ public class OracleSE extends OracleEE{
 
     long interval = 1000; // 1 sec
 
-    List<String> SqlIdAddColName = new LinkedList<>();
+    List<String> sqlIdAdditionalColName = new LinkedList<>();
 
     public OracleSE() {
-        SqlIdAddColName.add("COMMAND");
+        sqlIdAdditionalColName.add("COMMAND");
     }
 
     @Override
@@ -41,11 +39,10 @@ public class OracleSE extends OracleEE{
     public String getSqlTextAshOneRow() { return sqlTextAsh; }
 
     @Override
-    public List getSqlIdAdditionalColName() { return SqlIdAddColName; }
+    public List<String> getSqlIdAdditionalColName() { return sqlIdAdditionalColName; }
 
     @Override
     public long getInterval() {
         return interval;
     }
-
 }

@@ -1,6 +1,6 @@
 package profile;
 
-public class Postgres96 extends Postgres implements IProfile{
+public class Postgres96 extends Postgres implements IProfile {
 
     String sqlTextAsh = "SELECT current_timestamp as SAMPLE_TIME, "
             + "datid, datname, "
@@ -22,5 +22,4 @@ public class Postgres96 extends Postgres implements IProfile{
 
     @Override
     public String getSqlTextAshOneRow() { return sqlTextAsh; }
-
 }

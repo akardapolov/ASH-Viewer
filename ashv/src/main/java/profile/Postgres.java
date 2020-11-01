@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Data
-public class Postgres implements IProfile{
+public class Postgres implements IProfile {
     String profileName = "Postgres";
     String driverName = "org.postgresql.Driver";
 
@@ -74,7 +74,7 @@ public class Postgres implements IProfile{
     }
 
     @Override
-    public LinkedHashMap<String, Color> getWaitClass(){ return Options.getInstance().getPgMainColor(); }
+    public LinkedHashMap<String, Color> getWaitClass(){ return Options.getPgMainColor(); }
 
     @Override
     public byte getWaitClassId(String waitClass) { return ConstantManager.getWaitClassIdPG(waitClass); }
