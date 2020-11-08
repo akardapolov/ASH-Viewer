@@ -196,6 +196,7 @@ public class ConnectToDbArea extends JDialog {
         tableConn.setHorizontalScrollEnabled(true);
         tableConn.setEditable(false);
         tableConn.setVisibleRowCount(10);
+        tableConn.setSortable(false);
 
         TableSelectionHandler tableSelectionHandler = new TableSelectionHandler();
         isActiveColumnCellRenderer isActiveColumnCellRenderer = new isActiveColumnCellRenderer();
