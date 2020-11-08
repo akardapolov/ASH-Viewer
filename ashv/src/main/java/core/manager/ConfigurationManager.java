@@ -148,6 +148,8 @@ public class ConfigurationManager {
                 return new OracleEE();
             case "OracleSE":
                 return new OracleSE();
+            case "OracleEEObject":
+                return new OracleEEObject();
             case "Postgres":
                 return new Postgres();
             case "Postgres96":

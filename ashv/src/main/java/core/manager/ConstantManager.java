@@ -1,10 +1,13 @@
 package core.manager;
 
-import org.rtv.Options;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.rtv.Options;
 
 public final class ConstantManager extends LinkedHashMap {
     public static final int MAIN_PANEL_5MIN = 5;
@@ -17,7 +20,7 @@ public final class ConstantManager extends LinkedHashMap {
     public enum Function {None, AsIs, Sum, Count, Delta}
 
     // Add profile implementation to src/profile
-    public enum Profile {OracleEE, OracleSE, Postgres, Postgres96}
+    public enum Profile {OracleEE, OracleSE, OracleEEObject, Postgres, Postgres96}
 
     public enum History {Hour8, Hour12, Day1, Week, Month, Custom}
 

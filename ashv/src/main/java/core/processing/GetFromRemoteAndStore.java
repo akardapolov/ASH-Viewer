@@ -17,6 +17,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.jdesktop.swingx.treetable.TreeTableModel;
+import org.jetbrains.annotations.NotNull;
 import org.rtv.Options;
 import config.profile.ConnProfile;
 import config.profile.SqlColProfile;
@@ -24,6 +25,7 @@ import pojo.SqlPlanPojo;
 import pojo.SqlPojo;
 import profile.IProfile;
 import profile.OracleEE;
+import profile.OracleEEObject;
 import profile.Postgres;
 import remote.RemoteDBManager;
 import store.*;
@@ -499,24 +501,30 @@ public class GetFromRemoteAndStore {
         String where = " WHERE " + iProfile.getSampleTimeColName() + " > ? ";
         String orderBy = " ORDER BY " + iProfile.getSampleTimeColName() + " ASC";
 
-        if (iProfile instanceof Postgres){
+        if (iProfile instanceof Postgres) {
             s = connection.prepareStatement(sqlText);
+        } else if (iProfile instanceof OracleEEObject) {
+            sqlText = sqlText + " and "  + iProfile.getSampleTimeColName() + " > ? " + orderBy;
+            s = getPreparedStatement(sqlText);
         } else {
-            if (!this.isFirstRun) {
-                sqlText = sqlText + where + orderBy;
-                s = connection.prepareStatement(sqlText);
-
-                ParameterBuilder param = new ParameterBuilder.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime).build();
-                s.setTimestamp(1, new java.sql.Timestamp(this.storeManager.getDatabaseDAO().getMax(param)));
-
-            } else {
-                sqlText = sqlText + where + orderBy;
-                s = connection.prepareStatement(sqlText);
-
-                s.setTimestamp(1, new java.sql.Timestamp(sampleTimeG));
-            }
+            sqlText = sqlText + where + orderBy;
+            s = getPreparedStatement(sqlText);
         }
 
+        return s;
+    }
+
+    @NotNull
+    private PreparedStatement getPreparedStatement(String sqlText) throws SQLException {
+        PreparedStatement s;
+        if (!this.isFirstRun) {
+            s = connection.prepareStatement(sqlText);
+            ParameterBuilder param = new ParameterBuilder.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime).build();
+            s.setTimestamp(1, new Timestamp(this.storeManager.getDatabaseDAO().getMax(param)));
+        } else {
+            s = connection.prepareStatement(sqlText);
+            s.setTimestamp(1, new Timestamp(sampleTimeG));
+        }
         return s;
     }
 
