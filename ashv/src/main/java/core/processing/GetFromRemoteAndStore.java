@@ -70,6 +70,7 @@ public class GetFromRemoteAndStore {
     private ConnProfile connProfile;
 
     private Connection connection = null;
+    private Connection connectionForTrace = null;
 
     private Map<String, List<SqlColProfile>> metadataMap = new HashMap<>();
 
@@ -538,6 +539,7 @@ public class GetFromRemoteAndStore {
 
     private void initializeConnection() throws SQLException {
         this.connection = this.remoteDBManager.getConnection();
+        this.connectionForTrace = this.remoteDBManager.getConnection();
     }
 
     private List<SqlColProfile> loadSqlMetaData(String sqlName, String sqlText) {
@@ -738,15 +740,13 @@ public class GetFromRemoteAndStore {
 
         try {
             if (bool) {
-                stmt = remoteDBManager.getBasicDataSource().getConnection()
-                        .prepareCall("begin " +
+                stmt = connectionForTrace.prepareCall("begin " +
                                 "SYS.DBMS_MONITOR." +
                                 "SESSION_TRACE_ENABLE" +
                                 "(?,?,true,true); end;");
                 out = "SYS.DBMS_MONITOR.SESSION_TRACE_ENABLE successfully executed!";
             } else {
-                stmt = remoteDBManager.getBasicDataSource().getConnection()
-                        .prepareCall("begin " +
+                stmt = connectionForTrace.prepareCall("begin " +
                                 "SYS.DBMS_MONITOR." +
                                 "SESSION_TRACE_DISABLE" +
                                 "(?,?); end;");

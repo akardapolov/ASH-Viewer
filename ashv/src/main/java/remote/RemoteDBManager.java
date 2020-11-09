@@ -34,7 +34,7 @@ public class RemoteDBManager {
             this.basicDataSource.setUrl(this.connProfile.getUrl());
             this.basicDataSource.setUsername(this.connProfile.getUserName());
             this.basicDataSource.setPassword(passConfig.decrypt(this.connProfile.getPassword()));
-            this.basicDataSource.setInitialSize(2);
+            this.basicDataSource.setInitialSize(3);
 
         } catch (ClassNotFoundException e) {
             log.error(e.toString());
