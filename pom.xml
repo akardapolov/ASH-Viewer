@@ -104,6 +104,11 @@
             <artifactId>snakeyaml</artifactId>
             <version>1.25</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-toolchains-plugin</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -117,7 +122,6 @@
         </resources>
 
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -131,6 +135,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -172,8 +177,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.1</version>
             </plugin>
 
+            <!--https://maven.apache.org/guides/mini/guide-using-toolchains.html-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>toolchain</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <toolchains>
+                        <jdk>
+                            <version>1.8</version>
+                            <vendor>oracle</vendor>
+                        </jdk>
+                    </toolchains>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
