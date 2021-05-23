@@ -235,13 +235,11 @@ public class OlapDAO extends QueryService {
 
             long end0 = d + Math.round(range);
 
-            /****/
             if (diffInHours > 1){
                 loadDataFrom1MinEntityByWaitClass(hashMap, d, end0);
             } else {
-                loadDataFrom15SecEntityByWaitClass(hashMap, d, end0);
+                loadDataFrom1SecEntityByWaitClass(hashMap, d, end0);
             }
-            /***/
         }
 
         LinkedHashMap<Integer, String> uniqueLHashSetEventLstStr = new LinkedHashMap<>();
@@ -296,8 +294,7 @@ public class OlapDAO extends QueryService {
 
         cursor.close();
     }
-
-
+    
     private void loadDataFrom15SecEntityByWaitClass(LinkedHashMap<Long, HashMap<Integer, Integer>> hashMap, long d, long end0){
 
         EntityCursor<AshAggrMinData15Sec> cursor =
@@ -321,6 +318,28 @@ public class OlapDAO extends QueryService {
         cursor.close();
     }
 
+    private void loadDataFrom1SecEntityByWaitClass(LinkedHashMap<Long, HashMap<Integer, Integer>> hashMap, long d, long end0){
+
+        EntityCursor<AshAggrMinData> cursor =
+            getAshAggrMinDataDAO().getAshAggrEntityCursorRangeQuery(d, end0);
+        Iterator<AshAggrMinData> iterator = cursor.iterator();
+
+        hashMap.putIfAbsent(d, new HashMap<>());
+
+        while (iterator.hasNext()) {
+            AshAggrMinData sl = iterator.next();
+            int[] waitClass = sl.getMatrixValues()[1];
+            int[] sum = sl.getMatrixValues()[2];
+
+            for (int i = 0; i < waitClass.length; i++) {
+                int waitIdI = waitClass[i];
+                int tmpVal = hashMap.get(d).getOrDefault(waitIdI, 0);
+                hashMap.get(d).put(waitIdI, tmpVal + sum[i]);
+            }
+        }
+
+        cursor.close();
+    }
 
     public void loadDataToCategoryTableXYDatasetRTVHistoryDetail(GanttParam ganttParam,
                                                                   LinkedHashSet<NameChartDataset> nameChartDatasetList) {
