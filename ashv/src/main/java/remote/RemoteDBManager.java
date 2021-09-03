@@ -1,6 +1,7 @@
 package remote;
 
 import config.security.PassConfig;
+import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -15,6 +16,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @Slf4j
+@Singleton
 public class RemoteDBManager {
     private PassConfig passConfig;
     private ConnProfile connProfile;
@@ -35,6 +37,7 @@ public class RemoteDBManager {
             this.basicDataSource.setUsername(this.connProfile.getUserName());
             this.basicDataSource.setPassword(passConfig.decrypt(this.connProfile.getPassword()));
             this.basicDataSource.setInitialSize(3);
+            this.basicDataSource.setMaxTotal(5);
 
         } catch (ClassNotFoundException e) {
             log.error(e.toString());
@@ -48,8 +51,7 @@ public class RemoteDBManager {
     }
 
     public Connection getConnection() throws SQLException {
-        Connection connection = this.basicDataSource.getConnection();
-        return connection;
+        return this.basicDataSource.getConnection();
     }
 
     private ClassLoader getClassLoader() throws ClassNotFoundException, InstantiationException, IllegalAccessException, MalformedURLException {

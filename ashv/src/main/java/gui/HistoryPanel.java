@@ -184,7 +184,7 @@ public class HistoryPanel extends JPanel implements IDetailPanel {
             MonitorGantt2 monitorGanttInner = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
             RawDataTable rawDataTableInner = new RawDataTable(jFrame, storeManager);
 
-            NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGanttInner, xyDatasetRDA, rawDataTableInner);
+            NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGanttInner, xyDatasetRDA, rawDataTableInner, null);
             nameChartDatasetDetail.add(nameChartDataset);
         });
 

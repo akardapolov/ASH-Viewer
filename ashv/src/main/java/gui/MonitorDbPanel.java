@@ -96,6 +96,7 @@ public class MonitorDbPanel {
         mainGanttAndRaw = new JTabbedPane();
         mainGanttAndRaw.add("Top sql & sessions", chartDatasetManager.getMainNameChartDataset().getMonitorGantt2());
         mainGanttAndRaw.add("Raw data", chartDatasetManager.getMainNameChartDataset().getRawDataTable());
+        mainGanttAndRaw.add("ASH Report", chartDatasetManager.getMainNameChartDataset().getAshReport());
 
         topActivitySplitPane.add(chartDatasetManager.getMainNameChartDataset().getStackChartPanel(), JSplitPane.TOP);
         topActivitySplitPane.add(mainGanttAndRaw, JSplitPane.BOTTOM);

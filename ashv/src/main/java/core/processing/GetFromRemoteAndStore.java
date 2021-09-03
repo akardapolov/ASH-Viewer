@@ -122,9 +122,6 @@ public class GetFromRemoteAndStore {
         if (!this.isFirstRun) {
             this.olapCacheManager.setIProfile(this.iProfile);
             this.olapDAO.setIProfile(this.iProfile);
-            //this.storeManager.getDatabaseDAO().getOlapDAO().setIProfile(this.iProfile);
-
-            //this.olapCacheManager.setOlapDAO(storeManager.getDatabaseDAO().getOlapDAO());
             this.loadMetadata();
 
             this.rawStoreManager.setSqlColMetadatumPojos(metadataMap.get(modNameAshSql));

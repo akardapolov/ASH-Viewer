@@ -1,23 +1,24 @@
 package gui.chart;
 
 import config.Labels;
+import config.profile.ConnProfile;
 import core.manager.ColorManager;
 import core.processing.GetFromRemoteAndStore;
 import gui.BasicFrame;
 import gui.chart.panel.NameChartDataset;
 import gui.chart.panel.StackChartPanel;
 import gui.gantt.MonitorGantt2;
+import gui.report.ASHReport;
 import gui.table.RawDataTable;
+import java.util.LinkedHashSet;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import config.profile.ConnProfile;
 import profile.IProfile;
+import remote.RemoteDBManager;
 import store.StoreManager;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.LinkedHashSet;
 
 @Slf4j
 @Singleton
@@ -35,15 +36,17 @@ public class ChartDatasetManager {
     @Getter @Setter private LinkedHashSet<NameChartDataset> nameChartDatasetDetail = new LinkedHashSet<>();
     @Getter @Setter private IProfile iProfile;
 
+    private RemoteDBManager remoteDBManager;
+
     @Inject
     public ChartDatasetManager(BasicFrame jFrame,
                                ColorManager colorManager,
-                               StoreManager storeManager/*,
-                               GetFromRemoteAndStore getFromRemoteAndStore*/){
+                               StoreManager storeManager,
+                               RemoteDBManager remoteDBManager){
         this.jFrame = jFrame;
         this.colorManager = colorManager;
         this.storeManager = storeManager;
-        /*this.getFromRemoteAndStore = getFromRemoteAndStore;*/
+        this.remoteDBManager = remoteDBManager;
     }
 
     public void initialize(){
@@ -62,8 +65,12 @@ public class ChartDatasetManager {
         mainStackChartPanel.addChartListenerReleaseMouse(mainRawDataTable);
         mainRawDataTable.setIProfile(iProfile);
 
+        ASHReport ashReport = new ASHReport(jFrame, remoteDBManager);
+        mainStackChartPanel.addChartListenerReleaseMouse(ashReport);
+        ashReport.setIProfile(iProfile);
+
         mainNameChartDataset = new NameChartDataset(Labels.getLabel("chart.main.name"),
-                mainStackChartPanel, monitorGantt2, mainXyDatasetRDA, mainRawDataTable);
+                mainStackChartPanel, monitorGantt2, mainXyDatasetRDA, mainRawDataTable, ashReport);
 
         this.iProfile.getUniqueTreeEventListByWaitClass().stream().forEach(e -> {
 
@@ -77,9 +84,8 @@ public class ChartDatasetManager {
                 MonitorGantt2 monitorGantt20 = new MonitorGantt2(jFrame, storeManager, getFromRemoteAndStore, colorManager);
                 RawDataTable rawDataTableInner = new RawDataTable(jFrame, storeManager);
 
-                NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGantt20, xyDatasetRDA, rawDataTableInner);
+                NameChartDataset nameChartDataset = new NameChartDataset(e, stackChartPanel, monitorGantt20, xyDatasetRDA, rawDataTableInner, null);
                 nameChartDatasetDetail.add(nameChartDataset);
-
         });
     }
 

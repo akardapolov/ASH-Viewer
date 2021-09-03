@@ -2,6 +2,7 @@ package gui.chart.panel;
 
 import gui.chart.CategoryTableXYDatasetRDA;
 import gui.gantt.MonitorGantt2;
+import gui.report.ASHReport;
 import gui.table.RawDataTable;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,14 +13,17 @@ public class NameChartDataset {
     @Getter @Setter private MonitorGantt2 monitorGantt2;
     @Getter @Setter private CategoryTableXYDatasetRDA datasetRDA;
     @Getter @Setter private RawDataTable rawDataTable;
+    @Getter @Setter private ASHReport ashReport;
 
     public NameChartDataset(String name, StackChartPanel stackChartPanel, MonitorGantt2 monitorGantt2,
-                            CategoryTableXYDatasetRDA datasetRDA, RawDataTable rawDataTable) {
+                            CategoryTableXYDatasetRDA datasetRDA, RawDataTable rawDataTable,
+                            ASHReport ashReport) {
         this.name = name;
         this.stackChartPanel = stackChartPanel;
         this.monitorGantt2 = monitorGantt2;
         this.datasetRDA = datasetRDA;
         this.rawDataTable = rawDataTable;
+        this.ashReport = ashReport;
     }
 
     @Override
