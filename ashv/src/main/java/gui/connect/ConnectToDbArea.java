@@ -14,28 +14,46 @@ import gui.MonitorDbPanel;
 import gui.chart.ChartDatasetManager;
 import gui.custom.HintTextField;
 import gui.util.ProgressBarUtil;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.io.File;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTextField;
 import store.StoreManager;
 import utility.StackTraceUtil;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.io.File;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
 @Singleton
@@ -236,6 +254,12 @@ public class ConnectToDbArea extends JDialog {
         configMainJPanel.add(new JSeparator(), "gapleft rel, growx");
 
         Arrays.stream(ConstantManager.Profile.values()).forEach(k -> profileBox.addItem(k.name()));
+        profileBox.addItemListener(arg -> {
+            if (arg.getStateChange() == ItemEvent.SELECTED) {
+                setProfileMessageLblVisible((String) arg.getItem());
+            }
+        });
+
         configMainJPanel.add(profileNameLbl,   "skip");
         configMainJPanel.add(profileBox,   "span, growx");
 
@@ -431,7 +455,7 @@ public class ConnectToDbArea extends JDialog {
         rawDataDaysRetainTF.setText(connParameters.getRawRetainDays());
         olapDataDaysRetainTF.setText(connParameters.getOlapRetainDays());
 
-        String selItem = (String) profileBox.getSelectedItem();
+        setProfileMessageLblVisible((String) profileBox.getSelectedItem());
 
         if (configurationManager.getConnProfileList().stream().filter(e -> e.getConfigName()
                         .equalsIgnoreCase(String.valueOf(connName))).findFirst().get().isRunning()){
@@ -447,12 +471,6 @@ public class ConnectToDbArea extends JDialog {
             }
 
             jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect"));
-        }
-
-        if (selItem != null && selItem.equalsIgnoreCase(String.valueOf(ConstantManager.Profile.OracleEE))) {
-            profileMessageLbl.setVisible(true);
-        } else {
-            profileMessageLbl.setVisible(false);
         }
 
         if (!rawDataDaysRetainTF.isEnabled()) {
@@ -630,6 +648,15 @@ public class ConnectToDbArea extends JDialog {
         }
 
         dataDaysRetainTF.setEnabled(false);
+    }
+
+    private void setProfileMessageLblVisible(String selectedItem) {
+        if (selectedItem != null
+            && selectedItem.contains(String.valueOf(ConstantManager.Profile.OracleEE))) {
+            profileMessageLbl.setVisible(true);
+        } else {
+            profileMessageLbl.setVisible(false);
+        }
     }
 
 }
