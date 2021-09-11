@@ -98,6 +98,7 @@ public class ConfigurationManager {
                 .url(connOut.getUrl())
                 .jar(connOut.getJar())
                 .profile(connOut.getProfileName())
+                .initialLoading(String.valueOf(cfg.getValue().getInitialLoading()))
                 .rawRetainDays(String.valueOf(cfg.getValue().getRawRetainDays()))
                 .olapRetainDays(String.valueOf(cfg.getValue().getOlapRetainDays()))
                 .build();
@@ -121,6 +122,7 @@ public class ConfigurationManager {
         connOut.setProfileName(connIn.getProfile());
         connOut.setDriver(connIn.getDriverName());
 
+        cfg.getValue().setInitialLoading(Integer.parseInt(connIn.getInitialLoading()));
         cfg.getValue().setRawRetainDays(getRawRetainDays());
         cfg.getValue().setOlapRetainDays(getOlapRetainDays());
 

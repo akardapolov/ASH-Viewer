@@ -8,6 +8,7 @@ public class ConnectionBuilder {
     private final String jar;
     private final String profile;
     private final String driverName;
+    private final String initialLoading;
     private final String rawRetainDays;
     private final String olapRetainDays;
 
@@ -18,6 +19,7 @@ public class ConnectionBuilder {
     public String getJar() { return jar; }
     public String getProfile() { return profile; }
     public String getDriverName() { return driverName; }
+    public String getInitialLoading() { return initialLoading; }
     public String getRawRetainDays() { return rawRetainDays; }
     public String getOlapRetainDays() { return olapRetainDays; }
 
@@ -29,6 +31,7 @@ public class ConnectionBuilder {
         private String jar;
         private String profile;
         private String driverName;
+        private String initialLoading;
         private String rawRetainDays;
         private String olapRetainDays;
 
@@ -42,6 +45,7 @@ public class ConnectionBuilder {
         public Builder jar(String jr) { jar = jr; return this; }
         public Builder profile(String pr) { profile = pr; return this; }
         public Builder driverName(String dr) { driverName = dr; return this; }
+        public Builder initialLoading(String il) { initialLoading = il; return this; }
         public Builder rawRetainDays(String raw) { rawRetainDays = raw; return this; }
         public Builder olapRetainDays(String raw) { olapRetainDays = raw; return this; }
 
@@ -58,6 +62,7 @@ public class ConnectionBuilder {
         jar = builder.jar;
         profile = builder.profile;
         driverName = builder.driverName;
+        initialLoading = builder.initialLoading;
         rawRetainDays = builder.rawRetainDays;
         olapRetainDays = builder.olapRetainDays;
     }

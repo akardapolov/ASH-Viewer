@@ -26,6 +26,8 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -35,14 +37,18 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -109,6 +115,19 @@ public class ConnectToDbArea extends JDialog {
     private JLabel profileMessageLbl = new JLabel(Labels.getLabel("gui.connection.profile.message"));
     private JLabel offlineLbl = new JLabel(Labels.getLabel("gui.connection.offline"));
 
+
+    private JPanel initialLoadPanel;
+    private JLabel separatorInitialLoadingLbl = new JLabel(Labels.getLabel("gui.connection.initial.loading"));
+    private JLabel initialLoadingOracleEELbl = new JLabel(Labels.getLabel("gui.connection.initial.loading.oracle"));
+    private String initialLoadingAllStr = Labels.getLabel("gui.connection.initial.loading.all");
+    private String initialLoadingLastStr = Labels.getLabel("gui.connection.initial.loading.last");
+    private JLabel initialLoadingMinLbl = new JLabel(Labels.getLabel("gui.connection.initial.loading.min"));
+
+    private JSpinner initialLoadSpinner;
+    private SpinnerModel initialSpinnerModel;
+    private JRadioButton initialLoadAllRButton;
+    private JRadioButton initialLoadLastRButton;
+
     private JLabel separatorRetainLbl = new JLabel(Labels.getLabel("gui.connection.retain"));
     private JLabel retainRawDataLbl = new JLabel(Labels.getLabel("gui.connection.retain.raw"));
     private JLabel retainOlapDataLbl = new JLabel(Labels.getLabel("gui.connection.retain.olap"));
@@ -157,7 +176,7 @@ public class ConnectToDbArea extends JDialog {
     private void init(){
         MigLayout lmMain = new MigLayout("", "[grow][][grow]", "[][][]");
         MigLayout lmConnMain = new MigLayout("ins 10", "[para]0[grow][150lp, fill][60lp][95lp, fill]", "");
-        MigLayout lmConnOther = new MigLayout("ins 10", "[para]0[grow][200lp, fill][60lp][95lp, fill]", "");
+        MigLayout lmConnOther = new MigLayout("ins 10", "[para]0[grow][250lp, fill][60lp][95lp, fill]", "");
         MigLayout lmButtonPanel = new MigLayout("fillx", "[50lp][50lp][50lp][50lp]");
 
         mainJPanel = new JPanel(lmMain);
@@ -273,16 +292,56 @@ public class ConnectToDbArea extends JDialog {
         configMainJPanel.add(isOffline,   "span, growx");
         isOffline.setSelected(false);
 
+        separatorInitialLoadingLbl.setForeground(LABEL_COLOR);
+        configOtherJPanel.add(separatorInitialLoadingLbl, "gapbottom 1, span, split 2, aligny center");
+        configOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
+
+        MigLayout lmInitialLoad = new MigLayout("", "[30lp][30lp][30lp][30lp]");
+        initialLoadPanel = new JPanel(lmInitialLoad);
+
+        initialSpinnerModel = new SpinnerNumberModel(5, 0, 120, 1);
+        initialLoadSpinner = new JSpinner(initialSpinnerModel);
+        initialLoadSpinner.setToolTipText(Labels.getLabel("gui.connection.initial.loading.tooltip"));
+
+        initialLoadAllRButton = new JRadioButton(initialLoadingAllStr);
+        initialLoadAllRButton.addChangeListener(e -> {
+            AbstractButton aButton = (AbstractButton)e.getSource();
+            ButtonModel aModel = aButton.getModel();
+            if (aModel.isSelected()) {
+                initialLoadLastRButton.setSelected(false);
+                initialLoadSpinner.setEnabled(false);
+            }
+        });
+
+        initialLoadLastRButton = new JRadioButton(initialLoadingLastStr);
+        initialLoadLastRButton.addChangeListener(e -> {
+            AbstractButton aButton = (AbstractButton)e.getSource();
+            ButtonModel aModel = aButton.getModel();
+            if (aModel.isSelected()) {
+                initialLoadAllRButton.setSelected(false);
+                initialLoadSpinner.setEnabled(true);
+            }
+        });
+
+        initialLoadPanel.add(initialLoadAllRButton, "gap 1");
+        initialLoadPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, hmin 10, alignx center");
+        initialLoadPanel.add(initialLoadLastRButton, "gap 1");
+        initialLoadPanel.add(initialLoadSpinner);
+        initialLoadPanel.add(initialLoadingMinLbl);
+
+        configOtherJPanel.add(initialLoadingOracleEELbl,   "skip");
+        configOtherJPanel.add(initialLoadPanel,    "span, growx, wmin 100");
+
         separatorRetainLbl.setForeground(LABEL_COLOR);
         configOtherJPanel.add(separatorRetainLbl, "gapbottom 1, span, split 2, aligny center");
         configOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
 
         configOtherJPanel.add(retainRawDataLbl,   "skip");
-        configOtherJPanel.add(rawDataDaysRetainTF,    "span, growx");
+        configOtherJPanel.add(rawDataDaysRetainTF,    "span, growx, wmin 150");
         rawDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.raw.tooltip"));
 
         configOtherJPanel.add(retainOlapDataLbl,   "skip");
-        configOtherJPanel.add(olapDataDaysRetainTF,    "span, growx");
+        configOtherJPanel.add(olapDataDaysRetainTF,    "span, growx, wmin 150");
         olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
 
         jButtonConnect.addActionListener(e -> {
@@ -427,6 +486,10 @@ public class ConnectToDbArea extends JDialog {
         jButtonDeleteConfig.setEnabled(!bParameter);
         jButtonSaveConfig.setEnabled(bParameter);
         jButtonCancel.setEnabled(bParameter);
+
+        initialLoadAllRButton.setEnabled(bParameter);
+        initialLoadLastRButton.setEnabled(bParameter);
+        initialLoadSpinner.setEnabled(bParameter);
     }
 
     private void clearProfileFields(){
@@ -437,6 +500,9 @@ public class ConnectToDbArea extends JDialog {
         jarTF.setText("");
         rawDataDaysRetainTF.setText("");
         olapDataDaysRetainTF.setText("");
+
+        initialLoadAllRButton.setSelected(true);
+        initialLoadLastRButton.setSelected(false);
     }
 
     private void copyConnection(){
@@ -473,6 +539,8 @@ public class ConnectToDbArea extends JDialog {
             jButtonConnect.setText(Labels.getLabel("gui.connection.button.connect"));
         }
 
+        setInitialLoading(connParameters.getInitialLoading());
+
         if (!rawDataDaysRetainTF.isEnabled()) {
             setTextDataDaysRetainTF(rawDataDaysRetainTF, Integer.parseInt(connParameters.getRawRetainDays()));
         }
@@ -491,6 +559,7 @@ public class ConnectToDbArea extends JDialog {
                 .profile(String.valueOf((profileBox.getSelectedItem())))
                 .driverName(configurationManager.getProfileImpl(
                         String.valueOf((profileBox.getSelectedItem()))).getDriverName())
+                .initialLoading(initialLoadAllRButton.isSelected() ? "-1" : initialLoadSpinner.getValue().toString())
                 .rawRetainDays(rawDataDaysRetainTF.getText())
                 .olapRetainDays(olapDataDaysRetainTF.getText())
                 .build();
@@ -656,6 +725,20 @@ public class ConnectToDbArea extends JDialog {
             profileMessageLbl.setVisible(true);
         } else {
             profileMessageLbl.setVisible(false);
+        }
+    }
+
+    private void setInitialLoading(String initialLoading) {
+        if (initialLoading.equals("-1")) {
+            initialLoadAllRButton.setSelected(true);
+            initialLoadLastRButton.setSelected(false);
+            initialLoadSpinner.setEnabled(false);
+            initialLoadSpinner.setValue(ConstantManager.INITIAL_LOADING_DEFAULT);
+        } else {
+            initialLoadAllRButton.setSelected(false);
+            initialLoadLastRButton.setSelected(true);
+            initialLoadSpinner.setEnabled(connNameTF.isEnabled());
+            initialLoadSpinner.setValue(Integer.valueOf(initialLoading));
         }
     }
 

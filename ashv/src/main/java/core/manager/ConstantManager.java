@@ -29,6 +29,9 @@ public final class ConstantManager extends LinkedHashMap {
     public static int RETAIN_DAYS_MIN = 0;
     public static int RETAIN_DAYS_MAX = 101;
 
+    public static int INITIAL_LOADING = -1;
+    public static int INITIAL_LOADING_DEFAULT = 5;
+
     private static Map coreOpt = new LinkedHashMap();
 
     private ConstantManager() {}

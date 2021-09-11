@@ -2,6 +2,8 @@ package core.processing;
 
 import com.sleepycat.persist.EntityCursor;
 import config.Labels;
+import config.profile.ConnProfile;
+import config.profile.SqlColProfile;
 import core.manager.ColorManager;
 import core.manager.ConfigurationManager;
 import core.manager.ConstantManager;
@@ -10,6 +12,33 @@ import gui.chart.CategoryTableXYDatasetRDA;
 import gui.chart.ChartDatasetManager;
 import gui.chart.panel.NameChartDataset;
 import gui.detail.explainplan.ExplainPlanModel10g2;
+import java.math.BigDecimal;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +48,6 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jetbrains.annotations.NotNull;
 import org.rtv.Options;
-import config.profile.ConnProfile;
-import config.profile.SqlColProfile;
 import pojo.SqlPlanPojo;
 import pojo.SqlPojo;
 import profile.IProfile;
@@ -28,23 +55,16 @@ import profile.OracleEE;
 import profile.OracleEEObject;
 import profile.Postgres;
 import remote.RemoteDBManager;
-import store.*;
+import store.ConvertManager;
+import store.OlapCacheManager;
+import store.RawStoreManager;
+import store.StoreManager;
 import store.entity.database.SqlPlan;
 import store.entity.olap.AshAggrMinData;
 import store.entity.olap.AshUser;
 import store.service.OlapDAO;
 import utility.StackTraceUtil;
 import utility.Utils;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.math.BigDecimal;
-import java.sql.*;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Singleton
@@ -142,7 +162,8 @@ public class GetFromRemoteAndStore {
                 this.loadUsername();
 
                 // For main chart
-                iProfile.getUniqueTreeEventListByWaitClass().forEach(e-> chartDatasetManager.getMainNameChartDataset()
+                iProfile.getUniqueTreeEventListByWaitClass().forEach(e ->
+                    chartDatasetManager.getMainNameChartDataset()
                         .getStackChartPanel().getStackedChart().setSeriesPaintDynamicDetail(e));
             }
 
@@ -152,7 +173,7 @@ public class GetFromRemoteAndStore {
             this.loadToMainStackedChart();
             log.info("Stop loading olap");
 
-            if (!this.isFirstRun) { // resolve the issue with the gap for big data in ASH
+            if (!this.isFirstRun) { // resolve the issue with the gap for large amount of data in ASH
                 this.isFirstRun = true;
                 this.loadDataToOlap();
                 this.loadToMainStackedChart();
@@ -517,13 +538,32 @@ public class GetFromRemoteAndStore {
         PreparedStatement s;
         if (!this.isFirstRun) {
             s = connection.prepareStatement(sqlText);
-            ParameterBuilder param = new ParameterBuilder.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime).build();
-            s.setTimestamp(1, new Timestamp(this.storeManager.getDatabaseDAO().getMax(param)));
+            s.setTimestamp(1, new Timestamp(getSampleTimeValue(currServerTime)));
         } else {
             s = connection.prepareStatement(sqlText);
             s.setTimestamp(1, new Timestamp(sampleTimeG));
         }
         return s;
+    }
+
+    private long getSampleTimeValue(long currServerTime) {
+        ParameterBuilder param =
+            new ParameterBuilder.Builder(currServerTime - ConstantManager.CURRENT_WINDOW, currServerTime)
+                .build();
+
+        long sampleTime = this.storeManager.getDatabaseDAO().getMax(param);
+
+        String initialLoadingStr = configurationManager
+            .getConnectionParameters(connProfile.getConnName()).getInitialLoading();
+
+        if (!initialLoadingStr.equals("-1")) {
+            long initialLoadingLong = Integer.parseInt(initialLoadingStr);
+            long sampleTimeFromConfig = currServerTime - (initialLoadingLong*60*1000);
+
+            sampleTime = Math.max(sampleTimeFromConfig, sampleTime);
+        }
+
+        return sampleTime;
     }
 
     private int getColumnIdForCol(String filterCol){
