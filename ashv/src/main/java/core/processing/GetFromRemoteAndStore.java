@@ -534,8 +534,6 @@ public class GetFromRemoteAndStore {
             s = getPreparedStatement(sqlText);
         }
 
-        System.out.println(sqlText);
-
         return s;
     }
 
