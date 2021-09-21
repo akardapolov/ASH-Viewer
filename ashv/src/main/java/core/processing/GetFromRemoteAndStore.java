@@ -52,6 +52,7 @@ import pojo.SqlPlanPojo;
 import pojo.SqlPojo;
 import profile.IProfile;
 import profile.OracleEE;
+import profile.OracleEE10g;
 import profile.OracleEEObject;
 import profile.Postgres;
 import remote.RemoteDBManager;
@@ -522,6 +523,9 @@ public class GetFromRemoteAndStore {
 
         if (iProfile instanceof Postgres) {
             s = connection.prepareStatement(sqlText);
+        } else if (iProfile instanceof OracleEE10g) {
+            sqlText = sqlText + " and "  + iProfile.getSampleTimeColName() + " > ? " + orderBy;
+            s = getPreparedStatement(sqlText);
         } else if (iProfile instanceof OracleEEObject) {
             sqlText = sqlText + " and "  + iProfile.getSampleTimeColName() + " > ? " + orderBy;
             s = getPreparedStatement(sqlText);
@@ -529,6 +533,8 @@ public class GetFromRemoteAndStore {
             sqlText = sqlText + where + orderBy;
             s = getPreparedStatement(sqlText);
         }
+
+        System.out.println(sqlText);
 
         return s;
     }

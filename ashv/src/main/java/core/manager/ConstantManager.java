@@ -20,7 +20,7 @@ public final class ConstantManager extends LinkedHashMap {
     public enum Function {None, AsIs, Sum, Count, Delta}
 
     // Add profile implementation to src/profile
-    public enum Profile {OracleEE, OracleSE, OracleEEObject, Postgres, Postgres96}
+    public enum Profile {OracleEE, OracleSE, OracleEEObject, OracleEE10g, Postgres, Postgres96}
 
     public enum History {Hour8, Hour12, Day1, Week, Month, Custom}
 

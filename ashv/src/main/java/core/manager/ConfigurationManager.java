@@ -152,6 +152,8 @@ public class ConfigurationManager {
                 return new OracleSE();
             case "OracleEEObject":
                 return new OracleEEObject();
+            case "OracleEE10g":
+                return new OracleEE10g();
             case "Postgres":
                 return new Postgres();
             case "Postgres96":
