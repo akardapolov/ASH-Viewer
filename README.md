@@ -30,17 +30,13 @@ Supported databases: Oracle, PostgreSQL
 - Review Raw data interface to gain a deep insight into active session history
 
 ![ASHViewerRaw](media/raw.png)
-- Double click on Top sql & sessions interface to get window with ASH details by sql or session ID
+- Double-click on Top sql & sessions interface to get window with ASH details by sql or session ID
 
-<!-- AUTO-GENERATED-CONTENT:START (TOC:collapse=true&collapseText="Top sql & sessions") -->
-<details>
-<summary>"Top sql & sessions"</summary>
-
+   i. SQL
  ![ASHViewerSql](media/sql.png)
-  
+
+   ii. Session
  ![ASHViewerSession](media/session.png)
-</details>
-<!-- AUTO-GENERATED-CONTENT:END -->
 
 ## How it works
 Active Session History (ASH) is a view in Oracle database that maps a circular buffer in the SGA.
