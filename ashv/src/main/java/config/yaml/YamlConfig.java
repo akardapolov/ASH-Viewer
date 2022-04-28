@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 @Slf4j
 @Singleton
@@ -22,12 +22,12 @@ public class YamlConfig {
     private FileConfig fileConfig;
     private Yaml yaml;
 
-    private HashMap<String, ConfigProfile> configList;
+    private TreeMap<String, ConfigProfile> configList;
 
     @Inject
     public YamlConfig(FileConfig fileConfig,
                       Yaml yaml,
-                      @Named("ConfigList") HashMap<String, ConfigProfile> configList) {
+                      @Named("ConfigList") TreeMap<String, ConfigProfile> configList) {
         this.fileConfig = fileConfig;
         this.yaml = yaml;
         this.configList = configList;

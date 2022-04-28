@@ -1,7 +1,7 @@
 package config.dagger;
 
-import java.util.HashMap;
 import java.util.Locale;
+import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
 import org.yaml.snakeyaml.Yaml;
@@ -22,7 +22,7 @@ public final class Config {
     @Getter private GlobalKeyBindings globalKeyBindings;
     @Getter private ColorManager colorManager;
     @Getter private Yaml yaml;
-    @Getter private HashMap<String, ConfigProfile> configHashMap;
+    @Getter private TreeMap<String, ConfigProfile> configTreeMap;
 
     public Config() {
         preferences = Preferences.userRoot().node("ASHViewer");
@@ -33,7 +33,7 @@ public final class Config {
         colorManager = new ColorManager();
 
         yaml = new Yaml();
-        configHashMap = new HashMap<>();
+        configTreeMap = new TreeMap<>();
     }
 
     public void store() {

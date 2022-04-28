@@ -22,7 +22,7 @@ import java.util.*;
 public class ConfigurationManager {
     private YamlConfig yamlConfig;
     private PassConfig passConfig;
-    private HashMap<String, ConfigProfile> configList;
+    private TreeMap<String, ConfigProfile> configList;
 
     @Getter @Setter private ConfigProfile currentConfiguration;
     @Getter @Setter private String configurationName;
@@ -31,7 +31,7 @@ public class ConfigurationManager {
     @Inject
     public ConfigurationManager(YamlConfig yamlConfig,
                                 PassConfig passConfig,
-                                @Named("ConfigList") HashMap<String, ConfigProfile> configList) {
+                                @Named("ConfigList") TreeMap<String, ConfigProfile> configList) {
         this.yamlConfig = yamlConfig;
         this.passConfig = passConfig;
         this.configList = configList;
@@ -179,7 +179,7 @@ public class ConfigurationManager {
             }
         });
 
-        HashMap<String, ConfigProfile> shCopy = new HashMap<>(configList);
+        TreeMap<String, ConfigProfile> shCopy = new TreeMap<>(configList);
 
         synchronized (shCopy) {
             Iterator<Map.Entry<String, ConfigProfile>>
