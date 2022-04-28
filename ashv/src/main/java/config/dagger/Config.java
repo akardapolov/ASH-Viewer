@@ -1,20 +1,21 @@
 package config.dagger;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.prefs.Preferences;
+
+import org.yaml.snakeyaml.Yaml;
+
 import config.FileConfig;
 import config.GUIConfig;
 import config.profile.ConfigProfile;
 import core.manager.ColorManager;
 import gui.events.GlobalKeyBindings;
 import lombok.Getter;
-import org.yaml.snakeyaml.Yaml;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.prefs.Preferences;
 
 public final class Config {
     private Preferences preferences;
-    public String language = "en";
+    private static final String DEFAULT_LANGUAGE = "en";
 
     @Getter private GUIConfig guiConfig;
     @Getter private FileConfig fileConfig;
@@ -36,11 +37,11 @@ public final class Config {
     }
 
     public void store() {
-        preferences.put("language", language);
+        preferences.put("language", DEFAULT_LANGUAGE);
         guiConfig.store();
     }
 
     public Locale getLocale() {
-        return new Locale(language);
+        return new Locale(DEFAULT_LANGUAGE);
     }
 }
