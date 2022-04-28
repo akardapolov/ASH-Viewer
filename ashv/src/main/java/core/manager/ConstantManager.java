@@ -7,9 +7,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 import org.rtv.Options;
 
-public final class ConstantManager extends LinkedHashMap {
+public final class ConstantManager {
     public static final int MAIN_PANEL_5MIN = 5;
     public static int MAIN_PANEL_15MIN = 15;
     public static int MAIN_PANEL_30MIN = 30;
@@ -20,7 +21,18 @@ public final class ConstantManager extends LinkedHashMap {
     public enum Function {None, AsIs, Sum, Count, Delta}
 
     // Add profile implementation to src/profile
-    public enum Profile {OracleEE, OracleSE, OracleEEObject, OracleEE10g, Postgres, Postgres96}
+    public enum Profile {
+      OracleEE, OracleSE, OracleEEObject, OracleEE10g, Postgres, Postgres96;
+
+      public static final Profile getValue(String value) {
+        for (Profile p: values()) {
+          if (p.name().equals(value)) {
+            return p;
+          }
+        }
+        return null;
+      }
+    }
 
     public enum History {Hour8, Hour12, Day1, Week, Month, Custom}
 

@@ -5,6 +5,7 @@ import config.profile.ConnProfile;
 import config.profile.SqlColProfile;
 import config.security.PassConfig;
 import config.yaml.YamlConfig;
+import core.manager.ConstantManager.Profile;
 import core.parameter.ConnectionBuilder;
 import excp.SqlColMetadataException;
 import lombok.Getter;
@@ -145,22 +146,26 @@ public class ConfigurationManager {
     }
 
     public IProfile getProfileImpl(String profileName) {
-        switch (profileName) {
-            case "OracleEE":
-                return new OracleEE();
-            case "OracleSE":
-                return new OracleSE();
-            case "OracleEEObject":
-                return new OracleEEObject();
-            case "OracleEE10g":
-                return new OracleEE10g();
-            case "Postgres":
-                return new Postgres();
-            case "Postgres96":
-                return new Postgres96();
-            default:
-                throw new IllegalArgumentException("Invalid profile name");
-        }
+      Profile profile = Profile.getValue(profileName);
+      if (profile == null) {
+        throw new IllegalArgumentException("Invalid profile name: " + profileName);
+      }
+      switch (profile) {
+        case OracleEE:
+          return new OracleEE();
+        case OracleEE10g:
+          return new OracleEE10g();
+        case OracleEEObject:
+          return new OracleEEObject();
+        case OracleSE:
+          return new OracleSE();
+        case Postgres:
+          return new Postgres();
+        case Postgres96:
+          return new Postgres96();
+        default :
+          throw new IllegalArgumentException("Unsupported profile name: " + profileName);
+      }
     }
 
     /**
