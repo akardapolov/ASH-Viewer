@@ -1,8 +1,5 @@
 package gui.report;
 
-import com.sleepycat.je.DatabaseException;
-import gui.BasicFrame;
-import gui.util.ProgressBarUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -28,23 +26,31 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+
+import org.jfree.chart.util.GanttParam;
+import org.jfree.chart.util.IDetailPanel;
+
+import com.sleepycat.je.DatabaseException;
+
+import gui.BasicFrame;
+import gui.util.ProgressBarUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.jfree.chart.util.GanttParam;
-import org.jfree.chart.util.IDetailPanel;
 import profile.IProfile;
 import remote.RemoteDBManager;
 
 @Slf4j
 public class ASHReport extends JPanel implements IDetailPanel {
-    private BasicFrame jFrame;
-    private RemoteDBManager remoteDBManager;
+    private static final long serialVersionUID = 4437093286683614815L;
 
-    @Getter @Setter private IProfile iProfile;
+    private BasicFrame jFrame;
+    private transient RemoteDBManager remoteDBManager;
+
+    @Getter @Setter private transient IProfile iProfile;
 
     @Getter @Setter private String waitClassValue = "";
-    @Getter @Setter private GanttParam ganttParamIn;
+    @Getter @Setter private transient GanttParam ganttParamIn;
 
     private JPanel mainPanel;
 
@@ -115,7 +121,8 @@ public class ASHReport extends JPanel implements IDetailPanel {
             // delay
             try {
                 Thread.sleep(5L);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException e) { //NOSONAR
+                // no action
                 e.printStackTrace();
             }
             jFrame.repaint();
@@ -161,7 +168,8 @@ public class ASHReport extends JPanel implements IDetailPanel {
     }
 
     private String getPeriod(double begin, double end){
-        return "";
+        // TODO: do something or replace this private method with constant
+        return ""; //NOSONAR
     }
 
     private JPanel createProgressBar(String msg) {
@@ -173,86 +181,62 @@ public class ASHReport extends JPanel implements IDetailPanel {
     }
 
     private StringBuilder getASHReport(long begin, long end) throws SQLException {
-        Connection connection = this.remoteDBManager.getConnection();
+        try (Connection connection = this.remoteDBManager.getConnection();) {
+          StringBuilder ashReport = new StringBuilder();
 
-        StringBuilder ashReport = new StringBuilder();
-
-        ResultSet resultSet = null;
-        PreparedStatement statement = null;
-
-        try {
-            PreparedStatement stmtDbid = connection.prepareStatement("SELECT dbid FROM v$database");
-            PreparedStatement stmtInstanceNumber = connection.prepareStatement("SELECT instance_number FROM v$instance");
-
-            ResultSet rsDbid = stmtDbid.executeQuery();
-            ResultSet rsInstanceNumber = stmtInstanceNumber.executeQuery();
-
-            double dbid = 0;
-            double instance = 0;
-
-            while (rsDbid.next()) {
-                dbid = rsDbid.getDouble(1);
+          double dbid = 0;
+          double instance = 0;
+          try {
+            try (PreparedStatement stmtDbid = connection.prepareStatement("SELECT dbid FROM v$database");) {
+              try (ResultSet rsDbid = stmtDbid.executeQuery();) {
+                while (rsDbid.next()) {
+                  dbid = rsDbid.getDouble(1);
+                }
+              }
             }
-            rsDbid.close();
-            stmtDbid.close();
-
-            while (rsInstanceNumber.next()) {
-                instance = rsInstanceNumber.getDouble(1);
+            try (PreparedStatement stmtInstanceNumber = connection.prepareStatement("SELECT instance_number FROM v$instance");) {
+              try (ResultSet rsInstanceNumber = stmtInstanceNumber.executeQuery();) {
+                while (rsInstanceNumber.next()) {
+                    instance = rsInstanceNumber.getDouble(1);
+                }
+              }
             }
-            rsInstanceNumber.close();
-            stmtInstanceNumber.close();
-
+  
             Timestamp beginTs = new Timestamp(begin);
             Timestamp endTs = new Timestamp(end);
 
-            statement =
+            try (PreparedStatement statement =
                 connection.prepareStatement(
                     "SELECT output " +
-                        "from table (DBMS_WORKLOAD_REPOSITORY.ASH_REPORT_TEXT(?,?,?,?))");
-            statement.setFetchSize(2500);
+                        "from table (DBMS_WORKLOAD_REPOSITORY.ASH_REPORT_TEXT(?,?,?,?))");) {
+              statement.setFetchSize(2500);
+    
+              statement.setDouble(1, dbid);
+              statement.setDouble(2, instance);
+              statement.setTimestamp(3, beginTs);
+              statement.setTimestamp(4, endTs);
 
-            statement.setDouble(1, dbid);
-            statement.setDouble(2, instance);
-            statement.setTimestamp(3, beginTs);
-            statement.setTimestamp(4, endTs);
-
-            resultSet = statement.executeQuery();
-
-        while (resultSet.next()) {
-            ashReport.append(escapeHTML(resultSet.getString("OUTPUT"))).append("\n");
-        }
-
-        } catch (Exception e) {
-            log.info("SQL Exception occured: " + e.getMessage());
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (Exception e) {
-                    log.info(e.getMessage());
+              try (ResultSet resultSet = statement.executeQuery();) {
+                while (resultSet.next()) {
+                  ashReport.append(escapeHTML(resultSet.getString("OUTPUT"))).append("\n");
                 }
-            }
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (Exception e) {
-                    log.info(e.getMessage());
-                }
+              }
             }
 
-            if (connection != null) {
-                connection.close();
-            }
+          } catch (Exception e) {
+              log.info("SQL Exception occured: " + e.getMessage());
+              log.debug("Stacktrace: ", e);
+          }
+
+          return ashReport;
         }
-
-        return ashReport;
     }
 
     public static String escapeHTML(String str) {
         if (str == null || str.length() == 0)
             return "";
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int len = str.length();
         for (int i = 0; i < len; ++i) {
             char c = str.charAt(i);
