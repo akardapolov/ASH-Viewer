@@ -1,27 +1,28 @@
 package config.dagger;
 
+import java.util.Locale;
+import java.util.TreeMap;
+import java.util.prefs.Preferences;
+
+import org.yaml.snakeyaml.Yaml;
+
 import config.FileConfig;
 import config.GUIConfig;
 import config.profile.ConfigProfile;
 import core.manager.ColorManager;
 import gui.events.GlobalKeyBindings;
 import lombok.Getter;
-import org.yaml.snakeyaml.Yaml;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.prefs.Preferences;
 
 public final class Config {
     private Preferences preferences;
-    public String language = "en";
+    private static final String DEFAULT_LANGUAGE = "en";
 
     @Getter private GUIConfig guiConfig;
     @Getter private FileConfig fileConfig;
     @Getter private GlobalKeyBindings globalKeyBindings;
     @Getter private ColorManager colorManager;
     @Getter private Yaml yaml;
-    @Getter private HashMap<String, ConfigProfile> configHashMap;
+    @Getter private TreeMap<String, ConfigProfile> configTreeMap;
 
     public Config() {
         preferences = Preferences.userRoot().node("ASHViewer");
@@ -32,15 +33,15 @@ public final class Config {
         colorManager = new ColorManager();
 
         yaml = new Yaml();
-        configHashMap = new HashMap<>();
+        configTreeMap = new TreeMap<>();
     }
 
     public void store() {
-        preferences.put("language", language);
+        preferences.put("language", DEFAULT_LANGUAGE);
         guiConfig.store();
     }
 
     public Locale getLocale() {
-        return new Locale(language);
+        return new Locale(DEFAULT_LANGUAGE);
     }
 }

@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 @Module
 public class ModuleConfig {
@@ -21,5 +21,5 @@ public class ModuleConfig {
     @Provides @Singleton GlobalKeyBindings getGlobalKeyBindings() { return getConfig().getGlobalKeyBindings(); }
 
     @Provides @Singleton Yaml getYaml() { return getConfig().getYaml(); }
-    @Provides @Singleton @Named("ConfigList") HashMap<String, ConfigProfile> getConfigList() { return getConfig().getConfigHashMap(); }
+    @Provides @Singleton @Named("ConfigList") TreeMap<String, ConfigProfile> getConfigList() { return getConfig().getConfigTreeMap(); }
 }
