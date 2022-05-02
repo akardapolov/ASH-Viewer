@@ -83,7 +83,7 @@ public class XYDatasetSelectionExtension extends
         super(dataset);
         this.dataset = dataset;
         //this.selectionData = new ArrayList[dataset.getSeriesCount()];
-        this.selectionData = new ArrayList[50];
+        this.selectionData = new ArrayList[1000];
         initSelection();
     }
 
