@@ -10,6 +10,7 @@ Supported databases: Oracle, PostgreSQL
 
 - [Quick start](#quick-start)
 - [How it works](#how-it-works)
+- [Build](#build)
 - [Security](#security)
 - [Bugs and feature requests](#bugs-and-feature-requests)
 - [Downloads](#downloads)
@@ -24,7 +25,7 @@ Supported databases: Oracle, PostgreSQL
 - Open connection dialog and populate them with data (URL for Oracle database: **jdbc:oracle:thin:@host:port:SID**)
 
  ![ASHViewerConnectionDialog](media/connection.png)
-- Press Connect button and start to monitor your system
+- Press Connect button and start to monitor your system and highlight a range to show details.
 
  ![ASHViewerTop](media/top.png)
 - Review Raw data interface to gain a deep insight into active session history
@@ -51,7 +52,13 @@ ASH Viewer provides graphical Top Activity, similar Top Activity analysis and Dr
 For Oracle standard edition and PostgreSQL, ASH Viewer emulate ASH, storing active session data on local storage.
   
 ** Please note that v$active_session_history is a part of the Oracle Diagnostic Pack and requires a purchase of the ODP license.**
-  
+
+## Build
+
+```shell
+mvn clean package -DskipTests=true
+```
+
 ## Security  
 Passwords are stored in configuration file in encrypted form with secret key (computer name or hostname). So, when you run copied configuration on another host, you need to change password with a new secret key. 
 This is a minimal foolproof and for maximum protection it is necessary to store sensitive data using filesystem-level encryption or another way.
