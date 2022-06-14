@@ -24,7 +24,7 @@ import static java.lang.String.valueOf;
 @Singleton
 public class ConvertManager {
     private StoreManager storeManager;
-    private enum OracleType {CLOB,VARCHAR2,CHAR,RAW,NUMBER,INT4,FLOAT8,DATE,TIMESTAMP,TIMESTAMPTZ,OID,TEXT,NAME}
+    private enum OracleType {CLOB,VARCHAR2,CHAR,RAW,NUMBER,INT4,FLOAT8,DATE,TIMESTAMP,TIMESTAMPTZ,OID,TEXT,NAME,NUMERIC}
 
     private int intNullValue = Integer.MIN_VALUE;
 
@@ -53,6 +53,7 @@ public class ConvertManager {
                 Double dbl0 = (Double) obj;
                 return valueOf(dbl0.intValue());
             case NUMBER:
+            case NUMERIC:    
                 BigDecimal bgDec = (BigDecimal) obj;
                     return valueOf(bgDec.longValue());
             case DATE:
