@@ -66,12 +66,11 @@ package org.jfree.data.jdbc;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
-
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
@@ -206,11 +205,11 @@ public class JDBCCategoryDataset extends DefaultCategoryDataset {
      */
     public void executeQuery(Connection con, String query) throws SQLException {
 
-        Statement statement = null;
+        PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = con.createStatement();
-            resultSet = statement.executeQuery(query);
+            statement = con.prepareStatement(query);
+            resultSet = statement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
 
             int columnCount = metaData.getColumnCount();

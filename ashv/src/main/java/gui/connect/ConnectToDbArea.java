@@ -1,7 +1,9 @@
 package gui.connect;
 
+import com.github.windpapi4j.WinDPAPI;
 import config.GUIConfig;
 import config.Labels;
+import config.profile.ConfigProfile;
 import config.profile.ConnProfile;
 import core.manager.ColorManager;
 import core.manager.ConfigurationManager;
@@ -13,6 +15,8 @@ import gui.MainTabbedPane;
 import gui.MonitorDbPanel;
 import gui.chart.ChartDatasetManager;
 import gui.custom.HintTextField;
+import gui.model.ContainerType;
+import gui.model.EncryptionType;
 import gui.util.ProgressBarUtil;
 import java.awt.Color;
 import java.awt.Component;
@@ -115,7 +119,6 @@ public class ConnectToDbArea extends JDialog {
     private JLabel profileMessageLbl = new JLabel(Labels.getLabel("gui.connection.profile.message"));
     private JLabel offlineLbl = new JLabel(Labels.getLabel("gui.connection.offline"));
 
-
     private JPanel initialLoadPanel;
     private JLabel separatorInitialLoadingLbl = new JLabel(Labels.getLabel("gui.connection.initial.loading"));
     private JLabel initialLoadingOracleEELbl = new JLabel(Labels.getLabel("gui.connection.initial.loading.oracle"));
@@ -128,9 +131,21 @@ public class ConnectToDbArea extends JDialog {
     private JRadioButton initialLoadAllRButton;
     private JRadioButton initialLoadLastRButton;
 
+    private JPanel securityCipherPanel;
+    private JPanel securityContainerPanel;
+    private JRadioButton securityPBECipherRButton;
+    private JRadioButton securityBCFipsAesCipherRButton;
+
+    private JRadioButton securityContainerConfiguration;
+    private JRadioButton securityContainerRegistry;
+    private JRadioButton securityContainerWindowsDPAPI;
+
     private JLabel separatorRetainLbl = new JLabel(Labels.getLabel("gui.connection.retain"));
     private JLabel retainRawDataLbl = new JLabel(Labels.getLabel("gui.connection.retain.raw"));
     private JLabel retainOlapDataLbl = new JLabel(Labels.getLabel("gui.connection.retain.olap"));
+    private JLabel securityLbl = new JLabel(Labels.getLabel("gui.connection.security"));
+    private JLabel securityCipherLbl = new JLabel(Labels.getLabel("gui.connection.security.cipher"));
+    private JLabel securityContainerLbl = new JLabel(Labels.getLabel("gui.connection.security.container"));
 
     private JTextField connNameTF = new JTextField();
     private JTextField usernameTF = new JTextField();
@@ -184,10 +199,6 @@ public class ConnectToDbArea extends JDialog {
         configMainJPanel = new JPanel(lmConnMain);
         configOtherJPanel = new JPanel(lmConnOther);
         buttonPanel = new JPanel(lmButtonPanel);
-
-        //////////////////////// Delete it in future release ///////////////////
-        configurationManager.updatePassword();
-        //////////////////////// Delete it in future release ///////////////////
 
         this.init_gui();
 
@@ -323,6 +334,83 @@ public class ConnectToDbArea extends JDialog {
             }
         });
 
+        MigLayout securityMigLayout = new MigLayout("", "[30lp][30lp][30lp][30lp]");
+        MigLayout securityContainerMigLayout = new MigLayout("", "[30lp][30lp][30lp][30lp][30lp][30lp]");
+        securityCipherPanel = new JPanel(securityMigLayout);
+        securityContainerPanel = new JPanel(securityContainerMigLayout);
+
+        securityBCFipsAesCipherRButton = new JRadioButton(Labels.getLabel("gui.connection.security.cipher.aes"));
+        securityPBECipherRButton = new JRadioButton(Labels.getLabel("gui.connection.security.cipher.pbe"));
+        securityBCFipsAesCipherRButton.setToolTipText(Labels.getLabel("gui.connection.security.cipher.aes.tooltip"));
+        securityPBECipherRButton.setToolTipText(Labels.getLabel("gui.connection.security.cipher.pbe.tooltip"));
+
+        securityContainerWindowsDPAPI = new JRadioButton(Labels.getLabel("gui.connection.security.container.dbapi"));
+        securityContainerRegistry = new JRadioButton(Labels.getLabel("gui.connection.security.container.registry"));
+        securityContainerConfiguration = new JRadioButton(Labels.getLabel("gui.connection.security.container.configuration"));
+        securityContainerWindowsDPAPI.setToolTipText(Labels.getLabel("gui.connection.security.container.dbapi.tooltip"));
+        securityContainerRegistry.setToolTipText(Labels.getLabel("gui.connection.security.container.registry.tooltip"));
+        securityContainerConfiguration.setToolTipText(Labels.getLabel("gui.connection.security.container.configuration.tooltip"));
+
+        securityBCFipsAesCipherRButton.addChangeListener(event -> {
+            AbstractButton aButton = (AbstractButton) event.getSource();
+            ButtonModel model = aButton.getModel();
+            if (model.isSelected()) {
+                securityBCFipsAesCipherRButton.setSelected(true);
+                securityPBECipherRButton.setSelected(false);
+            }
+        });
+
+        securityPBECipherRButton.addChangeListener(event -> {
+            AbstractButton aButton = (AbstractButton) event.getSource();
+            ButtonModel model = aButton.getModel();
+            if (model.isSelected()) {
+                securityPBECipherRButton.setSelected(true);
+                securityBCFipsAesCipherRButton.setSelected(false);
+            }
+        });
+
+        securityContainerWindowsDPAPI.addItemListener(evt -> {
+            if(evt.getStateChange() == ItemEvent.SELECTED){
+                securityContainerWindowsDPAPI.setSelected(true);
+                securityContainerRegistry.setSelected(false);
+                securityContainerConfiguration.setSelected(false);
+
+                if (!WinDPAPI.isPlatformSupported()) {
+                    String message = "Please, select another option - Registry or Configuration";
+                    log.info(message);
+                    JOptionPane.showConfirmDialog(this,
+                        "Windows Data Protection API (DPAPI) as secure container is not supported. " + message,
+                        "Information", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                }
+            }
+        });
+
+        securityContainerRegistry.addItemListener(evt -> {
+            if(evt.getStateChange() == ItemEvent.SELECTED){
+                securityContainerRegistry.setSelected(true);
+                securityContainerWindowsDPAPI.setSelected(false);
+                securityContainerConfiguration.setSelected(false);
+            }
+        });
+
+        securityContainerConfiguration.addItemListener(evt -> {
+            if(evt.getStateChange() == ItemEvent.SELECTED){
+                securityContainerConfiguration.setSelected(true);
+                securityContainerWindowsDPAPI.setSelected(false);
+                securityContainerRegistry.setSelected(false);
+            }
+        });
+
+        securityCipherPanel.add(securityBCFipsAesCipherRButton, "gap 1");
+        securityCipherPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, hmin 10, alignx center");
+        securityCipherPanel.add(securityPBECipherRButton, "gap 1");
+
+        securityContainerPanel.add(securityContainerWindowsDPAPI, "gap 1");
+        securityContainerPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, hmin 10, alignx center");
+        securityContainerPanel.add(securityContainerRegistry, "gap 1");
+        securityContainerPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, hmin 10, alignx center");
+        securityContainerPanel.add(securityContainerConfiguration, "gap 1");
+
         initialLoadPanel.add(initialLoadAllRButton, "gap 1");
         initialLoadPanel.add(new JSeparator(SwingConstants.VERTICAL), "growy, hmin 10, alignx center");
         initialLoadPanel.add(initialLoadLastRButton, "gap 1");
@@ -343,6 +431,15 @@ public class ConnectToDbArea extends JDialog {
         configOtherJPanel.add(retainOlapDataLbl,   "skip");
         configOtherJPanel.add(olapDataDaysRetainTF,    "span, growx, wmin 150");
         olapDataDaysRetainTF.setToolTipText(Labels.getLabel("gui.connection.retain.olap.tooltip"));
+
+        securityLbl.setForeground(LABEL_COLOR);
+        configOtherJPanel.add(securityLbl, "gapbottom 1, span, split 2, aligny center");
+        configOtherJPanel.add(new JSeparator(), "gapleft rel, growx");
+
+        configOtherJPanel.add(securityCipherLbl,   "skip");
+        configOtherJPanel.add(securityCipherPanel,    "span, growx, wmin 100");
+        configOtherJPanel.add(securityContainerLbl,   "skip");
+        configOtherJPanel.add(securityContainerPanel,    "span, growx, wmin 100");
 
         jButtonConnect.addActionListener(e -> {
             if (isOffline.isSelected()){
@@ -490,6 +587,13 @@ public class ConnectToDbArea extends JDialog {
         initialLoadAllRButton.setEnabled(bParameter);
         initialLoadLastRButton.setEnabled(bParameter);
         initialLoadSpinner.setEnabled(bParameter);
+
+        securityBCFipsAesCipherRButton.setEnabled(bParameter);
+        securityPBECipherRButton.setEnabled(bParameter);
+
+        securityContainerWindowsDPAPI.setEnabled(bParameter);
+        securityContainerRegistry.setEnabled(bParameter);
+        securityContainerConfiguration.setEnabled(bParameter);
     }
 
     private void clearProfileFields(){
@@ -503,6 +607,18 @@ public class ConnectToDbArea extends JDialog {
 
         initialLoadAllRButton.setSelected(true);
         initialLoadLastRButton.setSelected(false);
+
+        securityPBECipherRButton.setEnabled(true);
+        securityBCFipsAesCipherRButton.setEnabled(true);
+        securityPBECipherRButton.setSelected(false);
+        securityBCFipsAesCipherRButton.setSelected(false);
+
+        securityContainerRegistry.setEnabled(true);
+        securityContainerConfiguration.setEnabled(true);
+        securityContainerWindowsDPAPI.setEnabled(true);
+        securityContainerRegistry.setSelected(false);
+        securityContainerConfiguration.setSelected(false);
+        securityContainerWindowsDPAPI.setSelected(false);
     }
 
     private void copyConnection(){
@@ -548,12 +664,45 @@ public class ConnectToDbArea extends JDialog {
         if (!olapDataDaysRetainTF.isEnabled()) {
             setOlapDataDaysRetainTF(olapDataDaysRetainTF, Integer.parseInt(connParameters.getOlapRetainDays()));
         }
+
+        if (connParameters.getEncryptionType() != null) {
+            if (EncryptionType.AES.equals(connParameters.getEncryptionType())) {
+                securityBCFipsAesCipherRButton.setSelected(true);
+            }
+            if (EncryptionType.PBE.equals(connParameters.getEncryptionType())) {
+                securityPBECipherRButton.setSelected(true);
+            }
+            securityBCFipsAesCipherRButton.setEnabled(false);
+            securityPBECipherRButton.setEnabled(false);
+        } else {
+            securityBCFipsAesCipherRButton.setSelected(false);
+            securityPBECipherRButton.setSelected(false);
+        }
+
+        if (connParameters.getContainerType() != null) {
+            if (ContainerType.DPAPI.equals(connParameters.getContainerType())) {
+                securityContainerWindowsDPAPI.setSelected(true);
+            }
+            if (ContainerType.REGISTRY.equals(connParameters.getContainerType())) {
+                securityContainerRegistry.setSelected(true);
+            }
+            if (ContainerType.CONFIGURATION.equals(connParameters.getContainerType())) {
+                securityContainerConfiguration.setSelected(true);
+            }
+            securityContainerWindowsDPAPI.setEnabled(false);
+            securityContainerRegistry.setEnabled(false);
+            securityContainerConfiguration.setEnabled(false);
+        } else {
+            securityContainerRegistry.setSelected(false);
+            securityContainerConfiguration.setSelected(false);
+            securityContainerWindowsDPAPI.setSelected(false);
+        }
     }
 
     private void saveData(){
        ConnectionBuilder connParameters = new ConnectionBuilder.Builder(connNameTF.getText())
                 .userName(usernameTF.getText())
-                .password(passwordTF.getText())
+                .password(String.valueOf(passwordTF.getPassword()))
                 .url(urlTF.getText())
                 .jar(jarTF.getText())
                 .profile(String.valueOf((profileBox.getSelectedItem())))
@@ -562,9 +711,29 @@ public class ConnectToDbArea extends JDialog {
                 .initialLoading(initialLoadAllRButton.isSelected() ? "-1" : initialLoadSpinner.getValue().toString())
                 .rawRetainDays(rawDataDaysRetainTF.getText())
                 .olapRetainDays(olapDataDaysRetainTF.getText())
+                .encryptionType(getEncryptionType())
+                .containerType(getContainerType())
                 .build();
 
         configurationManager.saveConnection(connParameters);
+
+        connParameters.cleanPassword();
+    }
+
+    private EncryptionType getEncryptionType() {
+        return securityBCFipsAesCipherRButton.isSelected() ? EncryptionType.AES : EncryptionType.PBE;
+    }
+
+    private ContainerType getContainerType() {
+        if (securityContainerWindowsDPAPI.isSelected()) {
+            return ContainerType.DPAPI;
+        } else if (securityContainerRegistry.isSelected()) {
+            return ContainerType.REGISTRY;
+        } else if (securityContainerConfiguration.isSelected()) {
+            return ContainerType.CONFIGURATION;
+        } else {
+            return ContainerType.CONFIGURATION;
+        }
     }
 
     private void deleteConfig(){
@@ -589,14 +758,14 @@ public class ConnectToDbArea extends JDialog {
         try {
             configurationManager.loadCurrentConfiguration(connNameTF.getText());
 
-            ConnProfile connection = configurationManager.getCurrentConfiguration().getConnProfile();
+            ConfigProfile configProfile = configurationManager.getCurrentConfiguration();
 
-            getFromRemoteAndStore.initConnection(connection);
+            getFromRemoteAndStore.initConnection(configProfile);
             getFromRemoteAndStore.initProfile(configurationManager.getIProfile());
 
             chartDatasetManager.setIProfile(configurationManager.getIProfile());
 
-            monitorDbPanel.setConnProfile(connection);
+            monitorDbPanel.setConnProfile(configProfile.getConnProfile());
             monitorDbPanel.initialize();
 
             getFromRemoteAndStore.loadDataFromRemoteToLocalStore();

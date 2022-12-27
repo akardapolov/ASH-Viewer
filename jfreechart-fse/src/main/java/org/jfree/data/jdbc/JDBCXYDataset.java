@@ -74,15 +74,14 @@ package org.jfree.data.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.jfree.data.Range;
 import org.jfree.data.RangeInfo;
 import org.jfree.data.general.Dataset;
@@ -237,10 +236,10 @@ public class JDBCXYDataset extends AbstractXYDataset
         }
 
         ResultSet resultSet = null;
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
-            statement = con.createStatement();
-            resultSet = statement.executeQuery(query);
+            statement = con.prepareStatement(query);
+            resultSet = statement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
 
             int numberOfColumns = metaData.getColumnCount();

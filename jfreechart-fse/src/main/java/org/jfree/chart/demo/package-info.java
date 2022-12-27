@@ -3,7 +3,7 @@
  * available for download (including source code) with the JFreeChart Developer
  * Guide.  For more information, see:
  * <p>
- * <a href="http://www.object-refinery.com/jfreechart/guide.html" target="_blank">
+ * <a href="http://www.object-refinery.com/jfreechart/guide.html" target="_blank" rel="noopener noreferrer">
  * http://www.object-refinery.com/jfreechart/guide.html
  * </a>
  */
