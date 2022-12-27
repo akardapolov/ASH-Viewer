@@ -1,9 +1,12 @@
 package core.parameter;
 
+import gui.model.ContainerType;
+import gui.model.EncryptionType;
+
 public class ConnectionBuilder {
     private final String connectionName;
     private final String userName;
-    private final String password;
+    private String password;
     private final String url;
     private final String jar;
     private final String profile;
@@ -11,6 +14,8 @@ public class ConnectionBuilder {
     private final String initialLoading;
     private final String rawRetainDays;
     private final String olapRetainDays;
+    private final EncryptionType encryptionType;
+    private final ContainerType containerType;
 
     public String getConnectionName() { return connectionName; }
     public String getUserName() { return userName; }
@@ -22,6 +27,12 @@ public class ConnectionBuilder {
     public String getInitialLoading() { return initialLoading; }
     public String getRawRetainDays() { return rawRetainDays; }
     public String getOlapRetainDays() { return olapRetainDays; }
+    public EncryptionType getEncryptionType() { return encryptionType; }
+    public ContainerType getContainerType() { return containerType; }
+
+    public void cleanPassword() {
+        password = "";
+    }
 
     public static class Builder {
         private final String connectionName;
@@ -34,6 +45,8 @@ public class ConnectionBuilder {
         private String initialLoading;
         private String rawRetainDays;
         private String olapRetainDays;
+        private EncryptionType encryptionType;
+        private ContainerType containerType;
 
         public Builder(String connectionName) {
             this.connectionName = connectionName;
@@ -48,6 +61,8 @@ public class ConnectionBuilder {
         public Builder initialLoading(String il) { initialLoading = il; return this; }
         public Builder rawRetainDays(String raw) { rawRetainDays = raw; return this; }
         public Builder olapRetainDays(String raw) { olapRetainDays = raw; return this; }
+        public Builder encryptionType(EncryptionType raw) { encryptionType = raw; return this; }
+        public Builder containerType(ContainerType raw) { containerType = raw; return this; }
 
         public ConnectionBuilder build() {
             return new ConnectionBuilder(this);
@@ -65,6 +80,8 @@ public class ConnectionBuilder {
         initialLoading = builder.initialLoading;
         rawRetainDays = builder.rawRetainDays;
         olapRetainDays = builder.olapRetainDays;
+        encryptionType = builder.encryptionType;
+        containerType = builder.containerType;
     }
 
 }

@@ -2,6 +2,7 @@ package core.processing;
 
 import com.sleepycat.persist.EntityCursor;
 import config.Labels;
+import config.profile.ConfigProfile;
 import config.profile.ConnProfile;
 import config.profile.SqlColProfile;
 import core.manager.ColorManager;
@@ -20,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -127,11 +127,11 @@ public class GetFromRemoteAndStore {
         this.olapDAO = olapDAO;
     }
 
-    public void initConnection(ConnProfile connProfile) throws SQLException{
+    public void initConnection(ConfigProfile configProfile) throws SQLException{
         this.chartDatasetManager.setGetFromRemoteAndStore(this);
 
-        this.connProfile = connProfile;
-        this.remoteDBManager.init(connProfile);
+        this.connProfile = configProfile.getConnProfile();
+        this.remoteDBManager.init(configProfile);
         this.initializeConnection();
     }
 
@@ -584,13 +584,13 @@ public class GetFromRemoteAndStore {
     }
 
     private List<SqlColProfile> loadSqlMetaData(String sqlName, String sqlText) {
-        Statement s = null;
+        PreparedStatement s = null;
         ResultSet rs = null;
         List<SqlColProfile> sqlColProfileList = new ArrayList<>();
 
         try {
-            s = connection.createStatement();
-            s.executeQuery(sqlText);
+            s = connection.prepareStatement(sqlText);
+            s.executeQuery();
             rs = s.getResultSet();
             ResultSetMetaData rsmd = rs.getMetaData();
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
