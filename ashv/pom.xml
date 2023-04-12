@@ -26,9 +26,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jolira</groupId>
-            <artifactId>onejar-maven-plugin</artifactId>
-            <version>1.4.4</version>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.5.0</version>
         </dependency>
     </dependencies>
 
@@ -98,16 +98,25 @@
             </plugin>
 
             <plugin>
-                <groupId>com.jolira</groupId>
-                <artifactId>onejar-maven-plugin</artifactId>
-                <version>1.4.4</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.5.0</version>
                 <configuration>
-                    <mainClass>Main</mainClass>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>Main</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>one-jar</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
