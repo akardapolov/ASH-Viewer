@@ -1,17 +1,21 @@
 package config.dagger;
 
-import java.util.Locale;
-import java.util.TreeMap;
-import java.util.prefs.Preferences;
-
-import org.yaml.snakeyaml.Yaml;
-
 import config.FileConfig;
 import config.GUIConfig;
 import config.profile.ConfigProfile;
 import core.manager.ColorManager;
 import gui.events.GlobalKeyBindings;
+import java.util.Locale;
+import java.util.TreeMap;
+import java.util.prefs.Preferences;
 import lombok.Getter;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 public final class Config {
     private Preferences preferences;
@@ -32,7 +36,14 @@ public final class Config {
         globalKeyBindings = new GlobalKeyBindings();
         colorManager = new ColorManager();
 
-        yaml = new Yaml();
+        Constructor constructor = new Constructor(new LoaderOptions());
+        constructor.addTypeDescription(new TypeDescription(ConfigProfile.class, "!ConfigProfile"));
+
+        DumperOptions dumperOptions = new DumperOptions();
+        Representer representer = new Representer(dumperOptions);
+        representer.addClassTag(ConfigProfile.class, new Tag("!ConfigProfile"));
+        yaml = new Yaml(constructor, representer);
+
         configTreeMap = new TreeMap<>();
     }
 
