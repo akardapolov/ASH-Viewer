@@ -1,5 +1,6 @@
 package core.manager;
 
+import com.github.windpapi4j.HResultException;
 import com.github.windpapi4j.InitializationFailedException;
 import com.github.windpapi4j.WinAPICallFailedException;
 import com.github.windpapi4j.WinDPAPI;
@@ -262,7 +263,13 @@ public class ConfigurationManager {
       ContainerType containerType = configProfile.getContainerType();
 
       if (encryptionType == null && containerType == null) {
-        return passConfig.decrypt(configProfile.getConnProfile().getPassword());
+          try {
+              return passConfig.decrypt(configProfile.getConnProfile().getPassword());
+          } catch (Exception e) {
+              log.error("Config name: " + configProfile.getConfigName());
+              log.error("The most likely reason is running the configuration on another computer, delete or recreate it");
+              throw new RuntimeException(e);
+          }
       }
 
       String password = "";
@@ -303,7 +310,9 @@ public class ConfigurationManager {
                 }
 
               } catch (InitializationFailedException | WinAPICallFailedException e) {
-                throw new RuntimeException(e);
+                  log.error("Config name: " + configProfile.getConfigName());
+                  log.error("The most likely reason is running the configuration on another computer, delete or recreate it");
+                  throw new RuntimeException(e);
               }
             } else {
               throw new RuntimeException("Windows Data Protection API (DPAPI) as secure container is not supported");
