@@ -4,8 +4,6 @@ ASH Viewer provides graphical view of active session history data within the dat
 
 Supported databases: Oracle, PostgreSQL
 
-![ASHViewerMainPage](media/main.png)
-
 ## Table of contents
 
 - [Quick start](#quick-start)
@@ -18,26 +16,28 @@ Supported databases: Oracle, PostgreSQL
 - [License](#license)
 - [Contact](#contact)
 
+![ASH-Viewer](media/main.png)
+
 ## Quick start
 - [Download the latest binary file.](https://github.com/akardapolov/ASH-Viewer/releases)
 - Download JDBC driver for your database ([Oracle](https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html), [PostgreSQL](https://jdbc.postgresql.org/download.html))
 - Unpack the binary archive and run ASH-Viewer.jar
 - Open connection dialog and populate them with data (URL for Oracle database: **jdbc:oracle:thin:@host:port:SID**)
 
- ![ASHViewerConnectionDialog](media/connection.png)
+ ![ASH-Viewer connection dialog](media/connection.png)
 - Press Connect button and start to monitor your system and highlight a range to show details.
 
- ![ASHViewerTop](media/top.png)
+ ![ASH-Viewer Top activity](media/top.png)
 - Review Raw data interface to gain a deep insight into active session history
 
-![ASHViewerRaw](media/raw.png)
+![ASH-Viewer raw data](media/raw.png)
 - Double-click on Top sql & sessions interface to get window with ASH details by sql or session ID
 
-   i. SQL
- ![ASHViewerSql](media/sql.png)
+ ![ASH-Viewer sql details](media/sql.png)
 
-   ii. Session
- ![ASHViewerSession](media/session.png)
+ ![ASH-Viewer session details](media/session.png)
+
+[Return to Table of Contents](#table-of-contents)
 
 ## How it works
 Active Session History (ASH) is a view in Oracle database that maps a circular buffer in the SGA.
@@ -51,13 +51,40 @@ ASH Viewer provides graphical Top Activity, similar Top Activity analysis and Dr
     
 For Oracle standard edition and PostgreSQL, ASH Viewer emulate ASH, storing active session data on local storage.
   
-** Please note that v$active_session_history is a part of the Oracle Diagnostic Pack and requires a purchase of the ODP license.**
+Please note that v$active_session_history is a part of the Oracle Diagnostic Pack and requires a purchase of the ODP license.
+
+[Return to Table of Contents](#table-of-contents)
 
 ## Build
 
-```shell
-mvn clean package -DskipTests=true
-```
+To compile the application into an executable jar file, do the following:
+
+1. Install JDK version 11 or higher, Maven and Git on your local computer.
+    ```shell
+    java -version  
+    mvn -version
+    git --version 
+    ``` 
+2. Download the source codes of the application to your local computer using Git
+
+    ```shell
+    git clone <url source code storage system>
+    cd ASH-Viewer
+    ```
+
+3. Compile the project using Maven
+    ```shell
+    mvn clean compile
+   ```
+
+4. Execute the Maven command to build an executable jar file with tests running
+    ```shell
+     mvn clean package -DskipTests=true 
+    ```
+
+An executable jar file like `ashv-<VERSION>-SNAPSHOT-jar-with-dependencies.jar` will be located at the relative path ashv/target
+
+[Return to Table of Contents](#table-of-contents)
 
 ## Security
 Encryption and Container settings provide security for database passwords (go to Other tab -> Security block)
@@ -74,17 +101,23 @@ It's the way to store your encrypted data
 - **Configuration** - All data in local configuration file - weak, not recommended;
 
 ### Recommendations 
-- use AES encryption and Windows Data Protection API (DPAPI) whenever possible;
-- do not use PBE copied configuration on another host, you need to change password with a new secret key (always do it for password leak prevention).
+- use **AES** encryption and Windows Data Protection API (**DBAPI**) whenever possible;
+- do not use **PBE** copied configuration on another host, you need to change password with a new secret key (always do it for password leak prevention).
+
+[Return to Table of Contents](#table-of-contents)
 
 ## Bugs and feature requests
-Have a bug or a feature request? [Please open an issue](https://github.com/akardapolov/ASH-Viewer/issues)  
-  
+If you found a bug in the code or have a suggestion for improvement, [Please open an issue](https://github.com/akardapolov/ASH-Viewer/issues)  
+
+[Return to Table of Contents](#table-of-contents)
+ 
 ## Downloads
 - [Current version](https://github.com/akardapolov/ASH-Viewer/releases)
 - [Old release 3.5.1 on github.com](https://github.com/akardapolov/ASH-Viewer/releases/tag/v3.5.1)
 - [Mirror on sourceforge.net](https://sourceforge.net/projects/ashv/files/)   
-  
+
+[Return to Table of Contents](#table-of-contents)
+
 ## Based on
 - [JFreeChart by David Gilbert](http://www.jfree.org)
 - [E-Gantt Library by Keith Long](https://github.com/akardapolov/ASH-Viewer/tree/master/egantt)
@@ -94,10 +127,16 @@ Have a bug or a feature request? [Please open an issue](https://github.com/akard
 - [AES cipher by Bouncy Castle](https://www.bouncycastle.org/)
 - [Windows DPAPI Wrapper by @peter-gergely-horvath](https://github.com/peter-gergely-horvath/windpapi4j)
 
+[Return to Table of Contents](#table-of-contents)
+
 ## License
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
 
   Code released under the GNU General Public License v3.0
-  
+
+[Return to Table of Contents](#table-of-contents)
+
 ## Contact
   Created by [@akardapolov](mailto:akardapolov@gmail.com) - feel free to contact me!
+
+[Return to Table of Contents](#table-of-contents)
