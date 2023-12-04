@@ -100,7 +100,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.0</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -109,6 +109,9 @@
                         <manifest>
                             <mainClass>Main</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>bc-fips-1.0.2.4.jar</Class-Path>
+                        </manifestEntries>
                     </archive>
                 </configuration>
                 <executions>
